@@ -1,0 +1,63 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<jsp:useBean class="com.dai.trust.services.ui.MainMenuService" id="menu" scope="session"></jsp:useBean>
+<jsp:useBean class="com.dai.trust.common.RolesConstants" id="roles" scope="session"></jsp:useBean>
+
+<c:if test="${not empty pageContext.request.userPrincipal}">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <ul class="nav navbar-nav">
+                <li class='${menu.getItemClassByPath(pageContext.request, "/index.jsp")}'>
+                    <a href="${pageContext.request.contextPath}/index.jsp">
+                        <i class="glyphicon glyphicon-th-large"></i> <fmt:message key="MENU_HOME" />
+                    </a>
+                </li>
+                <c:if test="${pageContext.request.isUserInRole(roles.ADMIN_ADMIN)}">
+                    <li class='${menu.getItemClassByPath(pageContext.request, "/admin/")}'>
+                        <a href="#"><i class="glyphicon glyphicon-wrench"></i> <fmt:message key="MENU_ADMIN" /> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="${pageContext.request.contextPath}/admin/Settings.jsp">
+                                    <i class="icon-cogs"></i> <fmt:message key="MENU_SETTINGS" />
+                                </a> 
+                            </li>
+
+                            <li class="divider"></li>
+
+                            <li>
+                                <a href="#"><i class="glyphicon glyphicon-eye-open"></i> <fmt:message key="MENU_SECURITY" /> <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="${pageContext.request.contextPath}/admin/Groups.jsp">
+                                            <i class="icon-group"></i> <fmt:message key="MENU_GROUPS" />
+                                        </a> 
+                                    </li>
+                                    <li>
+                                        <a href="${pageContext.request.contextPath}/admin/Users.jsp">
+                                            <i class="glyphicon glyphicon-user"></i> <fmt:message key="MENU_USERS" />
+                                        </a> 
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <c:if test="${pageContext.request.isUserInRole(roles.ADMIN_REF_DATA_MANAGER)}">
+                                <li class="divider"></li>
+
+                                <li>
+                                    <a href="#"><i class="glyphicon glyphicon-th-list"></i> <fmt:message key="MENU_REF_DATA" /> <span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=DocumentType">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_DOC_TYPES" />
+                                            </a> 
+                                        </li>
+                                    </ul>
+                                </li>
+                            </c:if>
+                        </ul>
+                    </li>
+                </c:if>
+            </ul>
+        </div>
+    </nav>
+</c:if>

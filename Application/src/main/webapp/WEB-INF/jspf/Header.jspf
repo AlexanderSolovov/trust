@@ -1,0 +1,35 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<jsp:useBean class="java.lang.String" id="userFullName" scope="session"></jsp:useBean>
+
+<%
+    if (session.getAttribute(com.dai.trust.services.system.UserService.SESSION_USER_FULLNAME) == null || session.getAttribute(com.dai.trust.services.system.UserService.SESSION_USER_FULLNAME).equals("")) {
+        if (request.getUserPrincipal() != null) {
+            com.dai.trust.services.system.UserService userService = new com.dai.trust.services.system.UserService();
+            com.dai.trust.models.system.User user = userService.getUser(request.getUserPrincipal().getName());
+            if (user != null) {
+                session.setAttribute(userService.SESSION_USER_FULLNAME, user.getFullName());
+            }
+        }
+    }
+%>
+
+<div id="PageHeader">
+    <div id="PageHeaderCaption">
+        <fmt:message key="GENERAL_HEADER_CAPTION" /> <span id="Version">v<fmt:message key="GENERAL_VERSION" /></span>
+    </div>
+    <div id="PageHeaderLogin">
+        <span id="languageBarWrapper">
+            <%@include file="LanguageBar.jspf" %>
+        </span>
+        <c:if test="${not empty pageContext.request.userPrincipal}">
+            <span class="glyphicon glyphicon-user"></span>&nbsp;
+            ${userFullName}
+            &nbsp;
+            <a href="${pageContext.request.contextPath}/logout" class="WhiteLink">
+                <i class="glyphicon glyphicon-log-out"></i>
+            </a>
+        </c:if>
+    </div>
+</div>
+<div class="clearfix"></div>

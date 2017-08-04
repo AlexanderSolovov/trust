@@ -1,0 +1,57 @@
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/bootstrap/bootstrap.min.css">
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/bootstrap/bootstrap-theme.min.css">
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/smartmenus/jquery.smartmenus.bootstrap.css">
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/confirm/jquery-confirm.min.css">
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/jgrowl/jquery.jgrowl.min.css">
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/datatables/dataTables.bootstrap.min.css">
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
+
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/jgrowl/jquery.jgrowl.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/blockUI/jquery.blockUI.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/handlebars/handlebars.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/smartmenus/jquery.smartmenus.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/smartmenus/jquery.smartmenus.bootstrap.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/confirm/jquery-confirm.min.js"></script>
+
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/jquery.i18n.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/jquery.i18n.messagestore.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/jquery.i18n.fallbacks.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/jquery.i18n.parser.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/jquery.i18n.emitter.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/jquery.i18n.emitter.bidi.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/jquery.i18n.language.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/i18n/CLDRPluralRuleParser.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/i18n/en.js"></script>
+
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/datatables/datatables.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/common/DatatablesUtility.js"></script>
+<%
+    Object lang = session.getAttribute("langCode");
+    if (lang != null && !lang.toString().equalsIgnoreCase("en")) {
+        String filePath = application.getRealPath("/js/i18n/" + session.getAttribute("langCode") + ".js");
+        java.io.File file = new java.io.File(filePath);
+        if (file.exists()) {
+%>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/i18n/${langCode}.js"></script>
+<%
+        }
+    }
+%>
+
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/common/DateUtility.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/common/Global.js"></script>
+
+<c:if test="${empty ltr ? false : not ltr}">
+    <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/rtl.css" />
+</c:if>
+
+<link rel="shortcut icon" href="${pageContext.request.contextPath}/images/favicon.ico" type="image/x-icon">
+<link rel="icon" href="${pageContext.request.contextPath}/images/favicon.ico" type="image/x-icon">
+
+<!--[if lt IE 9]>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/html5.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/respond.min.js"></script>
+<![endif]-->

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/trust">
+  <Realm className="org.apache.catalina.realm.DataSourceRealm" dataSourceName="jdbc/trust" debug="99" roleNameCol="rolename" userCredCol="passwd" userNameCol="username" userRoleTable="user_role" userTable="appuser">
+    <CredentialHandler algorithm="SHA-256" className="org.apache.catalina.realm.MessageDigestCredentialHandler"/>
+  </Realm>
+</Context>

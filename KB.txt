@@ -1,0 +1,22 @@
+
+For GlassFish 4.1 there is a need to update jboss.logging jar file.
+1) Download jboss-logging-3.3.0.Final.jar from Maven web-site at http://central.maven.org/maven2/org/jboss/logging/jboss-logging/3.3.0.Final/jboss-logging-3.3.0.Final.jar or get from installation folder.
+2) Stop GlassFish server
+3) Open modules folder of GlassFish (e.g. C:\glassfish\glassfish\modules)
+4) Delete jboss-logging.jar
+5) Copy downloaded jboss-logging-3.3.0.Final.jar into modules
+6) Restart GlassFish
+
+#######
+
+For autodeploying from NetBeans to tomcat, admin user must have appropriate roles manager-script and admin, configured in /conf/tomcat-users.xml. Below is an example for user admin:
+
+<user username="admin" password="admin" roles="admin-gui,manager-gui,manager-script,admin" />
+
+#######
+
+For GlassFish jdbc connection in persistence.xml can be configured to reference only jdbc name (e.g. jdbc/trust). For Tomcat it's required to put full path, such as java:/comp/env/jdbc/trust.
+
+#######
+
+For Tomcat jdbc realm is configured in the META-INF/contex.xml file. It allows to use this realm only for the current application. For GlassFish such config is not needed and it's enough to reference jdbc realm (created in GF) in web.xml form authentication part.
