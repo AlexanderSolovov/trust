@@ -5,6 +5,32 @@ Global.LANG = "en";
 Global.LANGUAGES = [];
 Global.APP_ROOT = "/";
 Global.BLOCK_TIMEOUT;
+Global.CACHE = {};
+Global.STATUS = {
+    active: "active",
+    approved: "approved",
+    rejected: "rejected",
+    current: "current",
+    pending: "pending",
+    historic: "historic"
+};
+
+/** 
+ * Returns cache object by provide key value. 
+ * @param key Cache object key
+ */
+function getFromCache(key) {
+    return Global.CACHE[key];
+}
+
+/** 
+ * Records object to cache.
+ * @param key Cache object key
+ * @param val Value to record
+ */
+function saveToCache(key, val) {
+    return Global.CACHE[key] = val;
+}
 
 function createObject(proto) {
     function ctor() {
@@ -28,9 +54,11 @@ function makeDivWarning(objId) {
     $("#" + objId).addClass("has-warning has-feedback");
 }
 
-function bindDateFields(dtFormat) {
+function bindDateFields() {
+    var dtFormat = "dd/mm/yy";
+    var dtDisplyaFormat = "dd/mm/yyyy";
     $(".DateField").datepicker({dateFormat: dtFormat});
-    $(".DateField").attr("placeholder", dtFormat.toUpperCase());
+    $(".DateField").attr("placeholder", dtDisplyaFormat.toUpperCase());
     $(".TimeField").attr("placeholder", "HH:MM");
 }
 
@@ -376,6 +404,10 @@ function isNull(obj) {
     return obj === null || typeof obj === 'undefined';
 }
 
+function isFunction(func){
+    return func !== null && typeof func === "function";
+}
+
 /**
  * Splits provided array into rows with a given number of columns. Produces output like Rows[{columns: [col1, col2]},{columns: [col1, col2]}]
  * @param arr Array of objects to split into rows.
@@ -562,6 +594,33 @@ function restrictInput(e, pattern) {
                     e.keyCode === 39) && e.charCode !== e.keyCode));
 }
 
+/** 
+ * Validates control and throws error if control id and target parameters are not provided. 
+ * @param controlId Control ID to verify
+ * @param targetElementId Target element to verify
+ */
+function validateControl(controlId, targetElementId) {
+    if (controlId === null || typeof controlId === 'undefined') {
+        throw "Control id is not provdided";
+    }
+    if (targetElementId === null || typeof targetElementId === 'undefined') {
+        throw "Target element id is not provdided";
+    }
+}
+
+/**
+ * Populates select list with provided values. List of values must be one of the reference data type.
+ * @param valuesList List containing reference data type objects
+ * @param controlId Select list id.
+ */
+function populateSelectList(valuesList, controlId) {
+    if (!isNull(valuesList) && $("#" + controlId + " > option").length < 1) {
+        $.each(valuesList, function (i, item) {
+            $("#" + controlId).append($("<option />").val(item.code).text(item.val));
+        });
+    }
+}
+
 // On page load
 $(function () {
     // localization
@@ -580,6 +639,11 @@ $(function () {
                 }
             });
     $("[rel='tooltip']").tooltip();
+
+    // Sign up for bootstrap tab click to adjust datatables components.
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
+    });
 
     // Handle ajax events
     $(document)

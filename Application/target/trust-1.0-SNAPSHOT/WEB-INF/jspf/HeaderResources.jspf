@@ -4,9 +4,11 @@
 <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/confirm/jquery-confirm.min.css">
 <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/jgrowl/jquery.jgrowl.min.css">
 <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/datatables/dataTables.bootstrap.min.css">
+<link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/libs/jquery-ui/jquery-ui.min.css">
 <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/main.css">
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/ui/jquery-ui.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/bootstrap/bootstrap.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/jgrowl/jquery.jgrowl.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/jquery/blockUI/jquery.blockUI.js"></script>

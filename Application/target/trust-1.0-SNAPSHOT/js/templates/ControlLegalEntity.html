@@ -1,0 +1,69 @@
+<script type="text/javascript">var {{id}};</script>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active">
+        <a href="#{{id}}_main" aria-controls="{{id}}_main" role="tab" data-toggle="tab">
+            <i class="icon-file"></i> <span data-i18n="gen-main"></span>
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#{{id}}_documents" aria-controls="{{id}}_documents" role="tab" data-toggle="tab">
+            <i class="icon-copy"></i> <span data-i18n="doc-documents"></span>
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="{{id}}_main">
+        <div class="tabContainer">
+            <div class="row">
+                <div class="col-md-6">
+                    <label data-i18n="gen-name"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <input id="{{id}}_txtLeName" class="form-control" maxlength="250" autocomplete="off">
+                </div>
+                <div class="col-md-6">
+                    <label data-i18n="gen-type"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <select id="{{id}}_cbxLeTypes" class="form-control"></select>
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label data-i18n="le-reg-num"></label>
+                    <input id="{{id}}_txtLeRegNumber" class="form-control" maxlength="40" autocomplete="off">
+                </div>
+                <div class="col-md-6">
+                    <label data-i18n="le-reg-date"></label>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-calendar"></i>
+                        </span>
+                        <input id="{{id}}_txtLeRegDate" class="form-control DateField" maxlength="10" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <label data-i18n="person-mobile-num"></label>
+                    <input id="{{id}}_txtLeMobileNumber" class="form-control" maxlength="20" autocomplete="off">
+                </div>
+                <div class="col-md-6">
+                    <label data-i18n="gen-address"></label>
+                    <input id="{{id}}_txtLeAddress" class="form-control" maxlength="255" autocomplete="off">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="{{id}}_documents">
+        <div class="tabContainer" style="max-width: 1100px;">
+            <div id="{{id}}_divLeDocs"></div>
+        </div>
+    </div>
+</div>

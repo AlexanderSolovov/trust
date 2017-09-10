@@ -6,9 +6,9 @@
 
 <t:BasePage>
     <jsp:attribute name="title">
-        <fmt:message key="HOMEPAGE_TITLE" />
+        <fmt:message key="MENU_DASHBOARD" />
     </jsp:attribute>
     <jsp:body>
-        <h1><fmt:message key="HOMEPAGE_TITLE" /></h1>
+        <h1><fmt:message key="MENU_DASHBOARD" /></h1>
     </jsp:body>
 </t:BasePage>

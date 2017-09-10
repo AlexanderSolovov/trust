@@ -1,0 +1,122 @@
+<script type="text/javascript">var {{id}};</script>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active">
+        <a href="#{{id}}_main" aria-controls="{{id}}_main" role="tab" data-toggle="tab">
+            <i class="icon-file"></i> <span data-i18n="gen-main"></span>
+        </a>
+    </li>
+    <li role="presentation" id="{{id}}_tabLinkPhoto">
+        <a href="#{{id}}_tabPhoto" aria-controls="{{id}}_tabPhoto" role="tab" data-toggle="tab">
+            <i class="glyphicon glyphicon-camera"></i> <span data-i18n="person-photo"></span>
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#{{id}}_documents" aria-controls="{{id}}_documents" role="tab" data-toggle="tab">
+            <i class="icon-copy"></i> <span data-i18n="doc-documents"></span>
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="{{id}}_main">
+        <div class="tabContainer">
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="person-first-name"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <input id="{{id}}_txtFirstName" class="form-control" maxlength="250" autocomplete="off">
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-middle-name"></label>
+                    <input id="{{id}}_txtMiddleName" class="form-control" maxlength="250" autocomplete="off">
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-last-name"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <input id="{{id}}_txtLastName" class="form-control" maxlength="250" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="ref-id-type"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <select id="{{id}}_cbxIdTypes" class="form-control"></select>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-id-number"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <input id="{{id}}_txtIdNumber" class="form-control" maxlength="40" autocomplete="off">
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-dob"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-calendar"></i>
+                        </span>
+                        <input id="{{id}}_txtDob" class="form-control DateField" maxlength="10" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="ref-gender"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <select id="{{id}}_cbxGenders" class="form-control"></select>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="ref-citizenship"></label>
+                    <i class="glyphicon glyphicon-required"></i>
+                    <select id="{{id}}_cbxCitezenships" class="form-control"></select>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="ref-marital-status"></label>
+                    <select id="{{id}}_cbxMaritalStatuses" class="form-control"></select>
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="person-mobile-num"></label>
+                    <input id="{{id}}_txtPersonMobileNumber" class="form-control" maxlength="20" autocomplete="off">
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="gen-address"></label>
+                    <input id="{{id}}_txtPersonAddress" class="form-control" maxlength="255" autocomplete="off">
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-is-resident"></label>
+                    <br>
+                    <input type="checkbox" id="{{id}}_chbxResident">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="{{id}}_tabPhoto">
+        <div class="tabContainer" style="min-height: 200px;">
+            <div id="{{id}}_photoViewPanel" style="display: block;">
+                <img src="" id="{{id}}_photo" class="photo">
+                <br>
+                <a href="#" id="{{id}}_lnkDeletePhoto" onclick="{{id}}.deletePhoto()"><i class="glyphicon glyphicon-remove"></i> <span data-i18n="gen-delete"></span></a>
+            </div>
+            <div id="{{id}}_photoUploadPanel" style="display: none;">
+                <input type="file" id="{{id}}_photoFile" accept=".jpg,.jpeg,.png,.gif,.tif,.tiff"> 
+            </div>
+        </div>
+    </div>
+    <div role="tabpanel" class="tab-pane" id="{{id}}_documents">
+        <div style="max-width: 1100px;min-height: 200px;">
+            <div id="{{id}}_divPersonDocs"></div>
+        </div>
+    </div>
+</div>

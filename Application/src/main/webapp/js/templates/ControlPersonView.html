@@ -1,0 +1,118 @@
+<script type="text/javascript">var {{id}};</script>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active">
+        <a href="#{{id}}_main" aria-controls="{{id}}_main" role="tab" data-toggle="tab">
+            <i class="icon-file"></i> <span data-i18n="gen-main"></span>
+        </a>
+    </li>
+    <li role="presentation" id="{{id}}_tabLinkPhoto">
+        <a href="#{{id}}_tabPhoto" aria-controls="{{id}}_tabPhoto" role="tab" data-toggle="tab">
+            <i class="glyphicon glyphicon-camera"></i> <span data-i18n="person-photo"></span>
+        </a>
+    </li>
+    <li role="presentation">
+        <a href="#{{id}}_documents" aria-controls="{{id}}_documents" role="tab" data-toggle="tab">
+            <i class="icon-copy"></i> <span data-i18n="doc-documents"></span>
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="{{id}}_main">
+        <div class="tabContainer">
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="person-first-name"></label>
+                    <br>
+                    <span id="{{id}}_lblFirstName"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-middle-name"></label>
+                    <br>
+                    <span id="{{id}}_lblMiddleName"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-last-name"></label>
+                    <br>
+                    <span id="{{id}}_lblLastName"></span>
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="ref-id-type"></label>
+                    <br>
+                    <span id="{{id}}_lblIdType"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-id-number"></label>
+                    <br>
+                    <span id="{{id}}_lblIdNumber"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-dob"></label>
+                    <br>
+                    <span id="{{id}}_lblDob"></span>
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="ref-gender"></label>
+                    <br>
+                    <span id="{{id}}_lblGender"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="ref-citizenship"></label>
+                    <br>
+                    <span id="{{id}}_lblCitezenship"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="ref-marital-status"></label>
+                    <br>
+                    <span id="{{id}}_lblMaritalStatus"></span>
+                </div>
+            </div>
+
+            <div class="splitter"></div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <label data-i18n="person-mobile-num"></label>
+                    <br>
+                    <span id="{{id}}_lblPersonMobileNumber"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="gen-address"></label>
+                    <br>
+                    <span id="{{id}}_lblPersonAddress"></span>
+                </div>
+                <div class="col-md-4">
+                    <label data-i18n="person-is-resident"></label>
+                    <br>
+                    <span id="{{id}}_lblResident"><i class="glyphicon glyphicon-ok"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="{{id}}_tabPhoto">
+        <div class="tabContainer" style="min-height: 200px;">
+            <div id="{{id}}_photoViewPanel" style="display: block;">
+                <img src="" id="{{id}}_photo" class="photo">
+            </div>
+            <span id="{{id}}_lblNoPhoto" style="display: none;"></span>
+        </div>
+    </div>
+    
+    <div role="tabpanel" class="tab-pane" id="{{id}}_documents">
+        <div style="max-width: 1100px;min-height: 200px;">
+            <div id="{{id}}_divPersonDocs"></div>
+        </div>
+    </div>
+</div>

@@ -2,11 +2,13 @@ package com.dai.trust.services.system;
 
 import com.dai.trust.common.MessageProvider;
 import com.dai.trust.common.MessagesKeys;
+import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.MultipleTrustException;
 import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.system.Setting;
 import com.dai.trust.services.AbstractService;
+import java.io.File;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 
@@ -16,6 +18,9 @@ import javax.servlet.http.HttpSession;
 public class SettingsService extends AbstractService {
 
     public final static String SETTING_VERSION = "version";
+    public final static String SETTING_MEDIA_PATH = "media-path";
+    public final static String SETTING_MAX_FILE_SIZE = "max-file-size";
+    public final static String SETTING_FILE_EXTENSIONS = "file-extensions";
 
     public SettingsService() {
         super();
@@ -40,6 +45,44 @@ public class SettingsService extends AbstractService {
         return getById(Setting.class, id, false);
     }
 
+    /** 
+     * Returns folder path, where all document files are stored.
+     * @return  
+     */
+    public String getMediaPath(){
+        if(SharedData.getSession() != null){
+            Object tmpPath = SharedData.getSession().getAttribute(SETTING_MEDIA_PATH);
+            if(tmpPath != null && !StringUtility.isEmpty(tmpPath.toString())){
+                return tmpPath.toString();
+            }
+        }
+        
+        String mediaPath = SharedData.getAppPath() + "/../trust_files";
+        Setting settgingPath = getSetting(SETTING_MEDIA_PATH);
+        
+        if(settgingPath != null){
+            if(new File(settgingPath.getVal()).isAbsolute()){
+                mediaPath = settgingPath.getVal();
+            } else {
+                mediaPath = SharedData.getAppPath() + "/" + settgingPath.getVal();
+            }
+        }
+        
+        // Save to session
+        if(SharedData.getSession() != null){
+            SharedData.getSession().setAttribute(SETTING_MEDIA_PATH, mediaPath);
+        }
+        return mediaPath;
+    }
+    
+    private String getMediaPathFromSetting(){
+        Setting settgingPath = getSetting(SETTING_MEDIA_PATH);
+        if(settgingPath != null){
+            return settgingPath.getVal();
+        }
+        return "";
+    }
+    
     /**
      * Saves setting to the database
      *

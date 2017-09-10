@@ -6,8 +6,16 @@ import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.ExceptionFactory;
 import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.AbstractRefDataEntity;
+import com.dai.trust.models.refdata.AppType;
+import com.dai.trust.models.refdata.AppTypeGroup;
+import com.dai.trust.models.refdata.Citizenship;
 import com.dai.trust.models.refdata.DocumentType;
+import com.dai.trust.models.refdata.Gender;
+import com.dai.trust.models.refdata.IdType;
 import com.dai.trust.models.refdata.Language;
+import com.dai.trust.models.refdata.LegalEntityType;
+import com.dai.trust.models.refdata.MaritalStatus;
+import com.dai.trust.models.refdata.PartyStatus;
 import com.dai.trust.services.refdata.RefDataService;
 import com.dai.trust.ws.filters.Authenticated;
 import com.dai.trust.ws.filters.Authorized;
@@ -35,8 +43,16 @@ public class RefDataResource extends AbstractResource {
     public RefDataResource() {
         super();
         REF_DATA_CLASSES = new HashMap<>();
-        REF_DATA_CLASSES.put("DocumentType", DocumentType.class);
-        REF_DATA_CLASSES.put("Language", Language.class);
+        REF_DATA_CLASSES.put(DocumentType.class.getSimpleName(), DocumentType.class);
+        REF_DATA_CLASSES.put(Language.class.getSimpleName(), Language.class);
+        REF_DATA_CLASSES.put(AppTypeGroup.class.getSimpleName(), AppTypeGroup.class);
+        REF_DATA_CLASSES.put(AppType.class.getSimpleName(), AppType.class);
+        REF_DATA_CLASSES.put(Gender.class.getSimpleName(), Gender.class);
+        REF_DATA_CLASSES.put(IdType.class.getSimpleName(), IdType.class);
+        REF_DATA_CLASSES.put(MaritalStatus.class.getSimpleName(), MaritalStatus.class);
+        REF_DATA_CLASSES.put(PartyStatus.class.getSimpleName(), PartyStatus.class);
+        REF_DATA_CLASSES.put(Citizenship.class.getSimpleName(), Citizenship.class);
+        REF_DATA_CLASSES.put(LegalEntityType.class.getSimpleName(), LegalEntityType.class);
     }
 
     /**
@@ -150,7 +166,7 @@ public class RefDataResource extends AbstractResource {
     @POST
     @Produces("application/json; charset=UTF-8")
     @Path(value = "save/{refType}")
-    @Authorized(roles = RolesConstants.ADMIN_REF_DATA_MANAGER)
+    @Authorized(roles = RolesConstants.MANAGE_REF_DATA)
     public String saveRecord(@PathParam(value = LANG_CODE) String langCode, 
             @PathParam(value = "refType") String refType,
             String json) {
@@ -184,7 +200,7 @@ public class RefDataResource extends AbstractResource {
     @DELETE
     @Produces("application/json; charset=UTF-8")
     @Path(value = "delete/{refType}/{code}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String deleteRecord(@PathParam(value = LANG_CODE) String langCode,
             @PathParam(value = "refType") String refType,
             @PathParam(value = "code") String code) {

@@ -86,4 +86,49 @@ public class MessagesKeys {
     
     /** Database version does not match system version. Sync system and database changes. */
     public static final String ERR_VERSIONS_MISMATCH = "ERR_VERSIONS_MISMATCH";
+    
+    /**
+     * File must be attached.
+     */
+    public static final String ERR_FILE_EMPTY = "ERR_FILE_EMPTY";
+    
+    /**
+     * File size exceeds allowed limit of {0}KB.
+     */
+    public static final String ERR_FILE_TOO_BIG = "ERR_FILE_TOO_BIG";
+    
+    /**
+     * File type is not allowed. Allowed types are {0}
+     */
+    public static final String ERR_FILE_RESTRICTED_TYPE = "ERR_FILE_RESTRICTED_TYPE";
+    
+    /**
+     * Failed to read file {0}.
+     */
+    public static final String ERR_FILE_FAILED_READING = "ERR_FILE_FAILED_READING";
+    
+    /**
+     * Failed to save file {0}.
+     */
+    public static final String ERR_FILE_FAILED_SAVING = "ERR_FILE_FAILED_SAVING";
+    
+    /**
+     * Path to the media folder was not found.
+     */
+    public static final String ERR_MEDIA_PATH_NOT_FOUND = "ERR_MEDIA_PATH_NOT_FOUND";
+    
+    /**
+     * Document can not be modified, because it is attached to the approved applications, rights or parties.
+     */
+    public static final String ERR_DOC_READ_ONLY = "ERR_DOC_READ_ONLY";
+    
+    /**
+     * File must be attached to the document.
+     */
+    public static final String ERR_DOC_EMPTY_FILE = "ERR_DOC_EMPTY_FILE";
+    
+    /**
+     * Document type must be provided.
+     */
+    public static final String ERR_DOC_EMPTY_TYPE = "ERR_DOC_EMPTY_TYPE";
 }

@@ -8,6 +8,10 @@ DataTablesUtility.getAddLink = function () {
             '<i class="glyphicon glyphicon-plus"></i> ' + $.i18n('gen-add') + '</a>';
 };
 
+DataTablesUtility.getViewLink = function () {
+    return '<a href="#" onclick="{0}">{1}</a>';
+};
+
 DataTablesUtility.getEditLink = function () {
     return '<a href="#" title="' + $.i18n('gen-edit') + '" onclick="{0}" class="BlueLink">' +
             '<i class="glyphicon glyphicon-pencil" style="padding-right: 7px;"></i></a>';
@@ -16,6 +20,11 @@ DataTablesUtility.getEditLink = function () {
 DataTablesUtility.getDeleteLink = function () {
     return '<a href="#" style="padding-right: 5px;" title="' + $.i18n('gen-delete') + '" onclick="{0}">' +
             '<i class="glyphicon glyphicon-remove"></i></a>';
+};
+
+DataTablesUtility.getSearchLink = function () {
+    return '<a href="#" onclick="{0}" class="BlueLink">' +
+            '<i class="glyphicon glyphicon-search"></i> ' + $.i18n('gen-search') + '</a>';
 };
 
 DataTablesUtility.currentLanguage = null;

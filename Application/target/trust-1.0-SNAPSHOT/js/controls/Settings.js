@@ -5,12 +5,7 @@
 var Controls = Controls || {};
 
 Controls.Settings = function (controlId, targetElementId) {
-    if (controlId === null || typeof controlId === 'undefined') {
-        throw "Control id is not provdided";
-    }
-    if (targetElementId === null || typeof targetElementId === 'undefined') {
-        throw "Target element id is not provdided";
-    }
+    validateControl(controlId, targetElementId);
 
     var that = this;
     var table;
@@ -54,8 +49,7 @@ Controls.Settings = function (controlId, targetElementId) {
                     targets: 0,
                     width: "250px",
                     "render": function (data, type, full, meta) {
-                        return String.format(DataTablesUtility.getDeleteLink(), controlVarId + ".deleteSetting($(this).parents('tr'));return false;") +
-                                String.format(DataTablesUtility.getEditLink(), controlVarId + ".showSettingDialog($(this).parents('tr'));return false;") +
+                        return String.format(DataTablesUtility.getEditLink(), controlVarId + ".showSettingDialog($(this).parents('tr'));return false;") +
                                 " " + data;
                     }
                 },
@@ -132,17 +126,5 @@ Controls.Settings = function (controlId, targetElementId) {
             // Animate changed/added row
             highlight(currentRow);
         });
-    };
-
-    this.deleteSetting = function (rowSelector) {
-        if (rowSelector !== null || typeof rowSelector !== 'undefined') {
-            alertConfirm($.i18n("gen-confirm-delete"), function () {
-                SystemDao.deleteSetting(table.row(rowSelector).data().id, function () {
-                    // Remove from table 
-                    table.row(rowSelector).remove().draw();
-                    showNotification($.i18n("gen-delete-success"));
-                });
-            });
-        }
     };
 };

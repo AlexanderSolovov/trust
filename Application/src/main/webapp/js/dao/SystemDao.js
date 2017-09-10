@@ -8,7 +8,6 @@ $(function () {
     SystemDao.URL_GET_SETTINGS = baseUrl + "getsettings";
     SystemDao.URL_GET_SETTING = baseUrl + "getsetting/{0}";
     SystemDao.URL_SAVE_SETTING = baseUrl + "savesetting";
-    SystemDao.URL_DELET_SETTING = baseUrl + "deletesetting/{0}";
     SystemDao.URL_GET_GROUPS = baseUrl + "getgroups";
     SystemDao.URL_SAVE_GROUP = baseUrl + "savegroup";
     SystemDao.URL_DELETE_GROUP = baseUrl + "deletegroup/{0}";
@@ -38,10 +37,6 @@ SystemDao.getSettings = function (successAction, failAction, alwaysAction, showE
 
 SystemDao.saveSetting = function (data, successAction, failAction, alwaysAction, showErrorAlert) {
     postAjaxData(SystemDao.URL_SAVE_SETTING, data, successAction, failAction, alwaysAction, showErrorAlert);
-};
-
-SystemDao.deleteSetting = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
-    deleteAjaxData(String.format(SystemDao.URL_DELET_SETTING, id), successAction, failAction, alwaysAction, showErrorAlert);
 };
 
 SystemDao.getGroups = function (successAction, failAction, alwaysAction, showErrorAlert) {

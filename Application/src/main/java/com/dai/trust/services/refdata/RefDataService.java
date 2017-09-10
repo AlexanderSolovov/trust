@@ -5,8 +5,11 @@ import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.MultipleTrustException;
 import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.AbstractRefDataEntity;
+import com.dai.trust.models.refdata.AppType;
+import com.dai.trust.models.refdata.AppTypeGroup;
 import com.dai.trust.models.refdata.Language;
 import com.dai.trust.services.AbstractService;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Table;
 
@@ -32,8 +35,6 @@ public class RefDataService extends AbstractService {
      */
     public <T extends AbstractRefDataEntity> List<T> getRefDataRecords(Class<T> clazz, boolean onlyActive, String langCode) {
         String refColumns;
-        String extraColumns = "";
-        String orderBy = "val";
         String where = onlyActive ? " WHERE active = true" : "";
         String table = clazz.getName();
         Table t = clazz.getAnnotation(Table.class);
@@ -50,15 +51,13 @@ public class RefDataService extends AbstractService {
             refColumns = getRefDataColumns(langCode);
         }
 
-        // Set extra columns and sort order based on class type
-        if (Language.class.isAssignableFrom(clazz)) {
-            extraColumns = ", ltr, item_order, is_default";
-            orderBy = "item_order";
-        }
-
-        return getEM().createNativeQuery(
-                "SELECT " + refColumns + extraColumns + " FROM " + table + where + " ORDER BY " + orderBy,
+        List<T> result = getEM().createNativeQuery(
+                "SELECT " + refColumns + getExtraColumns(clazz) + " FROM " + table + where + " ORDER BY " + getOrderByColumn(clazz),
                 clazz).getResultList();
+
+        // Make recursive requests for sublists if any.
+        populateSubLists(result, onlyActive, langCode);
+        return result;
     }
 
     /**
@@ -73,7 +72,6 @@ public class RefDataService extends AbstractService {
      */
     public <T extends AbstractRefDataEntity> T getRefDataRecord(Class<T> clazz, String code, String langCode) {
         String refColumns;
-        String extraColumns = "";
         String table = clazz.getName();
         Table t = clazz.getAnnotation(Table.class);
 
@@ -89,16 +87,60 @@ public class RefDataService extends AbstractService {
             refColumns = getRefDataColumns(langCode);
         }
 
-        // Set extra columns based on class type
-        if (Language.class.isAssignableFrom(clazz)) {
-            extraColumns = ", ltr, item_order, is_default";
-        }
-
-        return (T) getEM().createNativeQuery(
-                "SELECT " + refColumns + extraColumns + " FROM " + table + " WHERE code=:code",
+        T result = (T) getEM().createNativeQuery(
+                "SELECT " + refColumns + getExtraColumns(clazz) + " FROM " + table + " WHERE code=:code",
                 clazz)
                 .setParameter("code", code)
                 .getSingleResult();
+        populateSubLists(result, true, langCode);
+        return result;
+    }
+    
+    // Populate sublist on the provided items
+    private <T extends AbstractRefDataEntity> void populateSubLists(List<T> items, boolean onlyActive, String langCode) {
+        if (items != null && items.size() > 0) {
+            if (AppTypeGroup.class.isAssignableFrom(items.get(0).getClass())) {
+                List<AppType> subList = getRefDataRecords(AppType.class, onlyActive, langCode);
+                for (T item : items) {
+                    List<AppType> result = new ArrayList<>();
+                    if (subList != null) {
+                        for (AppType appType : subList) {
+                            if (appType.getAppTypeGroupCode().equals(item.getCode())) {
+                                result.add(appType);
+                            }
+                        }
+                    }
+                    ((AppTypeGroup) item).setAppTypes(result);
+                }
+            }
+        }
+    }
+
+    // Populate sublist for one item
+    private <T extends AbstractRefDataEntity> void populateSubLists(T item, boolean onlyActive, String langCode) {
+        if(item != null){
+            List<T> tmpList = new ArrayList<>();
+            tmpList.add(item);
+            populateSubLists(tmpList, onlyActive, langCode);
+        }
+    }
+
+    // Returns ordder by column based on the reference data object
+    private <T extends AbstractRefDataEntity> String getOrderByColumn(Class<T> clazz) {
+        if (Language.class.isAssignableFrom(clazz)) {
+            return "item_order";
+        }
+        return "val";
+    }
+
+    // Returns extra columns of reference data object
+    private <T extends AbstractRefDataEntity> String getExtraColumns(Class<T> clazz) {
+        if (Language.class.isAssignableFrom(clazz)) {
+            return ", ltr, item_order, is_default";
+        } else if (AppType.class.isAssignableFrom(clazz)) {
+            return ", app_type_group_code, transaction_type_code";
+        }
+        return "";
     }
 
     /**

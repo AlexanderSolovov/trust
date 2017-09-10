@@ -1,16 +1,11 @@
 /* 
- * System settings control.
+ * Users control.
  * Requires SystemDao.js, DatatablesUtility.js
  */
 var Controls = Controls || {};
 
 Controls.Users = function (controlId, targetElementId) {
-    if (controlId === null || typeof controlId === 'undefined') {
-        throw "Control id is not provdided";
-    }
-    if (targetElementId === null || typeof targetElementId === 'undefined') {
-        throw "Target element id is not provdided";
-    }
+    validateControl(controlId, targetElementId);
 
     var that = this;
     var table;

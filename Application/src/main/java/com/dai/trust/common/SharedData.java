@@ -4,6 +4,7 @@ import com.dai.trust.db.DatabaseManager;
 import com.dai.trust.filters.ContextFilter;
 import java.util.HashMap;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpSession;
 
 /**
  * This class is used as a shared data storage, which can be accessed between
@@ -16,6 +17,8 @@ public final class SharedData implements AutoCloseable {
     public static final String KEY_USER_NAME = "USER_NAME";
     public static final String KEY_APP_URL = "APP_URL";
     public static final String KEY_ENTITY_MANAGER = "ENTITY_MANAGER";
+    public static final String KEY_SESSION = "SESSION";
+    public static final String KEY_APP_PATH = "APP_PATH";
 
     private static ThreadLocal<SharedData> localThread = new ThreadLocal<>();
     private HashMap<String, Object> data;
@@ -94,6 +97,15 @@ public final class SharedData implements AutoCloseable {
     public static String getUserName() {
         return getStringValue(KEY_USER_NAME);
     }
+    
+    /**
+     * Shortcut to the get method to return physical path of the application.
+     *
+     * @return
+     */
+    public static String getAppPath() {
+        return getStringValue(KEY_APP_PATH);
+    }
 
     /** 
      * Returns EntityManager instance for the current request. 
@@ -106,6 +118,18 @@ public final class SharedData implements AutoCloseable {
             set(KEY_ENTITY_MANAGER, val);
         } 
         return (EntityManager) val;
+    }
+    
+    /** 
+     * Returns Session instance. 
+     * @return 
+     */
+    public static HttpSession getSession(){
+        Object val = get(KEY_SESSION);
+        if(val == null){
+            return null;
+        } 
+        return (HttpSession) val;
     }
     
     /**
@@ -124,7 +148,7 @@ public final class SharedData implements AutoCloseable {
      * @return
      */
     public static String getStringValue(String key) {
-        Object val = get(KEY_USER_NAME);
+        Object val = get(key);
         if (val == null) {
             return null;
         }

@@ -5,12 +5,7 @@
 var Controls = Controls || {};
 
 Controls.RefData = function (controlId, targetElementId, refDataType) {
-    if (controlId === null || typeof controlId === 'undefined') {
-        throw "Control id is not provdided";
-    }
-    if (targetElementId === null || typeof targetElementId === 'undefined') {
-        throw "Target element id is not provdided";
-    }
+    validateControl(controlId, targetElementId);
 
     var that = this;
     var table;

@@ -1,0 +1,5 @@
+UKA number in TRUST is generated automatically in the same way as MAST. Therefore it's important to understand that if new parcel/registration is created in TRUST and after that some new records migrated from MAST, which are falling under the same village where TRUST parcel was created, it may throw an exception of UKA number uniqueness. If such cases are often, UKA generation in TRUST must be adjusted, either by starting from some initial number or change of format.
+
+############
+
+DISCUSS numbering system for CCRO NUMBER, FILE NUMBER, UKA NUMBER to avoid overlaps with MAST.

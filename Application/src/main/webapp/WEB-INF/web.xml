@@ -32,7 +32,7 @@
         </init-param>
         <init-param>
             <param-name>jersey.config.server.provider.classnames</param-name>
-            <param-value>org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature</param-value>
+            <param-value>org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;org.glassfish.jersey.media.multipart.MultiPartFeature</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -55,7 +55,7 @@
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
     <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>Dashboard.jsp</welcome-file>
     </welcome-file-list>
     <error-page>
         <exception-type>java.lang.Throwable</exception-type>
@@ -70,7 +70,7 @@
         <web-resource-collection>
             <web-resource-name>protected</web-resource-name>
             <description/>
-            <url-pattern>/index.jsp</url-pattern>
+            <url-pattern>/Dashboard.jsp</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -96,6 +96,38 @@
             <transport-guarantee>NONE</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
+    <security-constraint>
+        <display-name>Manage Applications</display-name>
+        <web-resource-collection>
+            <web-resource-name>applications</web-resource-name>
+            <description/>
+            <url-pattern>/application/application.jsp</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>ManageApps</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <description/>
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+    <security-constraint>
+        <display-name>Search</display-name>
+        <web-resource-collection>
+            <web-resource-name>Search pages</web-resource-name>
+            <description/>
+            <url-pattern>/application/search.jsp</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>Search</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <description/>
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
     <login-config>
         <auth-method>FORM</auth-method>
         <realm-name>TrustRealm</realm-name>
@@ -113,7 +145,51 @@
         <role-name>RefDataManager</role-name>
     </security-role>
     <security-role>
-        <description>Reader</description>
-        <role-name>Reader</role-name>
+        <description>Parcel management</description>
+        <role-name>ManageParcels</role-name>
+    </security-role>
+    <security-role>
+        <description>Applications management</description>
+        <role-name>ManageApps</role-name>
+    </security-role>
+    <security-role>
+        <description>Applications withdrawal</description>
+        <role-name>WithdrawApps</role-name>
+    </security-role>
+    <security-role>
+        <description>Applications assignment</description>
+        <role-name>AssignApps</role-name>
+    </security-role>
+    <security-role>
+        <description>Applications re-assignment</description>
+        <role-name>ReAssignApps</role-name>
+    </security-role>
+    <security-role>
+        <description>Viewing information</description>
+        <role-name>Viewing</role-name>
+    </security-role>
+    <security-role>
+        <description>Management of property rights</description>
+        <role-name>ManageRights</role-name>
+    </security-role>
+    <security-role>
+        <description>Approval/Rejection of transactions</description>
+        <role-name>ApproveTrans</role-name>
+    </security-role>
+    <security-role>
+        <description>Generate CCRO</description>
+        <role-name>GenerateTitle</role-name>
+    </security-role>
+    <security-role>
+        <description>Right holders management</description>
+        <role-name>ManageOwners</role-name>
+    </security-role>
+    <security-role>
+        <description>Searching</description>
+        <role-name>Search</role-name>
+    </security-role>
+    <security-role>
+        <description>Reports viewing</description>
+        <role-name>ViewReports</role-name>
     </security-role>
 </web-app>

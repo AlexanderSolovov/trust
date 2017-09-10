@@ -42,7 +42,7 @@ public class SystemResource extends AbstractResource {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getsettings|getSettings}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String getSettings(@PathParam(value = LANG_CODE) String langCode) {
         try {
             SettingsService service = new SettingsService();
@@ -83,7 +83,7 @@ public class SystemResource extends AbstractResource {
     @POST
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:savesetting|saveSetting}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String saveSetting(@PathParam(value = LANG_CODE) String langCode, String json) {
         Setting setting = null;
         try {
@@ -102,28 +102,6 @@ public class SystemResource extends AbstractResource {
     }
     
     /**
-     * Deletes system setting by id
-     *
-     * @param langCode Language code for localization
-     * @param id Setting id
-     * @return
-     */
-    @DELETE
-    @Produces("application/json; charset=UTF-8")
-    @Path(value = "{a:deletesetting|deleteSetting}/{id}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
-    public String deleteSetting(@PathParam(value = LANG_CODE) String langCode,
-            @PathParam(value = "id") String id) {
-        try {
-            SettingsService service = new SettingsService();
-            service.deleteById(id, Setting.class);
-            return ResponseFactory.buildOk();
-        } catch (Exception e) {
-            throw processException(e, langCode);
-        }
-    }
-    
-    /**
      * Returns application groups.
      *
      * @param langCode Language code for localization
@@ -132,7 +110,7 @@ public class SystemResource extends AbstractResource {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getGroups|getgroups}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String getGroups(@PathParam(value = LANG_CODE) String langCode) {
         try {
             AppGroupService service = new AppGroupService();
@@ -152,7 +130,7 @@ public class SystemResource extends AbstractResource {
     @POST
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:savegroup|saveGroup}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String saveGroup(@PathParam(value = LANG_CODE) String langCode, String json) {
         AppGroup group = null;
         try {
@@ -180,7 +158,7 @@ public class SystemResource extends AbstractResource {
     @DELETE
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:deletegroup|deleteGroup}/{id}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String deleteGroup(@PathParam(value = LANG_CODE) String langCode, @PathParam(value = "id") String id) {
         try {
             AppGroupService service = new AppGroupService();
@@ -200,7 +178,7 @@ public class SystemResource extends AbstractResource {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getRoles|getroles}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String getRoles(@PathParam(value = LANG_CODE) String langCode) {
         try {
             AppRoleService service = new AppRoleService();
@@ -219,7 +197,7 @@ public class SystemResource extends AbstractResource {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getUsers|getusers}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String getUsers(@PathParam(value = LANG_CODE) String langCode) {
         try {
             UserService service = new UserService();
@@ -239,7 +217,7 @@ public class SystemResource extends AbstractResource {
     @POST
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:saveuser|saveUser}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String saveUser(@PathParam(value = LANG_CODE) String langCode, String json) {
         User user = null;
         try {
@@ -267,7 +245,7 @@ public class SystemResource extends AbstractResource {
     @DELETE
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:deleteuser|deleteUser}/{id}")
-    @Authorized(roles = RolesConstants.ADMIN_ADMIN)
+    @Authorized(roles = RolesConstants.ADMIN)
     public String deleteUser(@PathParam(value = LANG_CODE) String langCode, @PathParam(value = "id") String id) {
         try {
             UserService service = new UserService();
