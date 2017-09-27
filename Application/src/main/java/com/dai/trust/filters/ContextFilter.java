@@ -41,6 +41,7 @@ public class ContextFilter implements Filter {
 
         // Create local data storage and record user name and application url
         try (SharedData sharedData = SharedData.init()) {
+            SharedData.set(SharedData.KEY_REQUEST, request);
             SharedData.set(SharedData.KEY_SESSION, request.getSession());
             SharedData.set(SharedData.KEY_USER_NAME, request.getRemoteUser());
             SharedData.set(SharedData.KEY_APP_URL, request.getRequestURL()

@@ -96,6 +96,7 @@ public abstract class AbstractResource {
     protected RestException processException(Exception t, String langCode) {
         try {
             logger.error(t);
+            t.printStackTrace();
             // Identify the type of exception and raise the appropriate Service Fault
             if (t.getClass() == RestException.class) {
                 return (RestException) t;

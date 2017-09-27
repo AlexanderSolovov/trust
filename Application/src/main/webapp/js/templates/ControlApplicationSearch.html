@@ -1,0 +1,71 @@
+<div style="background-color: #fff;padding: 10px;">
+    <div style="max-width: 1000px;">
+        <div class="row">
+            <div class="col-md-2">
+                <label data-i18n="search-number"></label>
+                <input id="{{id}}_txtNumber" class="form-control" maxlength="30" autocomplete="off">
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="search-lodgement-date-from"></label>
+                <br />
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                    <input id="{{id}}_txtDateFrom" class="form-control DateField" maxlength="10" autocomplete="off">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="search-lodgement-date-to"></label>
+                <br />
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-calendar"></i>
+                    </span>
+                    <input id="{{id}}_txtDateTo" class="form-control DateField" maxlength="10" autocomplete="off">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label data-i18n="gen-type"></label> 
+                <select id="{{id}}_cbxAppTypes" class="form-control"></select>
+            </div>
+            <div class="col-md-2">
+                <label data-i18n="gen-status"></label> 
+                <select id="{{id}}_cbxStatuses" class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="LineSpace"></div>
+
+        <div class="row">
+            <div class="col-md-5">
+                <label data-i18n="search-applicant-name"></label>
+                <input id="{{id}}_txtApplicantName" class="form-control" maxlength="255" autocomplete="off">
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="search-applicant-id-number"></label>
+                <input id="{{id}}_txtApplicantIdNumber" class="form-control" maxlength="255" autocomplete="off">
+            </div>
+            <div class="col-md-2">
+                <label data-i18n="search-ccro-number"></label>
+                <input id="{{id}}_txtCcroNumber" class="form-control" maxlength="30" autocomplete="off">
+            </div>
+            <div class="col-md-2">
+                <label>&nbsp;</label>
+                <br />
+                <button type="button" id="{{id}}_btnSearch" class="btn btn-primary" data-i18n="gen-search" onclick="{{id}}.search()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="{{id}}_pnlSearchWarning" class="alert alert-warning" role="alert" style="display: none;">
+    <span id="{{id}}_lblWarningMessage"></span>
+</div>
+
+<div style="font-weight: bold;padding-top: 10px;">
+    <label data-i18n="search-results" style="margin-bottom: 0px;"></label> 
+    <label id="{{id}}_lblSearchCount" style="margin-bottom: 0px;"></label>
+</div>
+
+<div id="{{id}}_pnlApplications"></div>

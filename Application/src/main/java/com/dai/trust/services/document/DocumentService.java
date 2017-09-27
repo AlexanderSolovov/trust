@@ -73,8 +73,16 @@ public class DocumentService extends AbstractService {
             return true;
         }
 
-        MultipleTrustException errors = new MultipleTrustException();
+        // Check doc type
+        if (StringUtility.isEmpty(doc.getTypeCode())) {
+            throw new TrustException(MessagesKeys.ERR_DOC_EMPTY_TYPE);
+        }
 
+        // Document is new, check file is provided
+        if (StringUtility.isEmpty(doc.getFileId())) {
+            throw new TrustException(MessagesKeys.ERR_DOC_EMPTY_FILE);
+        }
+        
         // Get document from db
         Document dbDoc = null;
         if (!StringUtility.isEmpty(doc.getId())) {
@@ -84,8 +92,7 @@ public class DocumentService extends AbstractService {
         // Document exists, check it's not involved in any approved applications or rights. If yes, throw error
         if (dbDoc != null) {
             // Check document has changes
-            if (!StringUtility.empty(dbDoc.getId()).equals(StringUtility.empty(doc.getId()))
-                    || !StringUtility.empty(dbDoc.getFileId()).equals(StringUtility.empty(doc.getFileId()))
+            if (!StringUtility.empty(dbDoc.getFileId()).equals(StringUtility.empty(doc.getFileId()))
                     || !StringUtility.empty(dbDoc.getAuthority()).equals(StringUtility.empty(doc.getAuthority()))
                     || !StringUtility.empty(dbDoc.getDescription()).equals(StringUtility.empty(doc.getDescription()))
                     || !StringUtility.empty(dbDoc.getRefNumber()).equals(StringUtility.empty(doc.getRefNumber()))
@@ -95,31 +102,16 @@ public class DocumentService extends AbstractService {
                     || !Objects.equals(dbDoc.getVersion(), doc.getVersion())) {
                 // Check document is a part of approved application, registered right or historic parties
                 int count = (Integer) getEM().createNativeQuery(
-                        "select ((select count(1) as cnt from application_document ad inner join application a on ad.app_id = a.id where ad.document_id = :docId and a.status_code != 'pending') +"
-                        + "(select count(1) as cnt from party_document pd inner join party p on pd.party_id = p.id where pd.document_id = :docId and p.status_code = 'historic') +"
-                        + "(select count(1) as cnt from rrr_document rd inner join rrr r on rd.rrr_id = r.id where rd.document_id = :docId and r.status_code != 'pending'))::integer as cnt"
-                ).setParameter(":docId", dbDoc.getId()).getSingleResult();
+                        "select cast((select count(1) as cnt from application_document ad inner join application a on ad.app_id = a.id where ad.document_id = ?1 and a.status_code != 'pending') +"
+                        + "(select count(1) as cnt from party_document pd inner join party p on pd.party_id = p.id where pd.document_id = ?1 and p.status_code = 'historic') +"
+                        + "(select count(1) as cnt from rrr_document rd inner join rrr r on rd.rrr_id = r.id where rd.document_id = ?1 and r.status_code != 'pending') as int) as cnt"
+                ).setParameter(1, dbDoc.getId()).getSingleResult();
 
                 if (count > 0) {
                     throw new TrustException(MessagesKeys.ERR_DOC_READ_ONLY);
                 }
             }
         }
-
-        // Check doc type
-        if (StringUtility.isEmpty(doc.getTypeCode())) {
-            errors.addError(new TrustException(MessagesKeys.ERR_DOC_EMPTY_TYPE));
-        }
-
-        // Document is new, check file is provided
-        if (StringUtility.isEmpty(doc.getFileId())) {
-            errors.addError(new TrustException(MessagesKeys.ERR_DOC_EMPTY_FILE));
-        }
-
-        if (errors.getErrors().size() > 0) {
-            throw errors;
-        }
-
         return true;
     }
 

@@ -1108,7 +1108,7 @@ CREATE TABLE history.application
    withdraw_date timestamp without time zone, 
    withdraw_reason character varying(1000), 
    assignee character varying(50), 
-   ssigned_on timestamp without time zone,
+   assigned_on timestamp without time zone,
    complete_date timestamp without time zone, 
    comment character varying(40), 
    rowversion integer,

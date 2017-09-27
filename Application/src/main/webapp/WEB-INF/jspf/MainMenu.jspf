@@ -7,11 +7,13 @@
     <nav class="navbar navbar-default" role="navigation">
         <div class="collapse navbar-collapse" id="main-navbar">
             <ul class="nav navbar-nav">
-                <li class='${menu.getItemClassByPath(pageContext.request, "/Dashboard.jsp")}'>
-                    <a href="${pageContext.request.contextPath}/Dashboard.jsp">
-                        <i class="glyphicon glyphicon-th-large"></i> <fmt:message key="MENU_DASHBOARD" />
-                    </a>
-                </li>
+                <c:if test="${pageContext.request.isUserInRole(roles.VIEWING)}">
+                    <li class='${menu.getItemClassByPath(pageContext.request, "/Dashboard.jsp")}'>
+                        <a href="${pageContext.request.contextPath}/Dashboard.jsp">
+                            <i class="glyphicon glyphicon-th-large"></i> <fmt:message key="MENU_DASHBOARD" />
+                        </a>
+                    </li>
+                </c:if>
 
                 <c:if test="${pageContext.request.isUserInRole(roles.MANAGE_APPLICATIONS) or pageContext.request.isUserInRole(roles.SEARCH)}">
                     <li class='${menu.getItemClassByPath(pageContext.request, "/applications/")}'>
@@ -40,7 +42,7 @@
                             </c:if>
                             <c:if test="${pageContext.request.isUserInRole(roles.SEARCH)}">
                                 <li>
-                                    <a href="${pageContext.request.contextPath}/applications/search.jsp">
+                                    <a href="${pageContext.request.contextPath}/application/search.jsp">
                                         <i class="glyphicon glyphicon-search"></i> <fmt:message key="MENU_SEARCH" />
                                     </a>
                                 </li>

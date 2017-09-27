@@ -107,6 +107,21 @@
     <script type="text/javascript">
         Global.LANG = "${langCode}";
         Global.APP_ROOT = "${pageContext.request.contextPath}";
+        Global.USER_NAME = "${pageContext.request.userPrincipal.name}";
+        Global.USER_PERMISSIONS.canAdmin = ${pageContext.request.isUserInRole(roles.ADMIN)};
+        Global.USER_PERMISSIONS.canApprove = ${pageContext.request.isUserInRole(roles.APPROVE_TRANSACTIONS)};
+        Global.USER_PERMISSIONS.canAssign = ${pageContext.request.isUserInRole(roles.ASSIGN_APPLICATIONS)};
+        Global.USER_PERMISSIONS.canGenerateTitle = ${pageContext.request.isUserInRole(roles.GENERATE_TITLE)};
+        Global.USER_PERMISSIONS.canManageApplications = ${pageContext.request.isUserInRole(roles.MANAGE_APPLICATIONS)};
+        Global.USER_PERMISSIONS.canManageOwners = ${pageContext.request.isUserInRole(roles.MANAGE_OWNERS)};
+        Global.USER_PERMISSIONS.canManageParcels = ${pageContext.request.isUserInRole(roles.MANAGE_PARCELS)};
+        Global.USER_PERMISSIONS.canManageRefData = ${pageContext.request.isUserInRole(roles.MANAGE_REF_DATA)};
+        Global.USER_PERMISSIONS.canManageRrr = ${pageContext.request.isUserInRole(roles.MANAGE_RIGHTS)};
+        Global.USER_PERMISSIONS.canReAssign = ${pageContext.request.isUserInRole(roles.RE_ASSIGN_APPLICATIONS)};
+        Global.USER_PERMISSIONS.canSearch = ${pageContext.request.isUserInRole(roles.SEARCH)};
+        Global.USER_PERMISSIONS.canView = ${pageContext.request.isUserInRole(roles.VIEWING)};
+        Global.USER_PERMISSIONS.canViewReports = ${pageContext.request.isUserInRole(roles.VIEW_REPORTS)};
+        Global.USER_PERMISSIONS.canWithdraw = ${pageContext.request.isUserInRole(roles.WITHDRAW_APPLICATIONS)};
     </script>
     <div id="waitMessage" class="waitMessage"> 
         <img src="${pageContext.request.contextPath}/images/busy.gif" style="vertical-align: middle;">

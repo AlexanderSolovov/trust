@@ -6,9 +6,22 @@ var Controls = Controls || {};
 
 Controls.LegalEntities = function (controlId, targetElementId, options) {
     validateControl(controlId, targetElementId);
-
+    
+    var filterParties = function (list){
+        if(isNull(list)){
+            return [];
+        }
+        var result = [];
+        for(var i = 0; i < list.length; i++){
+            if(!isNull(list[i].isPrivate) && !list[i].isPrivate){
+                result.push(list[i]);
+            }
+        }
+        return result;
+    };
+    
     options = options ? options : {};
-    var legalEntities = options.legalEntities ? options.legalEntities : [];
+    var legalEntities = filterParties(options.legalEntities);
     var editable = isNull(options.editable) ? true : options.editable;
     var that = this;
     var table;
@@ -53,9 +66,9 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
             "dom": '<"tableToolbar">frtip',
             language: DataTablesUtility.getLanguage(),
             columns: [
-                {data: "name", title: $.i18n("gen-name")},
+                {data: "name1", title: $.i18n("gen-name")},
                 {data: "entityTypeCode", title: $.i18n("gen-type")},
-                {data: "regNumber", title: $.i18n("le-reg-num")},
+                {data: "idNumber", title: $.i18n("le-reg-num")},
                 {data: "establishmentDate", title: $.i18n("le-reg-date")},
                 {data: "mobileNumber", title: $.i18n("person-mobile-num")},
                 {data: "address", title: $.i18n("gen-address")}
@@ -124,7 +137,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
             return;
         }
         table.clear();
-        legalEntities = list ? list : [];
+        legalEntities = filterParties(list);
         table.rows.add(legalEntities);
         table.draw();
     };
@@ -141,7 +154,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
 
         var legalEntity = isNull(selectedRow) ? null : selectedRow.data();
 
-        if (isNull(legalEntity) || legalEntity.editable) {
+        if ((isNull(legalEntity) || legalEntity.editable) && editable) {
             $("#" + controlVarId + "_leview").hide();
             $("#" + controlVarId + "_le").show();
             if (isNull(leControl)) {
@@ -150,7 +163,8 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
             } else {
                 leControl.setLegalEntity(legalEntity);
             }
-        } else if (!legalEntity.editable) {
+            $("#" + controlVarId + "_btnSaveLe").show();
+        } else if (!legalEntity.editable || !editable) {
             $("#" + controlVarId + "_leview").show();
             $("#" + controlVarId + "_le").hide();
             if (isNull(leViewControl)) {
@@ -159,6 +173,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
             } else {
                 leViewControl.setLegalEntity(legalEntity);
             }
+            $("#" + controlVarId + "_btnSaveLe").hide();
         }
     };
 
@@ -179,7 +194,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
 
             // Get full record of legal entity and add to the list
             $("#" + controlVarId + "_SearchDialog").modal('hide');
-            PartyDao.getLegalEntity(leSearchResult.id, function (l) {
+            PartyDao.getParty(leSearchResult.id, function (l) {
                 var row = table.row.add(l).draw().node();
                 highlight(row);
             });

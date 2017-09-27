@@ -22,7 +22,7 @@ Controls.LegalEntityView = function (controlId, targetElementId, le) {
                 }, null,
                 function () {
                     // Load control template
-                    $.get(Global.APP_ROOT + '/js/templates/ControlLegalEntity.html', function (tmpl) {
+                    $.get(Global.APP_ROOT + '/js/templates/ControlLegalEntityView.html', function (tmpl) {
                         var template = Handlebars.compile(tmpl);
                         $('#' + targetElementId).html(template({id: controlVarId}));
                         // Localize
@@ -49,24 +49,27 @@ Controls.LegalEntityView = function (controlId, targetElementId, le) {
             return;
         }
 
-        l = isNull(l) ? new PartyDao.LegalEntity() : l;
+        l = isNull(l) ? new PartyDao.Party() : l;
 
         // Set fields
-        $("#" + controlVarId + "_lblLeType").text(RefDataDao.getRefDataByCode(leTypes, l.entityTypeCode));
-        $("#" + controlVarId + "_lblLeName").text(l.name);
-        $("#" + controlVarId + "_lblLeRegNumber").text(l.regNumber);
+        var entityType = RefDataDao.getRefDataByCode(leTypes, l.entityTypeCode);
+        if (!isNull(entityType)) {
+            $("#" + controlVarId + "_lblLeType").text(entityType.val);
+        }
+        $("#" + controlVarId + "_lblLeName").text(l.name1);
+        $("#" + controlVarId + "_lblLeRegNumber").text(l.idNumber);
         $("#" + controlVarId + "_lblLeMobileNumber").text(l.mobileNumber);
         $("#" + controlVarId + "_lblLeAddress").text(l.address);
 
         if (isNull(l.establishmentDate)) {
             $("#" + controlVarId + "_lblLeRegDate").text("");
         } else {
-            $("#" + controlVarId + "_lblLeRegDate").text(dateFormat(l.establishmentDate));
+            $("#" + controlVarId + "_lblLeRegDate").text(dateFormat(l.dob));
         }
 
         // Set documents
         if (!isNull(docsControl)) {
-            docsControl.setDocuments(l.documents);
+            docsControl.setDocuments(makeObjectsList(l.documents, "document"));
         }
     };
 

@@ -4,6 +4,9 @@ var Global = Global || {};
 Global.LANG = "en";
 Global.LANGUAGES = [];
 Global.APP_ROOT = "/";
+Global.USER_FULL_NAME = "";
+Global.USER_NAME = "";
+
 Global.BLOCK_TIMEOUT;
 Global.CACHE = {};
 Global.STATUS = {
@@ -12,7 +15,24 @@ Global.STATUS = {
     rejected: "rejected",
     current: "current",
     pending: "pending",
-    historic: "historic"
+    historic: "historic",
+    withdrawn: "withdrawn"
+};
+Global.USER_PERMISSIONS = {
+    canAdmin: false,
+    canManageRefData: false,
+    canManageParcels: false,
+    canManageApplications: false,
+    canAssign: false,
+    canReAssign: false,
+    canView: false,
+    canManageRrr: false,
+    canApprove: false,
+    canGenerateTitle: false,
+    canManageOwners: false,
+    canSearch: false,
+    canViewReports: false,
+    canWithdraw: false
 };
 
 /** 
@@ -619,6 +639,68 @@ function populateSelectList(valuesList, controlId) {
             $("#" + controlId).append($("<option />").val(item.code).text(item.val));
         });
     }
+}
+
+/** 
+ * Extracts objects from the versioned list of differenct relations (e.g. between documents and party, application, etc.) 
+ * @param vlist List, containgig objectes to extract. The list has object and version number fields (e.g. {document:{}, version:xxx})
+ * @param propName Property name, referencing the object to extract (e.g. document).
+ * @return Returns list of objects
+ */
+function makeObjectsList (vlist, propName) {
+    if (isNull(vlist) || vlist.length < 1 || !vlist[0].hasOwnProperty(propName)) {
+        return [];
+    }
+    var docs = [];
+    for (i = 0; i < vlist.length; i++) {
+        docs.push(vlist[i][propName]);
+    }
+    return docs;
+};
+
+/** 
+ * Makes list of versioned objects for differenct relations (e.g. documents and party, application, etc.). 
+ * When making the list, it will be copying version number from existing versioned list. 
+ * @param vlist Existing versioned list
+ * @param olist List of objects to make into versioned list.
+ * @param propName Property name, referencing the object to put into versioned list (e.g. document).
+ * @return Returns versioned list of objects
+ */
+function makeVersionedList (vlist, olist, propName) {
+    if (isNull(olist) || olist.length < 1) {
+        return [];
+    }
+    if (isNull(vlist)) {
+        vlist = [];
+    }
+
+    var resultList = [];
+    for (i = 0; i < olist.length; i++) {
+        var version = 0;
+        for (j = 0; j < vlist.length; j++) {
+            if(!isNull(vlist[j][propName]) && vlist[j][propName].id === olist[i].id){
+                version = vlist[j].version;
+                break;
+            }
+        }
+        var vobj = {};
+        vobj[propName] = olist[i];
+        vobj["version"] = version;
+        resultList.push(vobj);
+    }
+    return resultList;
+};
+
+/**
+ * Replaces line breaks with <br> bags
+ * @param val Value to process
+ * @return 
+ */
+function replaceNewLineWithBr(val){
+    if(!isNull(val)){
+        return val.replace(/(?:\r\n|\r|\n)/g, '<br />');
+    }
+    return "";
 }
 
 // On page load

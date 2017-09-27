@@ -34,7 +34,7 @@ public class PartyDocument extends AbstractEntity {
     private Party party;
     
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name = "document_id", referencedColumnName = "id")
+    @JoinColumn(name = "document_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Document document;
 
     public PartyDocument() {

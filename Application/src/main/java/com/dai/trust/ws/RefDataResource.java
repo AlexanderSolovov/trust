@@ -6,6 +6,7 @@ import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.ExceptionFactory;
 import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.AbstractRefDataEntity;
+import com.dai.trust.models.refdata.AppStatus;
 import com.dai.trust.models.refdata.AppType;
 import com.dai.trust.models.refdata.AppTypeGroup;
 import com.dai.trust.models.refdata.Citizenship;
@@ -53,6 +54,7 @@ public class RefDataResource extends AbstractResource {
         REF_DATA_CLASSES.put(PartyStatus.class.getSimpleName(), PartyStatus.class);
         REF_DATA_CLASSES.put(Citizenship.class.getSimpleName(), Citizenship.class);
         REF_DATA_CLASSES.put(LegalEntityType.class.getSimpleName(), LegalEntityType.class);
+        REF_DATA_CLASSES.put(AppStatus.class.getSimpleName(), AppStatus.class);
     }
 
     /**
@@ -183,7 +185,7 @@ public class RefDataResource extends AbstractResource {
 
         try {
             RefDataService refService = new RefDataService();
-            return getMapper().writeValueAsString(refService.saveRefDataREcord(REF_DATA_CLASSES.get(refType).cast(refDataRecord)));
+            return getMapper().writeValueAsString(refService.saveRefDataRecord(REF_DATA_CLASSES.get(refType).cast(refDataRecord)));
         } catch (Exception e) {
             throw processException(e, langCode);
         }

@@ -1,5 +1,6 @@
 /* 
  * Contains methods to communicate with server to manage different system objects (settings, users, groups, etc)
+ * Requires Global.js
  */
 
 var SystemDao = SystemDao || {};
@@ -18,17 +19,17 @@ $(function () {
 });
 
 SystemDao.Setting = function () {
-    return {id: null, val: null, active: true, description: null, version: 1};
+    return {id: null, val: null, active: true, description: null, version: 0};
 };
 
 SystemDao.Group = function () {
-    return {id: null, groupName: null, description: null, roleCodes: [], version: 1};
+    return {id: null, groupName: null, description: null, roleCodes: [], version: 0};
 };
 
 SystemDao.User = function () {
     return {id: null, userName: null, passwd: null, firstName: null,
         lastName: null, email: null, mobileNumber: null, active: true,
-        description: null, groupCodes: [], fullName: null, version: 1};
+        description: null, groupCodes: [], fullName: null, version: 0};
 };
 
 SystemDao.getSettings = function (successAction, failAction, alwaysAction, showErrorAlert) {

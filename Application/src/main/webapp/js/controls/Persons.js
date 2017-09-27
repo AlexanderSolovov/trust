@@ -7,8 +7,21 @@ var Controls = Controls || {};
 Controls.Persons = function (controlId, targetElementId, options) {
     validateControl(controlId, targetElementId);
 
+    var filterParties = function (list) {
+        if (isNull(list)) {
+            return [];
+        }
+        var result = [];
+        for (var i = 0; i < list.length; i++) {
+            if (!isNull(list[i].isPrivate) && list[i].isPrivate) {
+                result.push(list[i]);
+            }
+        }
+        return result;
+    };
+    
     options = options ? options : {};
-    var persons = options.persons ? options.persons : [];
+    var persons = filterParties(options.persons);
     var editable = isNull(options.editable) ? true : options.editable;
     var that = this;
     var table;
@@ -131,7 +144,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
             return;
         }
         table.clear();
-        persons = list ? list : [];
+        persons = filterParties(list);
         table.rows.add(persons);
         table.draw();
     };
@@ -148,7 +161,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
 
         var person = isNull(selectedRow) ? null : selectedRow.data();
 
-        if (isNull(person) || person.editable) {
+        if ((isNull(person) || person.editable) && editable) {
             $("#" + controlVarId + "_personview").hide();
             $("#" + controlVarId + "_person").show();
             if (isNull(personControl)) {
@@ -157,7 +170,8 @@ Controls.Persons = function (controlId, targetElementId, options) {
             } else {
                 personControl.setPerson(person);
             }
-        } else if (!person.editable) {
+            $("#" + controlVarId + "_btnSavePerson").show();
+        } else if (!person.editable || !editable) {
             $("#" + controlVarId + "_personview").show();
             $("#" + controlVarId + "_person").hide();
             if (isNull(personViewControl)) {
@@ -166,6 +180,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
             } else {
                 personViewControl.setPerson(person);
             }
+            $("#" + controlVarId + "_btnSavePerson").hide();
         }
     };
 
@@ -186,7 +201,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
 
             // Get full record of person and add to the list
             $("#" + controlVarId + "_SearchDialog").modal('hide');
-            PartyDao.getPerson(personSearchResult.id, function (p) {
+            PartyDao.getParty(personSearchResult.id, function (p) {
                 var row = table.row.add(p).draw().node();
                 highlight(row);
             });

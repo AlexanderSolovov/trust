@@ -150,7 +150,7 @@ public class RefDataService extends AbstractService {
      * @param refData Reference data object to save
      * @return Returns saved setting
      */
-    public <T extends AbstractRefDataEntity> T saveRefDataREcord(T refData) {
+    public <T extends AbstractRefDataEntity> T saveRefDataRecord(T refData) {
         // Make validations
         MultipleTrustException errors = new MultipleTrustException();
 

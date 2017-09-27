@@ -32,6 +32,23 @@ public abstract class AbstractService implements Serializable {
     public EntityManager getEM() {
         return SharedData.getEm();
     }
+    
+    /**
+     * Checks whether current user has one of the provided roles
+     * @param roles List of roles to check
+     * @return 
+     */
+    public boolean isInRole(String... roles){
+        if(SharedData.getRequest()!= null && roles != null){
+            for(String role : roles){
+                if(!SharedData.getRequest().isUserInRole(role)){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Returns entity by ID.

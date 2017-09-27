@@ -5,17 +5,20 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import org.hibernate.annotations.DiscriminatorFormula;
+import org.hibernate.annotations.DiscriminatorOptions;
 
 @Entity
-@Inheritance
-@DiscriminatorFormula("(select right_type_group_code from ref_right_type where code = right_type_code limit 1)")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorFormula("case when right_type_code = 'ccro' then 'ownership' else 'restriction' end")
+@DiscriminatorOptions(force = true)
 @Table(name = "rrr")
 public class Rrr extends AbstractIdEntity {
 
-    @Column(name = "property_id")
+    @Column(name = "property_id", insertable = false, updatable = false)
     private String propertyId;
     
     @Column(name = "parent_id")

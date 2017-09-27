@@ -71,6 +71,7 @@
             <web-resource-name>protected</web-resource-name>
             <description/>
             <url-pattern>/Dashboard.jsp</url-pattern>
+            <url-pattern>/index.jsp</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <role-name>*</role-name>
@@ -106,6 +107,7 @@
         <auth-constraint>
             <description/>
             <role-name>ManageApps</role-name>
+            <role-name>Viewing</role-name>
         </auth-constraint>
         <user-data-constraint>
             <description/>

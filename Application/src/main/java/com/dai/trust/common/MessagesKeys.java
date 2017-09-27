@@ -10,8 +10,10 @@ public class MessagesKeys {
      * Application
      */
     public static final String GENERAL_APP_NAME = "GENERAL_APP_NAME";
-    
-    /** 0.1 */
+
+    /**
+     * 0.1
+     */
     public static final String GENERAL_VERSION = "GENERAL_VERSION";
 
     // Errors
@@ -53,82 +55,215 @@ public class MessagesKeys {
      * Description must be provided.
      */
     public static final String ERR_DESCRIPTION_EMPTY = "ERR_DESCRIPTION_EMPTY";
-    
-    /** Table name was not found for the class {0}. */
+
+    /**
+     * Table name was not found for the class {0}.
+     */
     public static final String ERR_NO_TABLE_NAME = "ERR_NO_TABLE_NAME";
-    
-    /** Reference data table type {0} was not found. */
+
+    /**
+     * Reference data table type {0} was not found.
+     */
     public static final String ERR_REF_DATA_TYPE_NOT_FOUND = "ERR_REF_DATA_TYPE_NOT_FOUND";
-    
-    /** Code must be provided. */
+
+    /**
+     * Code must be provided.
+     */
     public static final String ERR_CODE_EMPTY = "ERR_CODE_EMPTY";
-    
-    /** Select at least 1 role. */
+
+    /**
+     * Select at least 1 role.
+     */
     public static final String ERR_GROUP_NO_ROLES = "ERR_GROUP_NO_ROLES";
-    
-    /** Username must be provided. */
-    public static final String ERR_USER_USER_NAME_EMPTY = "ERR_USER_USER_NAME_EMPTY"; 
-    
-    /** Password must be provided. */
-    public static final String ERR_USER_PASSWORD_EMPTY = "ERR_USER_PASSWORD_EMPTY"; 
-    
-    /** First name must be provided. */
-    public static final String ERR_USER_FIRST_NAME_EMPTY = "ERR_USER_FIRST_NAME_EMPTY"; 
-    
-    /** Last name must be provided. */
+
+    /**
+     * Username must be provided.
+     */
+    public static final String ERR_USER_USER_NAME_EMPTY = "ERR_USER_USER_NAME_EMPTY";
+
+    /**
+     * Password must be provided.
+     */
+    public static final String ERR_USER_PASSWORD_EMPTY = "ERR_USER_PASSWORD_EMPTY";
+
+    /**
+     * First name must be provided.
+     */
+    public static final String ERR_USER_FIRST_NAME_EMPTY = "ERR_USER_FIRST_NAME_EMPTY";
+
+    /**
+     * Last name must be provided.
+     */
     public static final String ERR_USER_LAST_NAME_EMPTY = "ERR_USER_LAST_NAME_EMPTY";
-    
-    /** Select at least 1 group. */
-    public static final String ERR_USER_NO_GROUPS = "ERR_USER_NO_GROUPS"; 
-    
-    /** Your changes cannot be saved as the record you are editing has been changed by someone else. Refresh and try again. */
+
+    /**
+     * Select at least 1 group.
+     */
+    public static final String ERR_USER_NO_GROUPS = "ERR_USER_NO_GROUPS";
+
+    /**
+     * Your changes cannot be saved as the record you are editing has been
+     * changed by someone else. Refresh and try again.
+     */
     public static final String ERR_OPTIMISTIC_LOCK = "ERR_OPTIMISTIC_LOCK";
-    
-    /** Database version does not match system version. Sync system and database changes. */
+
+    /**
+     * Database version does not match system version. Sync system and database
+     * changes.
+     */
     public static final String ERR_VERSIONS_MISMATCH = "ERR_VERSIONS_MISMATCH";
-    
+
     /**
      * File must be attached.
      */
     public static final String ERR_FILE_EMPTY = "ERR_FILE_EMPTY";
-    
+
     /**
      * File size exceeds allowed limit of {0}KB.
      */
     public static final String ERR_FILE_TOO_BIG = "ERR_FILE_TOO_BIG";
-    
+
     /**
      * File type is not allowed. Allowed types are {0}
      */
     public static final String ERR_FILE_RESTRICTED_TYPE = "ERR_FILE_RESTRICTED_TYPE";
-    
+
     /**
      * Failed to read file {0}.
      */
     public static final String ERR_FILE_FAILED_READING = "ERR_FILE_FAILED_READING";
-    
+
     /**
      * Failed to save file {0}.
      */
     public static final String ERR_FILE_FAILED_SAVING = "ERR_FILE_FAILED_SAVING";
-    
+
     /**
      * Path to the media folder was not found.
      */
     public static final String ERR_MEDIA_PATH_NOT_FOUND = "ERR_MEDIA_PATH_NOT_FOUND";
-    
+
     /**
-     * Document can not be modified, because it is attached to the approved applications, rights or parties.
+     * Document can not be modified, because it is attached to the approved
+     * applications, rights or parties.
      */
     public static final String ERR_DOC_READ_ONLY = "ERR_DOC_READ_ONLY";
-    
+
     /**
      * File must be attached to the document.
      */
     public static final String ERR_DOC_EMPTY_FILE = "ERR_DOC_EMPTY_FILE";
-    
+
     /**
      * Document type must be provided.
      */
     public static final String ERR_DOC_EMPTY_TYPE = "ERR_DOC_EMPTY_TYPE";
+
+    /**
+     * First name is empty
+     */
+    public static final String ERR_PERSON_FIRST_NAME_EMPTY = "ERR_PERSON_FIRST_NAME_EMPTY";
+    /**
+     * Last name is empty
+     */
+    public static final String ERR_PERSON_LAST_NAME_EMPTY = "ERR_PERSON_LAST_NAME_EMPTY";
+    /**
+     * ID type is empty
+     */
+    public static final String ERR_PERSON_ID_TYPE_EMPTY = "ERR_PERSON_ID_TYPE_EMPTY";
+    /**
+     * ID number is empty
+     */
+    public static final String ERR_PERSON_ID_NUMBER_EMPTY = "ERR_PERSON_ID_NUMBER_EMPTY";
+    /**
+     * Date of birth is empty
+     */
+    public static final String ERR_PERSON_DOB_EMPTY = "ERR_PERSON_DOB_EMPTY";
+    /**
+     * Gender is empty
+     */
+    public static final String ERR_PERSON_GENDER_EMPTY = "ERR_PERSON_GENDER_EMPTY";
+    /**
+     * Citizenship is empty
+     */
+    public static final String ERR_PERSON_CITIZENSHIP_EMPTY = "ERR_PERSON_CITIZENSHIP_EMPTY";
+
+    /**
+     * Person {0} has error in the documents - {1}
+     */
+    public static final String ERR_PERSON_DOC_ERROR = "ERR_PERSON_DOC_ERROR";
+
+    /**
+     * Person {0} cannot be modified, because he/she is involved in the approved
+     * applications or registered rights
+     */
+    public static final String ERR_PERSON_READ_ONLY = "ERR_PERSON_READ_ONLY";
+
+    /**
+     * Name is empty
+     */
+    public static final String ERR_LE_NAME_EMPTY = "ERR_LE_NAME_EMPTY";
+    /**
+     * Type is empty
+     */
+    public static final String ERR_LE_TYPE_EMPTY = "ERR_LE_TYPE_EMPTY";
+
+    /**
+     * Legal entity {0} has error in the documents - {1}
+     */
+    public static final String ERR_LE_DOC_ERROR = "ERR_LE_DOC_ERROR";
+
+    /**
+     * Legal entity {0} cannot be modified, because it is involved in the
+     * approved applications or registered rights
+     */
+    public static final String ERR_LE_READ_ONLY = "ERR_LE_READ_ONLY";
+
+    /**
+     * This application cannot be edited.
+     */
+    public static final String ERR_APP_READ_ONLY = "ERR_APP_READ_ONLY";
+
+    /**
+     * Application type is empty.
+     */
+    public static final String ERR_APP_TYPE_CODE_EMPTY = "ERR_APP_TYPE_CODE_EMPTY";
+
+    /**
+     * CCRO must be provided.
+     */
+    public static final String ERR_APP_CCRO_EMPTY = "ERR_APP_CCRO_EMPTY";
+
+    /**
+     * At least one person must be added as an applicant.
+     */
+    public static final String ERR_APP_NO_PERSONS = "ERR_APP_NO_PERSONS";
+    /**
+     * Add one person as a representative of legal entity.
+     */
+    public static final String ERR_APP_NO_REP = "ERR_APP_NO_REP";
+    /**
+     * Only one representative (person) is required for legal entity.
+     */
+    public static final String ERR_APP_ONE_REP_REQUIRED = "ERR_APP_ONE_REP_REQUIRED";
+    /**
+     * Only one legal entity can be added.
+     */
+    public static final String ERR_APP_ONE_LE_REQUIRED = "ERR_APP_ONE_LE_REQUIRED";
+    /**
+     * Application #{0} is archived and cannot be modified or assigned.
+     */
+    public static final String ERR_APP_ARCHIVED = "ERR_APP_ARCHIVED";
+    /**
+     * You don't have permissions to assign applications.
+     */
+    public static final String ERR_NO_ASSIGN_ROLE = "ERR_NO_ASSIGN_ROLE";
+    /**
+     * You don't have permissions to re-assign applications.
+     */
+    public static final String ERR_NO_REASSIGN_ROLE = "ERR_NO_REASSIGN_ROLE";
+    /**
+     * User {0} doesn't exist or active
+     */
+    public static final String ERR_USER_DONT_EXISTS_OR_ACTIVE = "ERR_USER_DONT_EXISTS_OR_ACTIVE";
 }

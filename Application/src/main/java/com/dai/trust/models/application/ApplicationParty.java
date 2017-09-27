@@ -1,7 +1,7 @@
 package com.dai.trust.models.application;
 
 import com.dai.trust.models.AbstractEntity;
-import com.dai.trust.models.party.Person;
+import com.dai.trust.models.party.Party;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -16,7 +16,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "application_party")
 @IdClass(ApplicationPartyId.class)
-public class ApplicationPerson extends AbstractEntity {
+public class ApplicationParty extends AbstractEntity {
 
     @Id
     @JsonIgnore
@@ -34,10 +34,10 @@ public class ApplicationPerson extends AbstractEntity {
     private Application application;
     
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name = "party_id", referencedColumnName = "id")
-    private Person person;
+    @JoinColumn(name = "party_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Party party;
 
-    public ApplicationPerson() {
+    public ApplicationParty() {
         super();
     }
 
@@ -65,11 +65,11 @@ public class ApplicationPerson extends AbstractEntity {
         this.partyId = partyId;
     }
 
-    public Person getPerson() {
-        return person;
+    public Party getParty() {
+        return party;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setParty(Party party) {
+        this.party = party;
     }
 }

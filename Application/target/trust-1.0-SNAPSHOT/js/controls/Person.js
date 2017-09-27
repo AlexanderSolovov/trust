@@ -79,7 +79,7 @@ Controls.Person = function (controlId, targetElementId, person) {
             return;
         }
 
-        p = isNull(p) ? new PartyDao.Person() : p;
+        p = isNull(p) ? new PartyDao.Party() : p;
         localPerson = p;
 
         // Populate lists
@@ -100,9 +100,9 @@ Controls.Person = function (controlId, targetElementId, person) {
             $("#" + controlVarId + "_txtDob").val(dateFormat(p.dob));
         }
 
-        $("#" + controlVarId + "_txtFirstName").val(p.firstName);
-        $("#" + controlVarId + "_txtMiddleName").val(p.middleName);
-        $("#" + controlVarId + "_txtLastName").val(p.lastName);
+        $("#" + controlVarId + "_txtFirstName").val(p.name1);
+        $("#" + controlVarId + "_txtMiddleName").val(p.name3);
+        $("#" + controlVarId + "_txtLastName").val(p.name2);
         $("#" + controlVarId + "_txtIdNumber").val(p.idNumber);
         $("#" + controlVarId + "_txtPersonMobileNumber").val(p.mobileNumber);
         $("#" + controlVarId + "_txtPersonAddress").val(p.address);
@@ -113,7 +113,7 @@ Controls.Person = function (controlId, targetElementId, person) {
 
         // Set documents
         if (!isNull(docsControl)) {
-            docsControl.setDocuments(p.documents);
+            docsControl.setDocuments(makeObjectsList(p.documents, "document"));
         }
     };
 
@@ -169,7 +169,7 @@ Controls.Person = function (controlId, targetElementId, person) {
             }
         }
 
-        var result = new PartyDao.Person();
+        var result = new PartyDao.Party();
         if (!isNull(localPerson)) {
             result.id = localPerson.id;
             result.personPhotoId = localPerson.personPhotoId;
@@ -196,13 +196,13 @@ Controls.Person = function (controlId, targetElementId, person) {
             result.dob = dateFormat($("#" + controlVarId + "_txtDob").datepicker("getDate"), dateFormat.masks.isoDateTime);
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_txtFirstName").val())) {
-            result.firstName = $("#" + controlVarId + "_txtFirstName").val();
+            result.name1 = $("#" + controlVarId + "_txtFirstName").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_txtMiddleName").val())) {
-            result.middleName = $("#" + controlVarId + "_txtMiddleName").val();
+            result.name3 = $("#" + controlVarId + "_txtMiddleName").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_txtLastName").val())) {
-            result.lastName = $("#" + controlVarId + "_txtLastName").val();
+            result.name2 = $("#" + controlVarId + "_txtLastName").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_txtIdNumber").val())) {
             result.idNumber = $("#" + controlVarId + "_txtIdNumber").val();
@@ -218,11 +218,12 @@ Controls.Person = function (controlId, targetElementId, person) {
 
         // Set documents
         if (!isNull(docsControl)) {
-            result.documents = docsControl.getDocuments();
+            var existingDocs = isNull(localPerson) ? null : localPerson.documents;
+            result.documents = makeVersionedList(existingDocs, docsControl.getDocuments(), "document");
         }
 
         // Try to upload photo, if it's provided
-        if ($("#" + controlVarId + "_photoUploadPanel").is(':visible')) {
+        if ($("#" + controlVarId + "_photoUploadPanel").css("display") !== "none" && $("#" + controlVarId + "_photoFile").val() !== "") {
             // Upload
             DocumentDao.uploadFile($("#" + controlVarId + "_photoFile").prop("files")[0], function (response) {
                 // Check file id is not empty
@@ -244,19 +245,19 @@ Controls.Person = function (controlId, targetElementId, person) {
     };
 
     var updateFullName = function (p) {
-        var fullName = String.empty(p.firstName);
-        if (!isNullOrEmpty(p.middleName)) {
+        var fullName = String.empty(p.name1);
+        if (!isNullOrEmpty(p.name3)) {
             if (!isNullOrEmpty(fullName)) {
-                fullName = fullName + " " + p.middleName;
+                fullName = fullName + " " + p.name3;
             } else {
-                fullName = p.middleName;
+                fullName = p.name3;
             }
         }
-        if (!isNullOrEmpty(p.lastName)) {
+        if (!isNullOrEmpty(p.name2)) {
             if (!isNullOrEmpty(fullName)) {
-                fullName = fullName + " " + p.lastName;
+                fullName = fullName + " " + p.name2;
             } else {
-                fullName = p.lastName;
+                fullName = p.name2;
             }
         }
         p.fullName = fullName;

@@ -1,6 +1,5 @@
 package com.dai.trust.models.application;
 
-import com.dai.trust.models.party.*;
 import com.dai.trust.models.AbstractIdEntity;
 import java.util.Date;
 import java.util.List;
@@ -10,30 +9,30 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
-import org.hibernate.annotations.Formula;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "application")
 public class Application extends AbstractIdEntity {
 
-    @Column(name = "app_type_code")
+    @Column(name = "app_type_code", updatable = false)
     private String appTypeCode;
-    
-    @Column(name = "app_number")
+
+    @Column(name = "app_number", insertable = false, updatable = false)
     private String appNumber;
 
     @Column(name = "lodgement_date", insertable = false, updatable = false)
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date lodgementDate;
-    
+
     @Column(name = "approve_reject_date", insertable = false, updatable = false)
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date approveRejectDate;
-    
+
     @Column(name = "withdraw_date", insertable = false, updatable = false)
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date withdrawDate;
-    
+
     @Column(name = "status_code", insertable = false, updatable = false)
     private String statusCode;
 
@@ -45,27 +44,31 @@ public class Application extends AbstractIdEntity {
 
     @Column(updatable = false)
     private String assignee;
-    
+
     @Column(name = "assigned_on", insertable = false, updatable = false)
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date assignedOn;
-    
+
     @Column(name = "complete_date", insertable = false, updatable = false)
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date completeDate;
-    
+
     @Column
     private String comment;
-    
+
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@LazyCollection(LazyCollectionOption.FALSE)
     private List<ApplicationDocument> documents;
     
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApplicationPerson> personApplicants;
-    
+    private List<ApplicationParty> applicants;
+
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApplicationLegalEntity> legalEntityApplicants;
-    
+    private List<ApplicationProperty> properties;
+
+    @Transient
+    private ApplicationPermissions permissions;
+
     public Application() {
         super();
     }
@@ -174,20 +177,27 @@ public class Application extends AbstractIdEntity {
         this.documents = documents;
     }
 
-    public List<ApplicationPerson> getPersonApplicants() {
-        return personApplicants;
+    public List<ApplicationParty> getApplicants() {
+        return applicants;
     }
 
-    public void setPersonApplicants(List<ApplicationPerson> personApplicants) {
-        this.personApplicants = personApplicants;
+    public void setApplicants(List<ApplicationParty> applicants) {
+        this.applicants = applicants;
     }
 
-    public List<ApplicationLegalEntity> getLegalEntityApplicants() {
-        return legalEntityApplicants;
+    public List<ApplicationProperty> getProperties() {
+        return properties;
     }
 
-    public void setLegalEntityApplicants(List<ApplicationLegalEntity> legalEntityApplicants) {
-        this.legalEntityApplicants = legalEntityApplicants;
+    public void setProperties(List<ApplicationProperty> properties) {
+        this.properties = properties;
     }
 
+    public ApplicationPermissions getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(ApplicationPermissions permissions) {
+        this.permissions = permissions;
+    }
 }

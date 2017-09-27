@@ -51,12 +51,16 @@ Controls.Users = function (controlId, targetElementId) {
             columnDefs: [
                 {
                     targets: 0,
-                    width: "250px",
+                    width: "160px",
                     "render": function (data, type, full, meta) {
                         return String.format(DataTablesUtility.getDeleteLink(), controlVarId + ".deleteUser($(this).parents('tr'));return false;") +
                                 String.format(DataTablesUtility.getEditLink(), controlVarId + ".showUserDialog($(this).parents('tr'));return false;") +
                                 " " + data;
                     }
+                },
+                {
+                    targets: 1,
+                    width: "170px"
                 },
                 {
                     targets: 3,

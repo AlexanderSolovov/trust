@@ -1,15 +1,19 @@
 package com.dai.trust.services.system;
 
 import com.dai.trust.common.MessagesKeys;
+import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.MultipleTrustException;
 import com.dai.trust.exceptions.TrustException;
+import com.dai.trust.models.search.ApplicationSearchResult;
+import com.dai.trust.models.system.AppRole;
 import com.dai.trust.models.system.User;
 import com.dai.trust.models.system.UserGroup;
 import com.dai.trust.services.AbstractService;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.UUID;
+import javax.persistence.Query;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -157,5 +161,18 @@ public class UserService extends AbstractService {
             }
         }
         return hashString;
+    }
+    
+    /**
+     * Returns User roles
+     * @param userName User name
+     * @return 
+     */
+    public List<AppRole> getUserRoles(String userName){
+        Query q = getEM().createNativeQuery("select r.* "
+                + "from public.approle r inner join public.user_role ur on r.code = ur.rolename "
+                + "where ur.username = :userName", AppRole.class);
+        q.setParameter("username", userName);
+        return q.getResultList();
     }
 }

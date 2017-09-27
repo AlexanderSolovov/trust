@@ -82,10 +82,23 @@ Controls.PersonView = function (controlId, targetElementId, person) {
         localPerson = p;
 
         // Set fields
-        $("#" + controlVarId + "_lblGender").text(RefDataDao.getRefDataByCode(genders, p.genderCode));
-        $("#" + controlVarId + "_lblIdType").text(RefDataDao.getRefDataByCode(idTypes, p.idTypeCode));
-        $("#" + controlVarId + "_cbxCitezenships").text(RefDataDao.getRefDataByCode(citizenships, p.citizenshipCode));
-        $("#" + controlVarId + "_cbxMaritalStatuses").text(RefDataDao.getRefDataByCode(maritalStatuses, p.maritalStatusCode));
+        var gender = RefDataDao.getRefDataByCode(genders, p.genderCode);
+        var idType = RefDataDao.getRefDataByCode(idTypes, p.idTypeCode);
+        var maritalStatus = RefDataDao.getRefDataByCode(maritalStatuses, p.maritalStatusCode);
+        var citizenship = RefDataDao.getRefDataByCode(citizenships, p.citizenshipCode);
+
+        if (!isNull(gender)) {
+            $("#" + controlVarId + "_lblGender").text(gender.val);
+        }
+        if (!isNull(idType)) {
+            $("#" + controlVarId + "_lblIdType").text(idType.val);
+        }
+        if (!isNull(citizenship)) {
+            $("#" + controlVarId + "_lblCitezenship").text(gender.val);
+        }
+        if (!isNull(maritalStatus)) {
+            $("#" + controlVarId + "_lblMaritalStatus").text(maritalStatus.val);
+        }
 
         if (isNull(p.dob)) {
             $("#" + controlVarId + "_lblDob").text("");
@@ -93,23 +106,23 @@ Controls.PersonView = function (controlId, targetElementId, person) {
             $("#" + controlVarId + "_lblDob").text(dateFormat(p.dob));
         }
 
-        $("#" + controlVarId + "_lblFirstName").text(p.firstName);
-        $("#" + controlVarId + "_lblMiddleName").text(p.middleName);
-        $("#" + controlVarId + "_lblLastName").text(p.lastName);
+        $("#" + controlVarId + "_lblFirstName").text(p.name1);
+        $("#" + controlVarId + "_lblMiddleName").text(p.name3);
+        $("#" + controlVarId + "_lblLastName").text(p.name2);
         $("#" + controlVarId + "_lblIdNumber").text(p.idNumber);
         $("#" + controlVarId + "_lblPersonMobileNumber").text(p.mobileNumber);
         $("#" + controlVarId + "_lblPersonAddress").text(p.address);
-        if(typeof p.isResident !== 'undefined' && p.isResident){
+        if (typeof p.isResident !== 'undefined' && p.isResident) {
             $("#" + controlVarId + "_lblResident").show();
         } else {
             $("#" + controlVarId + "_lblResident").hide();
         }
-        
+
         showHidePhotoPanel(p.personPhotoId);
 
         // Set documents
         if (!isNull(docsControl)) {
-            docsControl.setDocuments(p.documents);
+            docsControl.setDocuments(makeObjectsList(p.documents, "document"));
         }
     };
 
@@ -123,6 +136,8 @@ Controls.PersonView = function (controlId, targetElementId, person) {
             $("#" + controlVarId + "_photo").attr("src", String.format(DocumentDao.URL_GET_FILE, fileId));
         }
     };
-    
-    this.isLoaded = function () {return loaded;};
+
+    this.isLoaded = function () {
+        return loaded;
+    };
 };

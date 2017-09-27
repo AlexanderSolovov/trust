@@ -20,11 +20,8 @@ public class Property extends AbstractIdEntity {
     @JoinColumn(name = "parcel_id")
     private Parcel parcel;
     
-    @Column(name = "parcel_id")
+    @Column(name = "parcel_id", insertable = false, updatable = false)
     private String parcelId;
-
-    @Column(name = "land_type_code")
-    private String landTypeCode;
 
     @Column(name = "file_number", insertable = false, updatable = false)
     private String fileNumber;
@@ -50,11 +47,11 @@ public class Property extends AbstractIdEntity {
     private String statusCode;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "property_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "property_id", referencedColumnName = "id")
     private List<OwnershipRight> ownershipRights;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "property_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "property_id", referencedColumnName = "id")
     private List<RestrictionRight> restrictionRights;
 
     public Property() {
@@ -75,14 +72,6 @@ public class Property extends AbstractIdEntity {
 
     public void setParcelId(String parcelId) {
         this.parcelId = parcelId;
-    }
-
-    public String getLandTypeCode() {
-        return landTypeCode;
-    }
-
-    public void setLandTypeCode(String landTypeCode) {
-        this.landTypeCode = landTypeCode;
     }
 
     public String getFileNumber() {

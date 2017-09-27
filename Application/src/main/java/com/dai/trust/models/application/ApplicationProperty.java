@@ -1,9 +1,8 @@
 package com.dai.trust.models.application;
 
 import com.dai.trust.models.AbstractEntity;
-import com.dai.trust.models.party.LegalEntity;
+import com.dai.trust.models.property.Property;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,9 +13,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "application_party")
-@IdClass(ApplicationPartyId.class)
-public class ApplicationLegalEntity extends AbstractEntity {
+@Table(name = "application_property")
+@IdClass(ApplicationPropertyId.class)
+public class ApplicationProperty extends AbstractEntity {
 
     @Id
     @JsonIgnore
@@ -25,19 +24,20 @@ public class ApplicationLegalEntity extends AbstractEntity {
 
     @Id
     @JsonIgnore
-    @Column(name = "party_id", insertable = false, updatable = false)
-    private String partyId;
+    @Column(name = "property_id", insertable = false, updatable = false)
+    private String propId;
     
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "app_id", updatable = false, insertable = false, referencedColumnName = "id")
     private Application application;
     
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name = "party_id", referencedColumnName = "id")
-    private LegalEntity legalEntity;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "property_id", updatable = false, insertable = false, referencedColumnName = "id")
+    private Property property;
 
-    public ApplicationLegalEntity() {
+    public ApplicationProperty() {
         super();
     }
 
@@ -57,19 +57,19 @@ public class ApplicationLegalEntity extends AbstractEntity {
         this.application = application;
     }
 
-    public String getPartyId() {
-        return partyId;
+    public String getPropId() {
+        return propId;
     }
 
-    public void setPartyId(String partyId) {
-        this.partyId = partyId;
+    public void setPropId(String propId) {
+        this.propId = propId;
     }
 
-    public LegalEntity getLegalEntity() {
-        return legalEntity;
+    public Property getProperty() {
+        return property;
     }
 
-    public void setLegalEntity(LegalEntity legalEntity) {
-        this.legalEntity = legalEntity;
+    public void setProperty(Property property) {
+        this.property = property;
     }
 }

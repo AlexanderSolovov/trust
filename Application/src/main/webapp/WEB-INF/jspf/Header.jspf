@@ -29,6 +29,9 @@
             <a href="${pageContext.request.contextPath}/logout" class="WhiteLink">
                 <i class="glyphicon glyphicon-log-out"></i>
             </a>
+            <script type="text/javascript">
+                Global.USER_FULL_NAME = "${userFullName}";
+            </script>
         </c:if>
     </div>
 </div>

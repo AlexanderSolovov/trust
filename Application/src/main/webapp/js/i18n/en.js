@@ -36,7 +36,6 @@ LANGUAGES.en = {
     "gen-delete-success": "Record has been deleted",
     "gen-save-success": "Record has been saved",
     
-    
     "dt-sEmptyTable": "No records",
     "dt-sInfo": "Showing _START_ to _END_ of _TOTAL_ entries",
     "dt-sInfoEmpty": "Showing 0 to 0 of 0 entries",
@@ -67,6 +66,8 @@ LANGUAGES.en = {
     "role-role": "Role",
     "ref-app-type": "Application Type",
     "ref-app-types": "Application Types",
+    "ref-app-status": "Application Status",
+    "ref-app-statuses": "Application Statuses",
     "ref-citizenship": "Citezenship",
     "ref-citizenships": "Citezenships",
     "ref-gender": "Gender",
@@ -102,9 +103,16 @@ LANGUAGES.en = {
     "app-withdrawal-reason": "Withdrawal Reason",
     "app-rejection-reason": "Rejection Reason",
     "app-assignee": "Assignee",
-    "app-assig": "Assign",
+    "app-assignees": "Assignees",
+    "app-assign": "Assign",
     "app-re-assign": "Re-Assign",
     "app-affected-objects": "Affected Objects",
+    "app-saved": "Application has been saved successfully",
+    "app-assigned": "Application has been assigned",
+    "app-apps-assigned": "Applications have been assigned",
+    
+    "dashboard-my-apps": "My Applications",
+    "dashboard-pending-apps": "Pending Applicaions",
     
     "doc-document": "Document",
     "doc-documents": "Documents",
@@ -114,6 +122,7 @@ LANGUAGES.en = {
     "doc-confirm-file-delete": "Are you sure you want to delete attached file?",
     
     "person-person": "Person",
+    "person-persons": "Persons",
     "person-first-name": "First Name",
     "person-last-name": "Last Name",
     "person-middle-name": "Middle Name",
@@ -130,6 +139,16 @@ LANGUAGES.en = {
     "le-reg-date": "Reg. Date",
     
     "status-pending": "Pending",
+    
+    "search-number": "Number",
+    "search-lodgement-date-from": "Lodgement Date (from)",
+    "search-lodgement-date-to": "Lodgement Date (to)",
+    "search-applicant-name": "Applicant Name",
+    "search-applicant-id-number": "Applicant ID number",
+    "search-ccro-number": "CCRO Number",
+    "search-results": "Search results:",
+    "search-found-too-many": "There were found more than {0} records. Please, adjust your search criteria.",
+    "search-nothing-found": "Nothing was found.",
     
     "err-error": "Error",
     "err-list-header": "The following errors have occurred:",
@@ -158,5 +177,14 @@ LANGUAGES.en = {
     "err-person-gender-empty": "Gender is empty",
     "err-person-citizenship-empty": "Citizenship is empty",
     "err-le-name-empty": "Name is empty",
-    "err-le-type-empty": "Type is empty"
+    "err-le-type-empty": "Type is empty",
+    "err-app-status-not-found": "Application status was not found",
+    "err-app-cant-edit": "You cannot edit this application",
+    "err-app-no-ccro": "CCRO must be provided.",
+    "err-app-no-persons": "At least one person must be added as an applicant.",
+    "err-app-no-representative": "Add one person as a representative of legal entity.",
+    "err-app-one-representative": "Only one representative (person) is required for legal entity.",
+    "err-app-one-le": "Only one legal entity can be added.",
+    "err-app-select-assignee": "Select assignee",
+    "err-app-select-apps": "Select applications"
 };

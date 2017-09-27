@@ -90,7 +90,11 @@ Controls.Documents = function (controlId, targetElementId, options) {
                 {
                     targets: [2, 4],
                     "render": function (data, type, row, meta) {
-                        return dateFormat(data);
+                        if (isNull(data)) {
+                            return "";
+                        } else {
+                            return dateFormat(data);
+                        }
                     }
                 },
                 {
@@ -115,7 +119,7 @@ Controls.Documents = function (controlId, targetElementId, options) {
         });
 
         $("#" + controlVarId + "_Dialog").modal('show');
-        
+
         if (rowSelector === null || typeof rowSelector === 'undefined') {
             selectedRow = null;
             fillForm(null);
@@ -150,6 +154,7 @@ Controls.Documents = function (controlId, targetElementId, options) {
 
         $("#" + controlVarId + "_txtAuthority").val(data.authority);
         $("#" + controlVarId + "_txtDescription").val(data.description);
+        $("#" + controlVarId + "_docFile").val("");
         showHideFilePanel(data.fileId);
 
         // Enable/diable fields
@@ -195,14 +200,14 @@ Controls.Documents = function (controlId, targetElementId, options) {
     };
 
     this.getDocuments = function () {
-        var docs = [];
+        var documents = [];
         table.rows().data().each(function (d) {
-            docs.push(d);
+            documents.push(d);
         });
-        if (docs.length < 1) {
+        if (documents.length < 1) {
             return null;
         } else {
-            return docs;
+            return documents;
         }
     };
 

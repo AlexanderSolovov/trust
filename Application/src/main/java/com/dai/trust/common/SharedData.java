@@ -4,6 +4,7 @@ import com.dai.trust.db.DatabaseManager;
 import com.dai.trust.filters.ContextFilter;
 import java.util.HashMap;
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -18,6 +19,7 @@ public final class SharedData implements AutoCloseable {
     public static final String KEY_APP_URL = "APP_URL";
     public static final String KEY_ENTITY_MANAGER = "ENTITY_MANAGER";
     public static final String KEY_SESSION = "SESSION";
+    public static final String KEY_REQUEST = "REQUEST";
     public static final String KEY_APP_PATH = "APP_PATH";
 
     private static ThreadLocal<SharedData> localThread = new ThreadLocal<>();
@@ -113,7 +115,7 @@ public final class SharedData implements AutoCloseable {
      */
     public static EntityManager getEm(){
         Object val = get(KEY_ENTITY_MANAGER);
-        if(val == null){
+        if(val == null || !((EntityManager)val).isOpen()){
             val = DatabaseManager.getEntityManager();
             set(KEY_ENTITY_MANAGER, val);
         } 
@@ -130,6 +132,18 @@ public final class SharedData implements AutoCloseable {
             return null;
         } 
         return (HttpSession) val;
+    }
+    
+    /** 
+     * Returns Request instance. 
+     * @return 
+     */
+    public static HttpServletRequest getRequest(){
+        Object val = get(KEY_REQUEST);
+        if(val == null){
+            return null;
+        } 
+        return (HttpServletRequest) val;
     }
     
     /**

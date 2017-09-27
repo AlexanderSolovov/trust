@@ -1,5 +1,6 @@
 /* 
  * Contains methods to communicate with server to manage reference data tables
+ * Requires Global.js
  */
 
 var RefDataDao = RefDataDao || {};
@@ -7,6 +8,7 @@ RefDataDao.REF_DATA_TYPES = {
     DocumentType: {type: "DocumentType", labelSingle: "ref-document-type", labelPlural: "ref-document-types"},
     Language: {type: "Language", labelSingle: "ref-language", labelPlural: "ref-languages"},
     AppType: {type: "AppType", labelSingle: "ref-app-type", labelPlural: "ref-app-types"},
+    AppStatus: {type: "AppStatus", labelSingle: "ref-app-status", labelPlural: "ref-app-statuses"},
     Gender: {type: "Gender", labelSingle: "ref-gender", labelPlural: "ref-genders"},
     MaritalStatus: {type: "MaritalStatus", labelSingle: "ref-marital-status", labelPlural: "ref-marital-statuses"},
     IdType: {type: "IdType", labelSingle: "ref-id-type", labelPlural: "ref-id-types"},
@@ -27,12 +29,23 @@ $(function () {
     RefDataDao.URL_DELETE_RECORD = baseUrl + "delete/{0}/{1}";
 });
 
+RefDataDao.TRANSACTION_TYPE_CODES = {
+    CaveatRegistration: "reg_caveat",
+    MortgageRegistration: "reg_mortgage",
+    OwnershipRegistration: "reg_ownership",
+    CaveatRemoval: "remove_caveat",
+    MortgageRemoval: "remove_mortgage",
+    Surrender: "surrender",
+    Termination: "terminate",
+    OwnershipTransfer: "trans_ownership"
+};
+
 RefDataDao.RefData = function () {
-    return {code: "", val: "", active: true, version: 1};
+    return {code: "", val: "", active: true, version: 0};
 };
 
 RefDataDao.Language = function () {
-    return {code: "", val: "", active: true, isDefault: false, itemOrder: 0, ltr: true, version: 1};
+    return {code: "", val: "", active: true, isDefault: false, itemOrder: 0, ltr: true, version: 0};
 };
 
 RefDataDao.getActiveRecords = function (refDataType, successAction, failAction, alwaysAction, showErrorAlert, useCache) {
@@ -49,7 +62,7 @@ RefDataDao.getActiveRecords = function (refDataType, successAction, failAction, 
             }
             return;
         }
-        var localSusscess = function(data){
+        var localSusscess = function (data) {
             saveToCache("active_" + refDataType, data);
             if (successAction !== null && typeof successAction === "function") {
                 successAction(data);
@@ -78,7 +91,7 @@ RefDataDao.getAllRecords = function (refDataType, successAction, failAction, alw
             }
             return;
         }
-        var localSusscess = function(data){
+        var localSusscess = function (data) {
             saveToCache("all_" + refDataType, data);
             if (successAction !== null && typeof successAction === "function") {
                 successAction(data);
@@ -113,11 +126,11 @@ RefDataDao.deleteRecord = function (refDataType, id, successAction, failAction, 
  * Filters list of reference data records and returns only active records.
  * @param allRecords List of records to filter.
  */
-RefDataDao.filterActiveRecords = function (allRecords){
+RefDataDao.filterActiveRecords = function (allRecords) {
     var result = [];
-    if(!isNull(allRecords)){
-        for(i=0; i<allRecords.length; i++){
-            if(allRecords[i].active){
+    if (!isNull(allRecords)) {
+        for (i = 0; i < allRecords.length; i++) {
+            if (allRecords[i].active) {
                 result.push(allRecords[i]);
             }
         }
@@ -130,10 +143,10 @@ RefDataDao.filterActiveRecords = function (allRecords){
  * @param list List of reference data objects.
  * @param code Code to search for.
  */
-RefDataDao.getRefDataByCode = function getActiveRecords(list, code){
-    if(!isNull(list) && !isNull(code)){
-        for(i=0; i<list.length; i++){
-            if(list[i].code === code){
+RefDataDao.getRefDataByCode = function getActiveRecords(list, code) {
+    if (!isNull(list) && !isNull(code)) {
+        for (i = 0; i < list.length; i++) {
+            if (list[i].code === code) {
                 return list[i];
             }
         }

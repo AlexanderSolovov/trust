@@ -138,7 +138,9 @@ div.jGrowl div.successNotification {
     background-color: #68c66a;
     border:1px solid #4d8f4f;
     height: 65px;
-    padding: 18px 5px 5px 75px;
+    padding: 0px 5px 0px 75px;
+    vertical-align: middle;
+    display: table-cell;
     color: white; 
     width: 350px;
     font-size:large;
@@ -146,6 +148,13 @@ div.jGrowl div.successNotification {
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
 }
+
+/* DataTables FixedHeader */
+table.fixedHeader-floating{position:fixed !important;background-color:white}
+table.fixedHeader-floating.no-footer{border-bottom-width:0}
+table.fixedHeader-locked{position:absolute !important;background-color:white}
+@media print{table.fixedHeader-floating{display:none}}
+table.dataTable {margin-top: 0px !important;}
 
 /*---------------------------------
 MESSAGES
@@ -284,4 +293,8 @@ div.tooltip-inner {
 
 .table-cell{
     padding-right: 10px;
+}
+
+.selectedRow, .selectedRow:hover, .selectedRow:hover td {
+    background-color: #ddffdd !important;
 }

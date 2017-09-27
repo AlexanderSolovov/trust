@@ -1,6 +1,0 @@
-- Implemented localization/internationalization functions on the server and client
-- Implemented design of the application and its pages
-- Implemented login module
-- Implemented admin module allowing to manage, groups, users and their roles
-- Implemented management of document types as a basis for other reference data tables.
-- Minor changes to adjudication form

@@ -51,7 +51,8 @@ Controls.LegalEntity = function (controlId, targetElementId, le) {
             return;
         }
 
-        l = isNull(l) ? new PartyDao.LegalEntity() : l;
+        l = isNull(l) ? new PartyDao.Party() : l;
+        l.isPrivate = false;
         legalEntity = l;
 
         // Populate lists
@@ -59,20 +60,20 @@ Controls.LegalEntity = function (controlId, targetElementId, le) {
         
         // Set other fields
         $("#" + controlVarId + "_cbxLeTypes").val(l.entityTypeCode);
-        $("#" + controlVarId + "_txtLeName").val(l.name);
-        $("#" + controlVarId + "_txtLeRegNumber").val(l.regNumber);
+        $("#" + controlVarId + "_txtLeName").val(l.name1);
+        $("#" + controlVarId + "_txtLeRegNumber").val(l.idNumber);
         $("#" + controlVarId + "_txtLeMobileNumber").val(l.mobileNumber);
         $("#" + controlVarId + "_txtLeAddress").val(l.address);
 
         if (isNull(l.establishmentDate)) {
             $("#" + controlVarId + "_txtLeRegDate").val("");
         } else {
-            $("#" + controlVarId + "_txtLeRegDate").val(dateFormat(l.establishmentDate));
+            $("#" + controlVarId + "_txtLeRegDate").val(dateFormat(l.dob));
         }
 
         // Set documents
         if (!isNull(docsControl)) {
-            docsControl.setDocuments(l.documents);
+            docsControl.setDocuments(makeObjectsList(l.documents, "document"));
         }
     };
 
@@ -102,9 +103,10 @@ Controls.LegalEntity = function (controlId, targetElementId, le) {
             }
         }
 
-        var result = new PartyDao.LegalEntity();
+        var result = new PartyDao.Party();
         if (!isNull(legalEntity)) {
             result.id = legalEntity.id;
+            result.isPrivate = false;
             result.version = legalEntity.version;
             result.parentId = legalEntity.parentId;
             result.applicationId = legalEntity.applicationId;
@@ -113,13 +115,13 @@ Controls.LegalEntity = function (controlId, targetElementId, le) {
             result.editable = legalEntity.editable;
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_txtLeName").val())) {
-            result.name = $("#" + controlVarId + "_txtLeName").val();
+            result.name1 = $("#" + controlVarId + "_txtLeName").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_cbxLeTypes").val())) {
             result.entityTypeCode = $("#" + controlVarId + "_cbxLeTypes").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_txtLeRegNumber").val())) {
-            result.regNumber = $("#" + controlVarId + "_txtLeRegNumber").val();
+            result.idNumber = $("#" + controlVarId + "_txtLeRegNumber").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_txtLeMobileNumber").val())) {
             result.mobileNumber = $("#" + controlVarId + "_txtLeMobileNumber").val();
@@ -130,6 +132,13 @@ Controls.LegalEntity = function (controlId, targetElementId, le) {
         if (!isNullOrEmpty($("#" + controlVarId + "_txtLeRegDate").val())) {
             result.establishmentDate = dateFormat($("#" + controlVarId + "_txtLeRegDate").datepicker("getDate"), dateFormat.masks.isoDateTime);
         }
+        
+        // Set documents
+        if (!isNull(docsControl)) {
+            var existingDocs = isNull(legalEntity) ? null : legalEntity.documents;
+            result.documents = makeVersionedList(existingDocs, docsControl.getDocuments(), "document");
+        }
+        
         return result;
     };
     

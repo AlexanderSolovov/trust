@@ -1,7 +1,7 @@
 package com.dai.trust.ws;
 
 import com.dai.trust.common.RolesConstants;
-import com.dai.trust.services.party.PartyService;
+import com.dai.trust.models.property.Property;
 import com.dai.trust.services.property.PropertyService;
 import com.dai.trust.ws.filters.Authorized;
 import javax.ws.rs.GET;

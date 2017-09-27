@@ -1,5 +1,6 @@
 /* 
  * Contains methods to communicate with server to manage document
+ * Requires Global.js
  */
 
 var DocumentDao = DocumentDao || {};
@@ -10,7 +11,7 @@ $(function () {
 });
 
 DocumentDao.Document = function () {
-    return {id: null, typeCode: null, refNumber: null, docDate: null, authority: null, expiryDate: null, fileId: null, description: null, version: 1};
+    return {id: null, typeCode: null, refNumber: null, docDate: null, authority: null, expiryDate: null, fileId: null, description: null, version: 0};
 };
 
 DocumentDao.uploadFile = function (file, successAction, failAction, alwaysAction, showErrorAlert) {
