@@ -7,6 +7,7 @@ import com.dai.trust.models.system.Setting;
 import com.dai.trust.models.system.User;
 import com.dai.trust.services.system.AppGroupService;
 import com.dai.trust.services.system.AppRoleService;
+import com.dai.trust.services.system.MapService;
 import com.dai.trust.services.system.SettingsService;
 import com.dai.trust.services.system.UserService;
 import com.dai.trust.ws.filters.Authenticated;
@@ -251,6 +252,44 @@ public class SystemResource extends AbstractResource {
             UserService service = new UserService();
             service.deleteById(id, User.class);
             return ResponseFactory.buildOk();
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns active map layers
+     *
+     * @param langCode Language code for localization
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getactivemaplayers|getActiveMapLayers}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getActiveMapLayers(@PathParam(value = LANG_CODE) String langCode) {
+        try {
+            MapService service = new MapService();
+            return getMapper().writeValueAsString(service.getActiveMapLayers());
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns all map layers
+     *
+     * @param langCode Language code for localization
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getallmaplayers|getAllMapLayers}")
+    @Authorized(roles = RolesConstants.ADMIN)
+    public String getAllMapLayers(@PathParam(value = LANG_CODE) String langCode) {
+        try {
+            MapService service = new MapService();
+            return getMapper().writeValueAsString(service.getAllMapLayers());
         } catch (Exception e) {
             throw processException(e, langCode);
         }

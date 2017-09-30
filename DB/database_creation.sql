@@ -3256,6 +3256,207 @@ WITH (
 );
 ALTER TABLE history.setting OWNER TO postgres;
 
+-- Layer type
+
+CREATE TABLE public.ref_layer_type
+(
+  code character varying(20) NOT NULL,
+  val character varying(500) NOT NULL,
+  active boolean NOT NULL DEFAULT TRUE,
+  rowversion integer NOT NULL DEFAULT 0,
+  action_code character(1) NOT NULL DEFAULT 'i'::bpchar,
+  action_user character varying(50),
+  action_time timestamp without time zone NOT NULL DEFAULT now(),
+  CONSTRAINT ref_layer_type_pkey PRIMARY KEY (code),
+  CONSTRAINT ref_layer_type_val_unique UNIQUE (val)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.ref_layer_type OWNER TO postgres;
+
+ALTER TABLE public.ref_layer_type OWNER TO postgres;
+COMMENT ON TABLE public.ref_layer_type IS 'Contains list of layer types';
+COMMENT ON COLUMN public.ref_layer_type.code IS 'Layer type code.';
+COMMENT ON COLUMN public.ref_layer_type.val IS 'Layer type name.';
+COMMENT ON COLUMN public.ref_layer_type.active IS 'Boolean flag indicating if record is active or not.';
+COMMENT ON COLUMN public.ref_layer_type.rowversion IS 'Row version number, indicating number of modifications done to the record and controlling concurrent access for modification.';
+COMMENT ON COLUMN public.ref_layer_type.action_code IS 'Code of action, made to the record. Insert (i), update (u) or delete (d).';
+COMMENT ON COLUMN public.ref_layer_type.action_user IS 'User name, who created, modified or deleted the record.';
+COMMENT ON COLUMN public.ref_layer_type.action_time IS 'Date and time, of the action.';
+
+CREATE TRIGGER __control_changes
+  BEFORE INSERT OR UPDATE
+  ON public.ref_layer_type
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.f_for_trg_control_changes();
+
+CREATE TRIGGER __track_history
+  AFTER UPDATE OR DELETE
+  ON public.ref_layer_type
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.f_for_trg_track_history();
+
+CREATE TABLE history.ref_layer_type
+(
+  code character varying(20),
+  val character varying(500),
+  active boolean,
+  rowversion integer,
+  action_code character(1),
+  action_user character varying(50),
+  action_time timestamp without time zone,
+  recording_time timestamp without time zone NOT NULL DEFAULT now()
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE history.ref_layer_type OWNER TO postgres;
+
+-- Map layer
+
+CREATE TABLE public.map_layer
+(
+   id character varying(40) NOT NULL, 
+   name character varying(255) NOT NULL, 
+   title character varying(255) NOT NULL, 
+   type_code character varying(20) NOT NULL, 
+   active boolean NOT NULL DEFAULT true, 
+   layer_order integer NOT NULL DEFAULT 1, 
+   url character varying(255) NOT NULL, 
+   version character varying(10), 
+   image_format character varying(100), 
+   username character varying(255), 
+   passwd character varying(255), 
+   rowversion integer NOT NULL DEFAULT 0,
+   action_code character(1) NOT NULL DEFAULT 'i'::bpchar,
+   action_user character varying(50),
+   action_time timestamp without time zone NOT NULL DEFAULT now(),
+   CONSTRAINT map_layers_id_pk PRIMARY KEY (id), 
+   CONSTRAINT map_layer_layer_type_fk FOREIGN KEY (type_code) REFERENCES public.ref_layer_type (code) ON UPDATE NO ACTION ON DELETE NO ACTION
+) 
+WITH (
+  OIDS = FALSE
+);
+ALTER TABLE public.map_layer OWNER TO postgres;
+
+COMMENT ON TABLE public.map_layer IS 'Contains map layers to display on the map';
+COMMENT ON COLUMN public.map_layer.id IS 'Identifier of the layer';
+COMMENT ON COLUMN public.map_layer.name IS 'Layer name as on map server';
+COMMENT ON COLUMN public.map_layer.title IS 'Layer title to show in the map legend';
+COMMENT ON COLUMN public.map_layer.type_code IS 'Layer type code';
+COMMENT ON COLUMN public.map_layer.active IS 'Indicates whether layer is active or not';
+COMMENT ON COLUMN public.map_layer.layer_order IS 'Layer vertical order.';
+COMMENT ON COLUMN public.map_layer.url IS 'Layer URL';
+COMMENT ON COLUMN public.map_layer.version IS 'Protocol version.';
+COMMENT ON COLUMN public.map_layer.image_format IS 'Image format for WMS layers.';
+COMMENT ON COLUMN public.map_layer.username IS 'User name, used for authentication on the map server.';
+COMMENT ON COLUMN public.map_layer.passwd IS 'User password, used for authentication on the map server.';
+COMMENT ON COLUMN public.map_layer.rowversion IS 'Row version number, indicating number of modifications done to the record and controlling concurrent access for modification.';
+COMMENT ON COLUMN public.map_layer.action_code IS 'Code of action, made to the record. Insert (i), update (u) or delete (d).';
+COMMENT ON COLUMN public.map_layer.action_user IS 'User name, who created, modified or deleted the record.';
+COMMENT ON COLUMN public.map_layer.action_time IS 'Date and time, of the action.';
+
+CREATE TRIGGER __control_changes
+  BEFORE INSERT OR UPDATE
+  ON public.map_layer
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.f_for_trg_control_changes();
+
+CREATE TRIGGER __track_history
+  AFTER UPDATE OR DELETE
+  ON public.map_layer
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.f_for_trg_track_history();
+
+CREATE TABLE history.map_layer
+(
+   id character varying(40), 
+   name character varying(255), 
+   title character varying(255), 
+   type_code character varying(20), 
+   active boolean, 
+   layer_order integer, 
+   url character varying(255), 
+   version character varying(10), 
+   image_format character varying(100), 
+   username character varying(255), 
+   passwd character varying(255), 
+   rowversion integer,
+   action_code character(1),
+   action_user character varying(50),
+   action_time timestamp without time zone,
+   recording_time timestamp without time zone NOT NULL DEFAULT now()
+) 
+WITH (
+  OIDS = FALSE
+);
+ALTER TABLE history.map_layer OWNER TO postgres;
+
+-- Map layer options
+
+CREATE TABLE public.map_layer_option
+(
+   id character varying(40) NOT NULL, 
+   layer_id character varying(40) NOT NULL, 
+   name character varying(255) NOT NULL, 
+   val character varying(255) NOT NULL, 
+   for_server boolean NOT NULL DEFAULT true, 
+   rowversion integer NOT NULL DEFAULT 0,
+   action_code character(1) NOT NULL DEFAULT 'i'::bpchar,
+   action_user character varying(50),
+   action_time timestamp without time zone NOT NULL DEFAULT now(),
+   CONSTRAINT map_layer_option_pk PRIMARY KEY (id), 
+   CONSTRAINT map_layer_option_map_layer_fk FOREIGN KEY (layer_id) REFERENCES public.map_layer (id) ON UPDATE CASCADE ON DELETE CASCADE
+) 
+WITH (
+  OIDS = FALSE
+);
+ALTER TABLE public.map_layer_option OWNER TO postgres;
+
+COMMENT ON TABLE public.map_layer_option IS 'Map layer options';
+COMMENT ON COLUMN public.map_layer_option.id IS 'Metadata identifier.';
+COMMENT ON COLUMN public.map_layer_option.layer_id IS 'Layer ID.';
+COMMENT ON COLUMN public.map_layer_option.name IS 'Option name';
+COMMENT ON COLUMN public.map_layer_option.val IS 'Option value.';
+COMMENT ON COLUMN public.map_layer_option.for_server IS 'Indicates whether the option is used for server or client.';
+COMMENT ON COLUMN public.map_layer_option.rowversion IS 'Row version number, indicating number of modifications done to the record and controlling concurrent access for modification.';
+COMMENT ON COLUMN public.map_layer_option.action_code IS 'Code of action, made to the record. Insert (i), update (u) or delete (d).';
+COMMENT ON COLUMN public.map_layer_option.action_user IS 'User name, who created, modified or deleted the record.';
+COMMENT ON COLUMN public.map_layer_option.action_time IS 'Date and time, of the action.';
+
+CREATE TRIGGER __control_changes
+  BEFORE INSERT OR UPDATE
+  ON public.map_layer_option
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.f_for_trg_control_changes();
+
+CREATE TRIGGER __track_history
+  AFTER UPDATE OR DELETE
+  ON public.map_layer_option
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.f_for_trg_track_history();
+
+CREATE TABLE history.map_layer_option
+(
+   id character varying(40), 
+   layer_id character varying(40), 
+   name character varying(255), 
+   val character varying(255), 
+   for_server boolean, 
+   rowversion integer,
+   action_code character(1),
+   action_user character varying(50),
+   action_time timestamp without time zone,
+   recording_time timestamp without time zone NOT NULL DEFAULT now(),
+   CONSTRAINT map_layer_option_pk PRIMARY KEY (id), 
+   CONSTRAINT map_layer_option_map_layer_fk FOREIGN KEY (layer_id) REFERENCES public.map_layer (id) ON UPDATE CASCADE ON DELETE CASCADE
+) 
+WITH (
+  OIDS = FALSE
+);
+ALTER TABLE history.map_layer_option OWNER TO postgres;
+
 -- Add initial data
 
 -- Roles
@@ -3484,9 +3685,9 @@ INSERT INTO public.ref_landuse(code, val) VALUES ('wildlife', 'Wildlife/Tourism:
 INSERT INTO public.ref_landuse(code, val) VALUES ('social', 'Social services::::Huduma za jamii');
 INSERT INTO public.ref_landuse(code, val) VALUES ('mining', 'Mining::::Maeneo ya madini');
 
-
-
-
+-- Layer types
+INSERT INTO public.ref_layer_type(code, val) VALUES ('wms', 'WMS');
+INSERT INTO public.ref_layer_type(code, val) VALUES ('wfs', 'WFS');
 
 
 

@@ -3,7 +3,7 @@
  * Requires Documents.js, DocumentDao.js, PartyDao.js, SearchDao.js, Personsjs, 
  * Person.js, PersonView.js, PersonSearch.js, LegalEntities.js, LegalEntity.js, 
  * LegalEntityView.js, LegalEntitySearch.js, RefDataDao.js, ApplicationAssign.js
- * ApplicationDao.js, Global.js
+ * ApplicationDao.js, MapDao.js, Global.js, URLS.js
  */
 var ApplicationCtrl = ApplicationCtrl || {};
 ApplicationCtrl.Application = new ApplicationDao.Application();
@@ -116,6 +116,9 @@ ApplicationCtrl.postLoad = function (app) {
         $("#btnBack").hide();
         $("#btnEdit").hide();
         $("#btnAssign").hide();
+        $("#btnDrawParcel").hide();
+        $("#btnManageRights").hide();
+        
         if (ApplicationCtrl.view) {
             if (app.permissions.canAssign || app.permissions.canReAssign) {
                 $("#btnAssign").show();
@@ -124,6 +127,13 @@ ApplicationCtrl.postLoad = function (app) {
             if (app.permissions.canEdit) {
                 $("#btnEdit").show();
                 $("#btnEdit").on("click", ApplicationCtrl.edit);
+            }
+            if(app.permissions.canDrawParcel){
+                $("#btnDrawParcel").show();
+                $("#btnDrawParcel").on("click", ApplicationCtrl.openMap);
+            }
+            if(app.permissions.canRegisterRight){
+                $("#btnManageRights").show();
             }
         } else {
             // Hide for new applications
@@ -232,17 +242,21 @@ ApplicationCtrl.save = function () {
     ApplicationDao.saveApplication(app, function (appId) {
         // Redirect
         window.location.replace(
-                String.format(ApplicationDao.URL_VIEW_APPLICATION_WITH_MESSAGE,
+                String.format(URLS.VIEW_APPLICATION_WITH_MESSAGE,
                         appId.id, ApplicationCtrl.MESSAGES.saved));
     });
 };
 
 ApplicationCtrl.showView = function () {
-    window.location.replace(String.format(ApplicationDao.URL_VIEW_APPLICATION, ApplicationCtrl.Application.id));
+    window.location.replace(String.format(URLS.VIEW_APPLICATION, ApplicationCtrl.Application.id));
 };
 
 ApplicationCtrl.edit = function () {
-    window.location.replace(String.format(ApplicationDao.URL_EDIT_APPLICATION, ApplicationCtrl.Application.id));
+    window.location.replace(String.format(URLS.EDIT_APPLICATION, ApplicationCtrl.Application.id));
+};
+
+ApplicationCtrl.openMap = function () {
+    window.location.replace(String.format(URLS.EDIT_MAP, ApplicationCtrl.Application.id));
 };
 
 ApplicationCtrl.assign = function () {
@@ -251,7 +265,7 @@ ApplicationCtrl.assign = function () {
                 {
                     onAssign: function () {
                         window.location.replace(String.format(
-                                ApplicationDao.URL_VIEW_APPLICATION_WITH_MESSAGE,
+                                URLS.VIEW_APPLICATION_WITH_MESSAGE,
                                 ApplicationCtrl.Application.id,
                                 ApplicationCtrl.MESSAGES.assigned));
                     }

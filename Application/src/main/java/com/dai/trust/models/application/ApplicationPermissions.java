@@ -12,7 +12,8 @@ public class ApplicationPermissions implements Serializable {
     private boolean canReject;
     private boolean canAssign;
     private boolean canReAssign;
-    private boolean canTriggerAction;
+    private boolean canDrawParcel;
+    private boolean canRegisterRight;
     
     public ApplicationPermissions(){
     }
@@ -65,11 +66,19 @@ public class ApplicationPermissions implements Serializable {
         this.canReAssign = canReAssign;
     }
 
-    public boolean isCanTriggerAction() {
-        return canTriggerAction;
+    public boolean isCanDrawParcel() {
+        return canDrawParcel;
     }
 
-    public void setCanTriggerAction(boolean canTriggerAction) {
-        this.canTriggerAction = canTriggerAction;
+    public void setCanDrawParcel(boolean canDrawParcel) {
+        this.canDrawParcel = canDrawParcel;
+    }
+
+    public boolean isCanRegisterRight() {
+        return canRegisterRight;
+    }
+
+    public void setCanRegisterRight(boolean canRegisterRight) {
+        this.canRegisterRight = canRegisterRight;
     }
 }

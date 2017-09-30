@@ -5,6 +5,7 @@ com\dai\trust\common\RolesConstants.class
 com\dai\trust\models\search\PersonSearchResult.class
 com\dai\trust\models\property\Poi.class
 com\dai\trust\models\property\Property.class
+com\dai\trust\models\search\ApplicationSearchParams.class
 com\dai\trust\models\AbstractCodeEntity.class
 com\dai\trust\models\application\Application.class
 com\dai\trust\ws\AbstractResource.class
@@ -26,6 +27,7 @@ com\dai\trust\models\party\PartyDocument.class
 com\dai\trust\models\refdata\AppTypeGroup.class
 com\dai\trust\models\application\ApplicationParty.class
 com\dai\trust\models\AbstractEntity.class
+com\dai\trust\models\search\ApplicationSearchResult.class
 com\dai\trust\exceptions\TrustException.class
 com\dai\trust\models\refdata\RightTypeGroup.class
 com\dai\trust\models\refdata\Gender.class
@@ -62,11 +64,13 @@ com\dai\trust\models\refdata\Language.class
 com\dai\trust\services\property\PropertyService.class
 com\dai\trust\models\system\AppGroup.class
 com\dai\trust\ws\SystemResource.class
+com\dai\trust\models\search\UserSearchResult.class
 com\dai\trust\models\application\ApplicationPartyId.class
 com\dai\trust\ws\filters\Authorized.class
 com\dai\trust\models\property\Parcel.class
 com\dai\trust\db\DatabaseManager.class
 com\dai\trust\common\DateUtility.class
+com\dai\trust\models\application\ApplicationBasic.class
 com\dai\trust\models\system\UserGroup.class
 com\dai\trust\services\system\SettingsService.class
 com\dai\trust\models\system\AppRoleGroup.class

@@ -11,6 +11,7 @@ $(function () {
     SearchDao.URL_FULL_USER_NAME_SEARCH = baseUrl + "userfullname/{0}";
     SearchDao.URL_SEARCH_MY_APPS = baseUrl + "myapplications";
     SearchDao.URL_SEARCH_PENDING_APPS = baseUrl + "pendingapplications";
+    SearchDao.URL_SEARCH_APP_BY_ID = baseUrl + "application/{0}";
     SearchDao.URL_SEARCH_USERS_FOR_ASSIGNMENT = baseUrl + "usersforassignment";
     SearchDao.URL_SEARCH_APPS = baseUrl + "applications";
 });
@@ -60,6 +61,10 @@ SearchDao.searchMyApps = function (successAction, failAction, alwaysAction, show
 
 SearchDao.searchPendingApps = function (successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(SearchDao.URL_SEARCH_PENDING_APPS, successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SearchDao.searchAppById = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_SEARCH_APP_BY_ID, id), successAction, failAction, alwaysAction, showErrorAlert);
 };
 
 SearchDao.searchApplications = function (data, successAction, failAction, alwaysAction, showErrorAlert) {

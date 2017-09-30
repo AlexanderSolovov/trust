@@ -82,6 +82,25 @@ public class SearchService extends AbstractService {
         q.setParameter("username", SharedData.getUserName());
         return q.getResultList();
     }
+    
+    /**
+     * Searches application by id.
+     *
+     * @param langCode Language code for localization
+     * @param appId
+     * @return
+     */
+    public ApplicationSearchResult searchApplicationById(String langCode, String appId) {
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(APP_SEARCH_SELECT + " where a.id = :appId", ApplicationSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("appId", appId);
+        return (ApplicationSearchResult)q.getSingleResult();
+    }
 
     /**
      * Searches applications by various parameters.

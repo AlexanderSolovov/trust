@@ -110,6 +110,7 @@ LANGUAGES.en = {
     "app-saved": "Application has been saved successfully",
     "app-assigned": "Application has been assigned",
     "app-apps-assigned": "Applications have been assigned",
+    "app-header-info": "(Application #{0} - {1})",
     
     "dashboard-my-apps": "My Applications",
     "dashboard-pending-apps": "Pending Applicaions",
@@ -137,6 +138,11 @@ LANGUAGES.en = {
     "le-legalentity": "Legal Entity",
     "le-reg-num": "Reg. Number",
     "le-reg-date": "Reg. Date",
+    
+    "map-map": "Map",
+    "map-edit-map": "Edit Map",
+    
+    "prop-prop": "CCRO",
     
     "status-pending": "Pending",
     

@@ -13,12 +13,14 @@ import com.dai.trust.models.application.ApplicationParty;
 import com.dai.trust.models.application.ApplicationPermissions;
 import com.dai.trust.models.party.Party;
 import com.dai.trust.models.party.PartyDocument;
+import com.dai.trust.models.property.Parcel;
 import com.dai.trust.models.refdata.AppType;
 import com.dai.trust.models.refdata.TransactionType;
 import com.dai.trust.models.system.User;
 import com.dai.trust.services.AbstractService;
 import com.dai.trust.services.document.DocumentService;
 import com.dai.trust.services.party.PartyService;
+import com.dai.trust.services.property.PropertyService;
 import com.dai.trust.services.refdata.RefDataService;
 import com.dai.trust.services.system.UserService;
 import java.util.List;
@@ -108,7 +110,7 @@ public class ApplicationService extends AbstractService {
                         app.setAssignee(userName);
                     }
                 }
-                
+
                 // Commit changes
                 tx.commit();
             } catch (Exception e) {
@@ -169,11 +171,44 @@ public class ApplicationService extends AbstractService {
             permissions.setCanWithdraw(false);
         }
 
-        // Trigger action
-        // Make checks related to the next step of application
-        permissions.setCanTriggerAction(isAssignee);
+        // Can draw parcel
+        AppType appType = null;
+        String transCode = "";
+
+        if (!StringUtility.isEmpty(app.getAppTypeCode())) {
+            appType = getById(AppType.class, app.getAppTypeCode(), false);
+            if (appType != null) {
+                transCode = StringUtility.empty(appType.getTransactionTypeCode());
+            }
+        }
+
+        permissions.setCanDrawParcel(false);
+        if (isAssignee && isInRole(RolesConstants.MANAGE_PARCELS) && isPending(app)
+                && transCode.equalsIgnoreCase(TransactionType.OWNERSHIP_REGISTRATION)) {
+            permissions.setCanDrawParcel(true);
+        }
+
+        // Can register rights
+        permissions.setCanRegisterRight(false);
+        if (!StringUtility.isEmpty(app.getId()) && isAssignee && isInRole(RolesConstants.MANAGE_RIGHTS) && isPending(app)
+                && !transCode.equalsIgnoreCase(TransactionType.SURRENDER) && !transCode.equalsIgnoreCase(TransactionType.TERMINATION)) {
+            if (!transCode.equalsIgnoreCase(TransactionType.OWNERSHIP_REGISTRATION) && app.getProperties() != null && app.getProperties().size() > 0) {
+                permissions.setCanRegisterRight(true);
+            } else if (transCode.equalsIgnoreCase(TransactionType.OWNERSHIP_REGISTRATION)) {
+                // Check for created parcels, needed for right 
+                PropertyService propService = new PropertyService();
+                List<Parcel> parcels = propService.getParcelsByApplicationId(app.getId());
+                if(parcels != null && parcels.size() > 0){
+                    permissions.setCanRegisterRight(true);
+                }
+            }
+        }
 
         return permissions;
+    }
+
+    private boolean isPending(Application app) {
+        return !StringUtility.isEmpty(app.getStatusCode()) && app.getStatusCode().equalsIgnoreCase(StatusCodeConstants.PENDING);
     }
 
     private boolean canEdit(Application app) {

@@ -46,6 +46,12 @@
                     <button type="button" id="btnAssign" class="btn btn-default">
                         <i class="glyphicon glyphicon-share-alt"></i> <span data-i18n="app-assign"></span>
                     </button>
+                    <button type="button" id="btnDrawParcel" class="btn btn-default">
+                        <i class="glyphicon glyphicon-map-marker"></i> <span data-i18n="map-edit-map"></span>
+                    </button>
+                    <button type="button" id="btnManageRights" class="btn btn-default">
+                        <i class="glyphicon glyphicon-list-alt"></i> <span data-i18n="prop-prop"></span>
+                    </button>
                 </div>
                 <div class="LineSpace"></div>
             </div>

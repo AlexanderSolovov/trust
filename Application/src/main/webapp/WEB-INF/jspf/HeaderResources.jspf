@@ -45,6 +45,7 @@
 
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/common/DateUtility.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath}/js/common/Global.js"></script>
+<script type="text/javascript" src="${pageContext.request.contextPath}/js/common/Urls.js"></script>
 
 <c:if test="${empty ltr ? false : not ltr}">
     <link type="text/css" rel="stylesheet" href="${pageContext.request.contextPath}/css/rtl.css" />

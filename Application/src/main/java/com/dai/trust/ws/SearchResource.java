@@ -2,10 +2,8 @@ package com.dai.trust.ws;
 
 import com.dai.trust.common.RolesConstants;
 import com.dai.trust.exceptions.ExceptionFactory;
-import com.dai.trust.models.application.Application;
 import com.dai.trust.models.search.ApplicationSearchParams;
 import com.dai.trust.models.system.User;
-import com.dai.trust.services.application.ApplicationService;
 import com.dai.trust.services.search.SearchService;
 import com.dai.trust.services.system.UserService;
 import com.dai.trust.ws.filters.Authorized;
@@ -90,6 +88,26 @@ public class SearchResource extends AbstractResource {
         try {
             SearchService service = new SearchService();
             return getMapper().writeValueAsString(service.searchMyApplications(langCode));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Searches application by id
+     *
+     * @param langCode Language code for localization
+     * @param id Application id
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "application/{id}")
+    @Authorized(roles = {RolesConstants.SEARCH, RolesConstants.VIEWING})
+    public String searchApplicationById(@PathParam(value = LANG_CODE) String langCode, @PathParam("id") String id) {
+        try {
+            SearchService service = new SearchService();
+            return getMapper().writeValueAsString(service.searchApplicationById(langCode, id));
         } catch (Exception e) {
             throw processException(e, langCode);
         }

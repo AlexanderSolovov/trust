@@ -10,9 +10,6 @@ $(function () {
     ApplicationDao.URL_SAVE_APPLICATION = baseUrl + "saveapplication";
     ApplicationDao.URL_ASSIGN_APPLICATION = baseUrl + "assignapplication/{0}/{1}";
     ApplicationDao.URL_ASSIGN_APPLICATIONS = baseUrl + "assignapplications/{0}";
-    ApplicationDao.URL_EDIT_APPLICATION = Global.APP_ROOT + "/application/application.jsp?id={0}";
-    ApplicationDao.URL_VIEW_APPLICATION = Global.APP_ROOT + "/application/application.jsp?id={0}&view";
-    ApplicationDao.URL_VIEW_APPLICATION_WITH_MESSAGE = ApplicationDao.URL_VIEW_APPLICATION + "&msg={1}";
 });
 
 ApplicationDao.Application = function () {
@@ -34,7 +31,7 @@ ApplicationDao.Application = function () {
         personApplicants: null,
         legalEntityApplicants: null,
         properties: null,
-        permissions: {canEdit: true, canApprove: false, canWithdraw: false, canReject: false, canAssign: false, canReAssign: false, canTriggerAction: false},
+        permissions: {canEdit: true, canApprove: false, canWithdraw: false, canReject: false, canAssign: false, canReAssign: false, canDrawParcel: false, canRegisterRight: false},
         version: 0
     };
 };

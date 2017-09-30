@@ -98,15 +98,19 @@
         </user-data-constraint>
     </security-constraint>
     <security-constraint>
-        <display-name>Manage Applications</display-name>
+        <display-name>Viewing</display-name>
         <web-resource-collection>
             <web-resource-name>applications</web-resource-name>
             <description/>
             <url-pattern>/application/application.jsp</url-pattern>
         </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>map</web-resource-name>
+            <description/>
+            <url-pattern>/map/map.jsp</url-pattern>
+        </web-resource-collection>
         <auth-constraint>
             <description/>
-            <role-name>ManageApps</role-name>
             <role-name>Viewing</role-name>
         </auth-constraint>
         <user-data-constraint>

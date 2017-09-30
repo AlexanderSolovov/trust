@@ -1,6 +1,7 @@
 /* 
  * Applications control.
- * Requires Global.js, DataTablesUtility.js, SearchDao.js,  ApplicationDao.js, ApplicationAssign.js
+ * Requires Global.js, DataTablesUtility.js, SearchDao.js,  ApplicationDao.js, 
+ * ApplicationAssign.js, URLS.js
  */
 var Controls = Controls || {};
 
@@ -63,7 +64,7 @@ Controls.Applications = function (controlId, targetElementId, options) {
                     if (isFunction(onSelect)) {
                         return String.format(DataTablesUtility.getViewLink(), controlVarId + ".selectApplication($(this).parents('tr'));return false;", data);
                     } else {
-                        return '<a href="' + String.format(ApplicationDao.URL_VIEW_APPLICATION, row.id) + '">' + data + '</a>';
+                        return '<a href="' + String.format(URLS.VIEW_APPLICATION, row.id) + '">' + data + '</a>';
                     }
                 }
             },
