@@ -6,10 +6,13 @@ import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.MultipleTrustException;
 import com.dai.trust.exceptions.TrustException;
+import com.dai.trust.models.system.MapLayer;
+import com.dai.trust.models.system.MapSettings;
 import com.dai.trust.models.system.Setting;
 import com.dai.trust.services.AbstractService;
 import java.io.File;
 import java.util.List;
+import javax.persistence.Query;
 import javax.servlet.http.HttpSession;
 
 /**
@@ -45,44 +48,45 @@ public class SettingsService extends AbstractService {
         return getById(Setting.class, id, false);
     }
 
-    /** 
+    /**
      * Returns folder path, where all document files are stored.
-     * @return  
+     *
+     * @return
      */
-    public String getMediaPath(){
-        if(SharedData.getSession() != null){
+    public String getMediaPath() {
+        if (SharedData.getSession() != null) {
             Object tmpPath = SharedData.getSession().getAttribute(SETTING_MEDIA_PATH);
-            if(tmpPath != null && !StringUtility.isEmpty(tmpPath.toString())){
+            if (tmpPath != null && !StringUtility.isEmpty(tmpPath.toString())) {
                 return tmpPath.toString();
             }
         }
-        
+
         String mediaPath = SharedData.getAppPath() + "/../trust_files";
         Setting settgingPath = getSetting(SETTING_MEDIA_PATH);
-        
-        if(settgingPath != null){
-            if(new File(settgingPath.getVal()).isAbsolute()){
+
+        if (settgingPath != null) {
+            if (new File(settgingPath.getVal()).isAbsolute()) {
                 mediaPath = settgingPath.getVal();
             } else {
                 mediaPath = SharedData.getAppPath() + "/" + settgingPath.getVal();
             }
         }
-        
+
         // Save to session
-        if(SharedData.getSession() != null){
+        if (SharedData.getSession() != null) {
             SharedData.getSession().setAttribute(SETTING_MEDIA_PATH, mediaPath);
         }
         return mediaPath;
     }
-    
-    private String getMediaPathFromSetting(){
+
+    private String getMediaPathFromSetting() {
         Setting settgingPath = getSetting(SETTING_MEDIA_PATH);
-        if(settgingPath != null){
+        if (settgingPath != null) {
             return settgingPath.getVal();
         }
         return "";
     }
-    
+
     /**
      * Saves setting to the database
      *
@@ -114,6 +118,10 @@ public class SettingsService extends AbstractService {
         return save(setting, true);
     }
 
+    /** 
+     * Checks application and database version. If they are not compatible, appropriate exception will be thrown. 
+     * @param session HttpSession object to save db version for subsequent checks
+     */
     public void verifyVersion(HttpSession session) {
         String dbVersion = (String) session.getAttribute(SettingsService.SETTING_VERSION);
         if (StringUtility.isEmpty(dbVersion)) {

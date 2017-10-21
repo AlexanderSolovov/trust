@@ -378,7 +378,15 @@ function runSafe(func) {
             func();
         }
     } catch (e) {
-        console.error(e.message);
+        if (!isNull(e)) {
+            if (!isNull(e.message)) {
+                console.error(e.message);
+            } else {
+                console.error(e);
+            }
+        } else {
+            console.error("Exception is empty");
+        }
     }
 }
 
@@ -424,7 +432,7 @@ function isNull(obj) {
     return obj === null || typeof obj === 'undefined';
 }
 
-function isFunction(func){
+function isFunction(func) {
     return func !== null && typeof func === "function";
 }
 
@@ -632,12 +640,17 @@ function validateControl(controlId, targetElementId) {
  * Populates select list with provided values. List of values must be one of the reference data type.
  * @param valuesList List containing reference data type objects
  * @param controlId Select list id.
+ * @param addDummy Boolean flag indicating whther to add empty element or not
  */
-function populateSelectList(valuesList, controlId) {
+function populateSelectList(valuesList, controlId, addDummy) {
     if (!isNull(valuesList) && $("#" + controlId + " > option").length < 1) {
         $.each(valuesList, function (i, item) {
             $("#" + controlId).append($("<option />").val(item.code).text(item.val));
         });
+        if(addDummy){
+            $("#" + controlId).prepend($("<option />").val("").text(" "));
+        }
+        $("#" + controlId).prop("selectedIndex", -1);
     }
 }
 
@@ -647,7 +660,7 @@ function populateSelectList(valuesList, controlId) {
  * @param propName Property name, referencing the object to extract (e.g. document).
  * @return Returns list of objects
  */
-function makeObjectsList (vlist, propName) {
+function makeObjectsList(vlist, propName) {
     if (isNull(vlist) || vlist.length < 1 || !vlist[0].hasOwnProperty(propName)) {
         return [];
     }
@@ -656,7 +669,8 @@ function makeObjectsList (vlist, propName) {
         docs.push(vlist[i][propName]);
     }
     return docs;
-};
+}
+;
 
 /** 
  * Makes list of versioned objects for differenct relations (e.g. documents and party, application, etc.). 
@@ -666,7 +680,7 @@ function makeObjectsList (vlist, propName) {
  * @param propName Property name, referencing the object to put into versioned list (e.g. document).
  * @return Returns versioned list of objects
  */
-function makeVersionedList (vlist, olist, propName) {
+function makeVersionedList(vlist, olist, propName) {
     if (isNull(olist) || olist.length < 1) {
         return [];
     }
@@ -678,7 +692,7 @@ function makeVersionedList (vlist, olist, propName) {
     for (i = 0; i < olist.length; i++) {
         var version = 0;
         for (j = 0; j < vlist.length; j++) {
-            if(!isNull(vlist[j][propName]) && vlist[j][propName].id === olist[i].id){
+            if (!isNull(vlist[j][propName]) && vlist[j][propName].id === olist[i].id) {
                 version = vlist[j].version;
                 break;
             }
@@ -689,15 +703,16 @@ function makeVersionedList (vlist, olist, propName) {
         resultList.push(vobj);
     }
     return resultList;
-};
+}
+;
 
 /**
  * Replaces line breaks with <br> bags
  * @param val Value to process
  * @return 
  */
-function replaceNewLineWithBr(val){
-    if(!isNull(val)){
+function replaceNewLineWithBr(val) {
+    if (!isNull(val)) {
         return val.replace(/(?:\r\n|\r|\n)/g, '<br />');
     }
     return "";

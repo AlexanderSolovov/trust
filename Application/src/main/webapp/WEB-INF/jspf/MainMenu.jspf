@@ -51,6 +51,27 @@
                     </li>
                 </c:if>
 
+                <c:if test="${pageContext.request.isUserInRole(roles.SEARCH)}">
+                    <li class='${menu.getItemClassByPath(pageContext.request, "/property/")}'>
+                        <a href="#"><i class="glyphicon glyphicon-list-alt"></i> <fmt:message key="MENU_PROPERTIES" /> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="${pageContext.request.contextPath}/property/search.jsp">
+                                    <i class="glyphicon glyphicon-search"></i> <fmt:message key="MENU_SEARCH" />
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </c:if>
+
+                <c:if test="${pageContext.request.isUserInRole(roles.VIEWING)}">
+                    <li class='${menu.getItemClassByPath(pageContext.request, "/map/")}'>
+                        <a href="${pageContext.request.contextPath}/map/map.jsp">
+                            <i class="glyphicon glyphicon-map-marker"></i> <fmt:message key="MENU_MAP" />
+                        </a>
+                    </li>
+                </c:if>
+
                 <c:if test="${pageContext.request.isUserInRole(roles.ADMIN)}">
                     <li class='${menu.getItemClassByPath(pageContext.request, "/admin/")}'>
                         <a href="#"><i class="glyphicon glyphicon-wrench"></i> <fmt:message key="MENU_ADMIN" /> <span class="caret"></span></a>

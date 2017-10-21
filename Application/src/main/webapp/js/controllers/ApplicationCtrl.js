@@ -134,6 +134,7 @@ ApplicationCtrl.postLoad = function (app) {
             }
             if(app.permissions.canRegisterRight){
                 $("#btnManageRights").show();
+                $("#btnManageRights").on("click", ApplicationCtrl.openProperty);
             }
         } else {
             // Hide for new applications
@@ -257,6 +258,10 @@ ApplicationCtrl.edit = function () {
 
 ApplicationCtrl.openMap = function () {
     window.location.replace(String.format(URLS.EDIT_MAP, ApplicationCtrl.Application.id));
+};
+
+ApplicationCtrl.openProperty = function () {
+    window.location.replace(String.format(URLS.EDIT_PROPERTY, ApplicationCtrl.Application.id));
 };
 
 ApplicationCtrl.assign = function () {

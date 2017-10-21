@@ -14,6 +14,9 @@ $(function () {
     SearchDao.URL_SEARCH_APP_BY_ID = baseUrl + "application/{0}";
     SearchDao.URL_SEARCH_USERS_FOR_ASSIGNMENT = baseUrl + "usersforassignment";
     SearchDao.URL_SEARCH_APPS = baseUrl + "applications";
+    SearchDao.URL_SEARCH_PARCEL_BY_POINT = baseUrl + "parcelbypoint?x={0}&y={1}";
+    SearchDao.URL_SEARCH_PARCELS_BY_APPLICATION = baseUrl + "parcelsbyapplication/{0}";
+    SearchDao.URL_SEARCH_PARCEL_BY_ID = baseUrl + "parcelbyid/{0}";
 });
 
 SearchDao.PersonSearchResult = function () {
@@ -88,4 +91,16 @@ SearchDao.searchFullUserName = function (userName, successAction, failAction, al
 
 SearchDao.searchUsersForAssignment = function (successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(SearchDao.URL_SEARCH_USERS_FOR_ASSIGNMENT, successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SearchDao.searchParcelByPoint = function (x, y, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_SEARCH_PARCEL_BY_POINT, x, y), successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SearchDao.searchParcelsByApp = function (appId, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_SEARCH_PARCELS_BY_APPLICATION, appId), successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SearchDao.searchParcelById = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_SEARCH_PARCEL_BY_ID, id), successAction, failAction, alwaysAction, showErrorAlert);
 };

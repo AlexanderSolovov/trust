@@ -204,4 +204,72 @@ public class SearchResource extends AbstractResource {
             throw processException(e, langCode);
         }
     }
+    
+    /**
+     * Searches parcel by x, y coordinate
+     *
+     * @param langCode Language code for localization
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:parcelbypoint|ParcelByPoint}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getParcelByPoint(
+            @PathParam(value = LANG_CODE) String langCode,
+            @QueryParam(value = "x") String x,
+            @QueryParam(value = "y") String y) {
+        try {
+            SearchService service = new SearchService();
+            return getMapper().writeValueAsString(service.searchParcelByPoint(langCode, x, y));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Searches parcels by application id
+     *
+     * @param langCode Language code for localization
+     * @param appId Application id
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:parcelsbyapplication|ParcelsByApplication}/{appId}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getParcelsByApplication(
+            @PathParam(value = LANG_CODE) String langCode,
+            @PathParam("appId") String appId) {
+        try {
+            SearchService service = new SearchService();
+            return getMapper().writeValueAsString(service.searchParcelsByApplication(langCode, appId));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Searches parcel by its id
+     *
+     * @param langCode Language code for localization
+     * @param id Parcel id
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:parcelbyid|ParcelById}/{id}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getParcelById(
+            @PathParam(value = LANG_CODE) String langCode,
+            @PathParam("id") String id) {
+        try {
+            SearchService service = new SearchService();
+            return getMapper().writeValueAsString(service.searchParcelById(langCode, id));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
 }

@@ -18,6 +18,7 @@ $(function () {
     SystemDao.URL_DELETE_USER = baseUrl + "deleteuser/{0}";
     SystemDao.URL_GET_ACTIVE_MAP_LAYERS = baseUrl + "getactivemaplayers";
     SystemDao.URL_GET_ALL_MAP_LAYERS = baseUrl + "getallmaplayers";
+    SystemDao.URL_GET_MAP_SETTINGS = baseUrl + "getmapsettings";
 });
 
 SystemDao.Setting = function () {
@@ -76,4 +77,8 @@ SystemDao.getActiveMapLayers = function (successAction, failAction, alwaysAction
 
 SystemDao.getAllMapLayers = function (successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(SystemDao.URL_GET_ALL_MAP_LAYERS, successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SystemDao.getMapSettings = function (successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(SystemDao.URL_GET_MAP_SETTINGS, successAction, failAction, alwaysAction, showErrorAlert);
 };

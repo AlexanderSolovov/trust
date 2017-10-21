@@ -63,7 +63,7 @@ public class SystemResource extends AbstractResource {
     @GET
     @Produces("application/json; charset=UTF-8")
     @Path(value = "{a:getsetting|getSetting}/{id}")
-    @Authenticated
+    @Authorized(roles = RolesConstants.ADMIN)
     public String getSetting(@PathParam(value = LANG_CODE) String langCode,
             @PathParam(value = "id") String id) {
         try {
@@ -290,6 +290,25 @@ public class SystemResource extends AbstractResource {
         try {
             MapService service = new MapService();
             return getMapper().writeValueAsString(service.getAllMapLayers());
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns map settings
+     *
+     * @param langCode Language code for localization
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getmapsettings|getMapSettings}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getMapSettings(@PathParam(value = LANG_CODE) String langCode) {
+        try {
+            MapService service = new MapService();
+            return getMapper().writeValueAsString(service.getMapSettings());
         } catch (Exception e) {
             throw processException(e, langCode);
         }

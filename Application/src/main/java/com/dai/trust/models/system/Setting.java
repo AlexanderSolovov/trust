@@ -8,7 +8,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "setting")
 public class Setting extends AbstractIdEntity {
-
+    public static final String SETTING_SRS = "srs";
+    public static final String SETTING_OFFLINE_MODE = "offline-mode";
+    public static final String SETTING_MAP_EXTENT = "map-extent";
+    
     @Column
     private String val;
 

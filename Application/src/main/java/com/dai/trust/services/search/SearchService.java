@@ -5,7 +5,9 @@ import com.dai.trust.common.StringUtility;
 import com.dai.trust.models.search.ApplicationSearchParams;
 import com.dai.trust.models.search.ApplicationSearchResult;
 import com.dai.trust.models.search.LegalEntitySearchResult;
+import com.dai.trust.models.search.ParcelSearchResult;
 import com.dai.trust.models.search.PersonSearchResult;
+import com.dai.trust.models.search.PropertyCodeSearchResult;
 import com.dai.trust.models.search.UserSearchResult;
 import com.dai.trust.services.AbstractService;
 import java.util.Calendar;
@@ -37,7 +39,21 @@ public class SearchService extends AbstractService {
             + "		from public.application_property ap inner join property p on ap.property_id = p.id \n"
             + "		group by ap.app_id) props on a.id = props.app_id ";
 
-    private final String APP_SEARCH_ORDER = "order by a.lodgement_date desc ";
+    private final String APP_SEARCH_ORDER = " order by a.lodgement_date desc ";
+
+    private final String PARCEL_SEARCH_SELECT = "select p.id, p.land_type_code, get_translation(lt.val, :langCode) as land_type_name,"
+            + "	p.uka, st_astext(p.geom) as geom, p.survey_date, p.hamlet_code, p.address, "
+            + "	public.get_location_by_hamlet(p.hamlet_code, :langCode) as parcel_location, "
+            + "	p.comment, p.application_id, a.app_number, p.end_application_id, "
+            + "	aend.app_number as end_app_number, p.status_code, "
+            + "	get_translation(ps.val, :langCode) as status_name "
+            + "from (((public.parcel p left join public.ref_land_type lt on p.land_type_code = lt.code) "
+            + "        inner join public.ref_parcel_status ps on p.status_code = ps.code) "
+            + "        left join public.application a on p.application_id = a.id) "
+            + "        left join public.application aend on p.end_application_id = aend.id";
+
+    private final String PROP_CODE_SEARCH_SELECT = "select p.id, p.prop_number, get_translation(rs.val, :langCode) as status_name "
+            + "from public.property p inner join public.ref_reg_status rs on p.status_code = rs.code";
 
     public SearchService() {
         super();
@@ -57,6 +73,7 @@ public class SearchService extends AbstractService {
 
         Query q = getEM().createNativeQuery(APP_SEARCH_SELECT
                 + "\n where a.complete_date is null and a.complete_date is null and a.assignee = :username"
+                + APP_SEARCH_ORDER
                 + " limit 1000", ApplicationSearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("username", SharedData.getUserName());
@@ -77,12 +94,13 @@ public class SearchService extends AbstractService {
 
         Query q = getEM().createNativeQuery(APP_SEARCH_SELECT
                 + "\n where a.status_code = 'pending' and a.assignee != :username"
+                + APP_SEARCH_ORDER
                 + " limit 1000", ApplicationSearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("username", SharedData.getUserName());
         return q.getResultList();
     }
-    
+
     /**
      * Searches application by id.
      *
@@ -99,7 +117,7 @@ public class SearchService extends AbstractService {
         Query q = getEM().createNativeQuery(APP_SEARCH_SELECT + " where a.id = :appId", ApplicationSearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("appId", appId);
-        return (ApplicationSearchResult)q.getSingleResult();
+        return (ApplicationSearchResult) q.getSingleResult();
     }
 
     /**
@@ -282,6 +300,122 @@ public class SearchService extends AbstractService {
                 + "from public.appuser u inner join public.user_role ur on u.username = ur.username "
                 + "where u.active = 't' and ur.rolename = 'Viewing'"
                 + "order by u.first_name", UserSearchResult.class);
+        return q.getResultList();
+    }
+
+    /**
+     * Searches parcel by x, y coordinate.
+     *
+     * @param langCode Language code for localization
+     * @param x X coordinate
+     * @param y Y coordinate
+     * @return
+     */
+    public ParcelSearchResult searchParcelByPoint(String langCode, String x, String y) {
+        if (StringUtility.isEmpty(x) || StringUtility.isEmpty(y)) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+        String point = "POINT(" + x + " " + y + ")";
+
+        Query q = getEM().createNativeQuery(PARCEL_SEARCH_SELECT
+                + " where ST_Contains(p.geom, ST_GeomFromText(:wktPoint, St_SRID(p.geom))) order by p.survey_date desc",
+                ParcelSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("wktPoint", point);
+        List<ParcelSearchResult> results = q.getResultList();
+
+        if (results != null && results.size() > 0) {
+            results.get(0).setPropCodes(searchPropCodesByParcel(langCode, results.get(0).getId()));
+            return results.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * Searches parcels by application.
+     *
+     * @param langCode Language code for localization
+     * @param appId Application ID
+     * @return
+     */
+    public List<ParcelSearchResult> searchParcelsByApplication(String langCode, String appId) {
+        if (StringUtility.isEmpty(appId)) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(PARCEL_SEARCH_SELECT
+                + " where p.application_id = :appId order by p.survey_date desc",
+                ParcelSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("appId", appId);
+        List<ParcelSearchResult> results = q.getResultList();
+
+        if (results != null && results.size() > 0) {
+            for (ParcelSearchResult parcel : results) {
+                parcel.setPropCodes(searchPropCodesByParcel(langCode, parcel.getId()));
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Searches parcel by its id.
+     *
+     * @param langCode Language code for localization
+     * @param id Parcel id
+     * @return
+     */
+    public ParcelSearchResult searchParcelById(String langCode, String id) {
+        if (StringUtility.isEmpty(id)) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(PARCEL_SEARCH_SELECT + " where p.id = :id", ParcelSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("id", id);
+        ParcelSearchResult result = (ParcelSearchResult) q.getSingleResult();
+
+        if (result != null) {
+            result.setPropCodes(searchPropCodesByParcel(langCode, result.getId()));
+        }
+        return result;
+    }
+    
+    /**
+     * Searches property codes (CCROs) by parcel id.
+     *
+     * @param langCode Language code for localization
+     * @param parcelId Parcel id
+     * @return
+     */
+    public List<PropertyCodeSearchResult> searchPropCodesByParcel(String langCode, String parcelId) {
+        if (StringUtility.isEmpty(parcelId)) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(PROP_CODE_SEARCH_SELECT + " where p.parcel_id = :parcelId order by p.prop_number", PropertyCodeSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("parcelId", parcelId);
         return q.getResultList();
     }
 }

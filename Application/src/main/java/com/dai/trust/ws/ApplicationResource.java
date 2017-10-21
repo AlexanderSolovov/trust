@@ -43,8 +43,27 @@ public class ApplicationResource extends AbstractResource {
     public String getApplication(@PathParam(value = LANG_CODE) String langCode, @PathParam("id") String id) {
         try {
             ApplicationService service = new ApplicationService();
-            Application app = service.getApplicationWithPermissions(id);
-            return getMapper().writeValueAsString(app);
+            return getMapper().writeValueAsString(service.getApplicationWithPermissions(id));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns application number by id.
+     *
+     * @param langCode Language code for localization
+     * @param id Application id.
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getapplicationnumber|getApplicationNumber}/{id}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getApplicationNumber(@PathParam(value = LANG_CODE) String langCode, @PathParam("id") String id) {
+        try {
+            ApplicationService service = new ApplicationService();
+            return getMapper().writeValueAsString(service.getApplicationNumber(id));
         } catch (Exception e) {
             throw processException(e, langCode);
         }

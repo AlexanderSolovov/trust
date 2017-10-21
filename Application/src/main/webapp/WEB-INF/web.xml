@@ -109,6 +109,11 @@
             <description/>
             <url-pattern>/map/map.jsp</url-pattern>
         </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>properties</web-resource-name>
+            <description/>
+            <url-pattern>/property/property.jsp</url-pattern>
+        </web-resource-collection>
         <auth-constraint>
             <description/>
             <role-name>Viewing</role-name>
@@ -124,6 +129,7 @@
             <web-resource-name>Search pages</web-resource-name>
             <description/>
             <url-pattern>/application/search.jsp</url-pattern>
+            <url-pattern>/property/search.jsp</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description/>

@@ -9,6 +9,7 @@ import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.application.Application;
 import com.dai.trust.models.application.ApplicationBasic;
 import com.dai.trust.models.application.ApplicationDocument;
+import com.dai.trust.models.application.ApplicationNumber;
 import com.dai.trust.models.application.ApplicationParty;
 import com.dai.trust.models.application.ApplicationPermissions;
 import com.dai.trust.models.party.Party;
@@ -59,6 +60,16 @@ public class ApplicationService extends AbstractService {
      */
     public Application getApplication(String id) {
         return getById(Application.class, id, false);
+    }
+    
+    /**
+     * Returns Application number by id.
+     *
+     * @param id Application id.
+     * @return
+     */
+    public ApplicationNumber getApplicationNumber(String id) {
+        return getEM().find(ApplicationNumber.class, id);
     }
 
     /**

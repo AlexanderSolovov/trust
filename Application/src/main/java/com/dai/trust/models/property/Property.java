@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
@@ -16,11 +15,7 @@ import javax.persistence.Temporal;
 @Table(name = "property")
 public class Property extends AbstractIdEntity {
 
-    @OneToOne(cascade = CascadeType.REFRESH)
-    @JoinColumn(name = "parcel_id")
-    private Parcel parcel;
-    
-    @Column(name = "parcel_id", insertable = false, updatable = false)
+    @Column(name = "parcel_id")
     private String parcelId;
 
     @Column(name = "file_number", insertable = false, updatable = false)
@@ -48,22 +43,10 @@ public class Property extends AbstractIdEntity {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "property_id", referencedColumnName = "id")
-    private List<OwnershipRight> ownershipRights;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "property_id", referencedColumnName = "id")
-    private List<RestrictionRight> restrictionRights;
+    private List<Rrr> rights;
 
     public Property() {
         super();
-    }
-
-    public Parcel getParcel() {
-        return parcel;
-    }
-
-    public void setParcel(Parcel parcel) {
-        this.parcel = parcel;
     }
 
     public String getParcelId() {
@@ -130,19 +113,11 @@ public class Property extends AbstractIdEntity {
         this.statusCode = statusCode;
     }
 
-    public List<OwnershipRight> getOwnershipRights() {
-        return ownershipRights;
+    public List<Rrr> getRights() {
+        return rights;
     }
 
-    public void setOwnershipRights(List<OwnershipRight> ownershipRights) {
-        this.ownershipRights = ownershipRights;
-    }
-
-    public List<RestrictionRight> getRestrictionRights() {
-        return restrictionRights;
-    }
-
-    public void setRestrictionRights(List<RestrictionRight> restrictionRights) {
-        this.restrictionRights = restrictionRights;
+    public void setRights(List<Rrr> rights) {
+        this.rights = rights;
     }
 }

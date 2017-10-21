@@ -10,6 +10,7 @@ $(function () {
     ApplicationDao.URL_SAVE_APPLICATION = baseUrl + "saveapplication";
     ApplicationDao.URL_ASSIGN_APPLICATION = baseUrl + "assignapplication/{0}/{1}";
     ApplicationDao.URL_ASSIGN_APPLICATIONS = baseUrl + "assignapplications/{0}";
+    ApplicationDao.URL_APPLICATION_NUMBER = baseUrl + "getapplicationnumber/{0}";
 });
 
 ApplicationDao.Application = function () {
@@ -38,6 +39,11 @@ ApplicationDao.Application = function () {
 
 ApplicationDao.getApplication = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(String.format(ApplicationDao.URL_GET_APPLICATION, String.empty(id)),
+            successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+ApplicationDao.getApplicationNumber = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(ApplicationDao.URL_APPLICATION_NUMBER, String.empty(id)),
             successAction, failAction, alwaysAction, showErrorAlert);
 };
 

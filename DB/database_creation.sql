@@ -839,6 +839,22 @@ WITH (
 );
 ALTER TABLE history.ref_hamlet OWNER TO postgres;
 
+-- Location by hamlet function
+CREATE OR REPLACE FUNCTION public.get_location_by_hamlet(hamlet_code character varying, language_code character varying)
+  RETURNS character varying AS
+$BODY$
+BEGIN
+  return (select get_translation(r.val, language_code) || ', ' || get_translation(d.val, language_code) || ', ' || get_translation(v.val, language_code) || ', ' || get_translation(h.val, language_code)
+	    from public.ref_hamlet h inner join (public.ref_village v inner join (public.ref_district d inner join public.ref_region r on d.region_code = r.code) on v.district_code = d.code) on h.village_code = v.code
+	    where h.code = hamlet_code);
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.get_location_by_hamlet(character varying, character varying)
+  OWNER TO postgres;
+COMMENT ON FUNCTION public.get_location_by_hamlet(character varying, character varying) IS 'This function is used to make a string of full location by hamlet code';
+
 -- Document type
 
 CREATE TABLE public.ref_doc_type
@@ -1917,7 +1933,7 @@ CREATE TABLE public.parcel
    comment character varying(500), 
    application_id character varying(40), 
    end_application_id character varying(40),
-   status_code character varying(20) NOT NULL DEFAULT 'active',
+   status_code character varying(20) NOT NULL DEFAULT 'pending',
    rowversion integer NOT NULL DEFAULT 0,
    action_code character(1) NOT NULL DEFAULT 'i'::bpchar,
    action_user character varying(50),
@@ -3547,6 +3563,9 @@ INSERT INTO public.setting(id, val, active, description) VALUES ('office-distric
 INSERT INTO public.setting(id, val, active, description) VALUES ('media-path', '../trust_files', 't', 'Folder path where all files related to applications, parties and rights will be stored. If relative path is provided, then web-application root folder will be used as starting point.');
 INSERT INTO public.setting(id, val, active, description) VALUES ('max-file-size', '20480', 't', 'Maximum file size in KB that can be uploaded into the system.');
 INSERT INTO public.setting(id, val, active, description) VALUES ('file-extensions', 'pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,tif,tiff,csv', 't', 'Allowed file extensions for uploading into the system.');
+INSERT INTO public.setting(id, val, active, description) VALUES ('srs', 'EPSG:4326', 't', 'Spatial reference system to be used on the map nad printings.');
+INSERT INTO public.setting(id, val, active, description) VALUES ('map-extent', 'Polygon ((35.674 -7.759, 35.713 -7.759, 35.713 -7.786, 35.674 -7.786, 35.674 -7.759))', 't', 'Default map extent in WKT format to zoom in when openning the map.');
+INSERT INTO public.setting(id, val, active, description) VALUES ('offline-mode', '0', 't', 'Indicates map mode. 1 - offline, 0 - online. If online, Google Maps layers will be added.');
 
 -- Doc types
 INSERT INTO public.ref_doc_type(code, val) VALUES ('irs', 'Informal Receipt of Sale::::Hati ya manunuzi isiyo rasmi');

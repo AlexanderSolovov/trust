@@ -7,7 +7,11 @@ import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.AbstractRefDataEntity;
 import com.dai.trust.models.refdata.AppType;
 import com.dai.trust.models.refdata.AppTypeGroup;
+import com.dai.trust.models.refdata.District;
+import com.dai.trust.models.refdata.Hamlet;
 import com.dai.trust.models.refdata.Language;
+import com.dai.trust.models.refdata.Region;
+import com.dai.trust.models.refdata.Village;
 import com.dai.trust.services.AbstractService;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +99,7 @@ public class RefDataService extends AbstractService {
         populateSubLists(result, true, langCode);
         return result;
     }
-    
+
     // Populate sublist on the provided items
     private <T extends AbstractRefDataEntity> void populateSubLists(List<T> items, boolean onlyActive, String langCode) {
         if (items != null && items.size() > 0) {
@@ -118,7 +122,7 @@ public class RefDataService extends AbstractService {
 
     // Populate sublist for one item
     private <T extends AbstractRefDataEntity> void populateSubLists(T item, boolean onlyActive, String langCode) {
-        if(item != null){
+        if (item != null) {
             List<T> tmpList = new ArrayList<>();
             tmpList.add(item);
             populateSubLists(tmpList, onlyActive, langCode);
@@ -173,5 +177,95 @@ public class RefDataService extends AbstractService {
         }
 
         return save(refData, true);
+    }
+
+    /**
+     * Returns list of hamlets by village code.
+     * @param villageCode Village code
+     * @param langCode Language code
+     * @return 
+     */
+    public List<Hamlet> getHamletsByVillage(String villageCode, String langCode) {
+        return getEM().createNativeQuery(
+                "SELECT " + getRefDataColumns(langCode) + ", village_code, abbr, leader "
+                + "FROM ref_hamlet "
+                + "WHERE active = true and village_code = :villageCode "
+                + "ORDER BY val", Hamlet.class)
+                .setParameter("villageCode", villageCode).getResultList();
+    }
+
+    /**
+     * Returns list of hamlets, which belong to the same village as provided hamlet code.
+     * @param hamletCode Hamlet code
+     * @param langCode Language code
+     * @return 
+     */
+    public List<Hamlet> getHamletsByHamlet(String hamletCode, String langCode) {
+        return getEM().createNativeQuery(
+                "SELECT " + getRefDataColumns(langCode) + ", village_code, abbr, leader "
+                + "FROM ref_hamlet "
+                + "WHERE active = true and village_code in (select village_code from ref_hamlet where code = :hamletCode) "
+                + "ORDER BY val", Hamlet.class)
+                .setParameter("hamletCode", hamletCode).getResultList();
+    }
+    
+    /**
+     * Returns list of villages by district code.
+     * @param districtCode District code
+     * @param langCode Language code
+     * @return 
+     */
+    public List<Village> getVillagesByDistrict(String districtCode, String langCode) {
+        return getEM().createNativeQuery(
+                "SELECT " + getRefDataColumns(langCode) + ", district_code, address, chairman, executive_officer "
+                + "FROM ref_village "
+                + "WHERE active = true and district_code = :districtCode "
+                + "ORDER BY val", Village.class)
+                .setParameter("districtCode", districtCode).getResultList();
+    }
+    
+    /**
+     * Returns list of villages, which belong to the same district as provided village code.
+     * @param villageCode Village code
+     * @param langCode Language code
+     * @return 
+     */
+    public List<Village> getVillagesByVillage(String villageCode, String langCode) {
+        return getEM().createNativeQuery(
+                "SELECT " + getRefDataColumns(langCode) + ", district_code, address, chairman, executive_officer "
+                + "FROM ref_village "
+                + "WHERE active = true and district_code in (select district_code from ref_village where code = :villageCode) "
+                + "ORDER BY val", Village.class)
+                .setParameter("villageCode", villageCode).getResultList();
+    }
+    
+    /**
+     * Returns list of districts by region code.
+     * @param regionCode Region code
+     * @param langCode Language code
+     * @return 
+     */
+    public List<District> getDistrictsByRegion(String regionCode, String langCode) {
+        return getEM().createNativeQuery(
+                "SELECT " + getRefDataColumns(langCode) + ", region_code "
+                + "FROM ref_district "
+                + "WHERE active = true and region_code = :regionCode "
+                + "ORDER BY val", District.class)
+                .setParameter("regionCode", regionCode).getResultList();
+    }
+    
+    /**
+     * Returns list of districts, which belong to the same region as provided district code.
+     * @param districtCode District code
+     * @param langCode Language code
+     * @return 
+     */
+    public List<District> getDistrictsByDistrict(String districtCode, String langCode) {
+        return getEM().createNativeQuery(
+                "SELECT " + getRefDataColumns(langCode) + ", region_code "
+                + "FROM ref_district "
+                + "WHERE active = true and region_code in (select region_code from ref_district where code = :districtCode) "
+                + "ORDER BY val", District.class)
+                .setParameter("districtCode", districtCode).getResultList();
     }
 }

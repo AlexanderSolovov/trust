@@ -266,4 +266,47 @@ public class MessagesKeys {
      * User {0} doesn't exist or active
      */
     public static final String ERR_USER_DONT_EXISTS_OR_ACTIVE = "ERR_USER_DONT_EXISTS_OR_ACTIVE";
+    /**
+     * Application is not assigned to you.
+     */
+    public static final String ERR_APP_NOT_ASSIGNED_TO_APPLICATION = "ERR_APP_NOT_ASSIGNED_TO_APPLICATION";
+    /**
+     * Application ID is not provided.
+     */
+    public static final String ERR_PARCEL_APPLICATION_EMPTY = "ERR_PARCEL_APPLICATION_EMPTY";
+    /**
+     * Survey Date is empty.
+     */
+    public static final String ERR_PARCEL_SURVEY_DATE_EMPTY = "ERR_PARCEL_SURVEY_DATE_EMPTY";
+    /**
+     * Survey Date cannot be bigger than today.
+     */
+    public static final String ERR_PARCEL_SURVEY_DATE_IN_FUTURE = "ERR_PARCEL_SURVEY_DATE_IN_FUTURE";
+    /**
+     * Hamlet is not provided.
+     */
+    public static final String ERR_PARCEL_HAMLET_EMPTY = "ERR_PARCEL_HAMLET_EMPTY";
+    /**
+     * Plots have different application ID.
+     */
+    public static final String ERR_PARCEL_PARCELS_HAVE_DIFFERENT_APPLICATION = "ERR_PARCEL_PARCELS_HAVE_DIFFERENT_APPLICATION";
+    /**
+     * Plot #{0} cannot be edited
+     */
+    public static final String ERR_PARCEL_CANNOT_EDIT = "ERR_PARCEL_CANNOT_EDIT";
+    /**
+     * Plot #{0} cannot be deleted, because it's attached to the land right
+     * #{1}.
+     */
+    public static final String ERR_PARCEL_ATTACHED_CANNOT_DELETE = "ERR_PARCEL_ATTACHED_CANNOT_DELETE";
+
+    /**
+     * Application was not found.
+     */
+    public static final String ERR_APP_NOT_FOUND = "ERR_APP_NOT_FOUND";
+
+    /**
+     * Only 1 plot is required for this transaction.
+     */
+    public static final String ERR_PARCEL_ONE_PARCEL_REQUIRED = "ERR_PARCEL_ONE_PARCEL_REQUIRED";
 }

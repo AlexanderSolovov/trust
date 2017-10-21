@@ -10,13 +10,20 @@ import com.dai.trust.models.refdata.AppStatus;
 import com.dai.trust.models.refdata.AppType;
 import com.dai.trust.models.refdata.AppTypeGroup;
 import com.dai.trust.models.refdata.Citizenship;
+import com.dai.trust.models.refdata.District;
 import com.dai.trust.models.refdata.DocumentType;
 import com.dai.trust.models.refdata.Gender;
+import com.dai.trust.models.refdata.Hamlet;
 import com.dai.trust.models.refdata.IdType;
+import com.dai.trust.models.refdata.LandType;
 import com.dai.trust.models.refdata.Language;
 import com.dai.trust.models.refdata.LegalEntityType;
 import com.dai.trust.models.refdata.MaritalStatus;
 import com.dai.trust.models.refdata.PartyStatus;
+import com.dai.trust.models.refdata.RegStatus;
+import com.dai.trust.models.refdata.Region;
+import com.dai.trust.models.refdata.RightType;
+import com.dai.trust.models.refdata.Village;
 import com.dai.trust.services.refdata.RefDataService;
 import com.dai.trust.ws.filters.Authenticated;
 import com.dai.trust.ws.filters.Authorized;
@@ -55,6 +62,13 @@ public class RefDataResource extends AbstractResource {
         REF_DATA_CLASSES.put(Citizenship.class.getSimpleName(), Citizenship.class);
         REF_DATA_CLASSES.put(LegalEntityType.class.getSimpleName(), LegalEntityType.class);
         REF_DATA_CLASSES.put(AppStatus.class.getSimpleName(), AppStatus.class);
+        REF_DATA_CLASSES.put(Hamlet.class.getSimpleName(), Hamlet.class);
+        REF_DATA_CLASSES.put(Village.class.getSimpleName(), Village.class);
+        REF_DATA_CLASSES.put(District.class.getSimpleName(), District.class);
+        REF_DATA_CLASSES.put(Region.class.getSimpleName(), Region.class);
+        REF_DATA_CLASSES.put(LandType.class.getSimpleName(), LandType.class);
+        REF_DATA_CLASSES.put(RegStatus.class.getSimpleName(), RegStatus.class);
+        REF_DATA_CLASSES.put(RightType.class.getSimpleName(), RightType.class);
     }
 
     /**
@@ -213,6 +227,132 @@ public class RefDataResource extends AbstractResource {
             RefDataService refService = new RefDataService();
             refService.deleteById(code, REF_DATA_CLASSES.get(refType));
             return ResponseFactory.buildOk();
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns list of hamlets by village code.
+     *
+     * @param langCode Language code for localization
+     * @param villageCode Village code
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:gethamletsbyvillage|getHamletsByVillage}/{villageCode}")
+    @Authenticated
+    public String getHamletsByVillage(@PathParam(value = LANG_CODE) String langCode,
+            @PathParam(value = "villageCode") String villageCode) {
+        try {
+            RefDataService refService = new RefDataService();
+            return getMapper().writeValueAsString(refService.getHamletsByVillage(villageCode, langCode));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns list of hamlets, which belong to the same village as provided hamlet code.
+     *
+     * @param langCode Language code for localization
+     * @param hamletCode Hamlet code
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:gethamletsbyhamlet|getHamletsByHamlet}/{hamletCode}")
+    @Authenticated
+    public String getHamletsByHamlet(@PathParam(value = LANG_CODE) String langCode,
+            @PathParam(value = "hamletCode") String hamletCode) {
+        try {
+            RefDataService refService = new RefDataService();
+            return getMapper().writeValueAsString(refService.getHamletsByHamlet(hamletCode, langCode));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns list of villages by district code.
+     *
+     * @param langCode Language code for localization
+     * @param districtCode District code
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getvillagesbydistrict|getVillagesByDistrict}/{districtCode}")
+    @Authenticated
+    public String getVillagesByDistrict(@PathParam(value = LANG_CODE) String langCode,
+            @PathParam(value = "districtCode") String districtCode) {
+        try {
+            RefDataService refService = new RefDataService();
+            return getMapper().writeValueAsString(refService.getVillagesByDistrict(districtCode, langCode));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns list of villages, which belong to the same district as provided village code.
+     *
+     * @param langCode Language code for localization
+     * @param villageCode Village code
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getvillagesbyvillage|getVillagesByVillage}/{villageCode}")
+    @Authenticated
+    public String getVillagesByVillage(@PathParam(value = LANG_CODE) String langCode,
+            @PathParam(value = "villageCode") String villageCode) {
+        try {
+            RefDataService refService = new RefDataService();
+            return getMapper().writeValueAsString(refService.getVillagesByVillage(villageCode, langCode));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns list of districts by region code.
+     *
+     * @param langCode Language code for localization
+     * @param regionCode Region code
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getdistrictsbyregion|getDistrictsByRegion}/{regionCode}")
+    @Authenticated
+    public String getDistrictsByRegion(@PathParam(value = LANG_CODE) String langCode,
+            @PathParam(value = "regionCode") String regionCode) {
+        try {
+            RefDataService refService = new RefDataService();
+            return getMapper().writeValueAsString(refService.getDistrictsByRegion(regionCode, langCode));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns list of districts, which belong to the same region as provided district code.
+     *
+     * @param langCode Language code for localization
+     * @param districtCode District code
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getdistrictsbydistrict|getDistrictsByDistrict}/{districtCode}")
+    @Authenticated
+    public String getDistrictsByDistrict(@PathParam(value = LANG_CODE) String langCode,
+            @PathParam(value = "districtCode") String districtCode) {
+        try {
+            RefDataService refService = new RefDataService();
+            return getMapper().writeValueAsString(refService.getDistrictsByDistrict(districtCode, langCode));
         } catch (Exception e) {
             throw processException(e, langCode);
         }
