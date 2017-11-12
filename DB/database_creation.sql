@@ -2368,7 +2368,7 @@ CREATE TABLE public.rrr
    reg_date date, 
    start_date date, 
    end_date date, 
-   duration integer, 
+   duration double precision, 
    annual_fee double precision, 
    juridical_area double precision, 
    folio_number character varying(20), 
@@ -2382,6 +2382,9 @@ CREATE TABLE public.rrr
    neighbor_west character varying(500), 
    adjudicator1 character varying(250), 
    adjudicator2 character varying(250), 
+   witness1 character varying(250), 
+   witness2 character varying(250),
+   witness3 character varying(250),
    description character varying(1000), 
    application_id character varying(40) NOT NULL, 
    end_application_id character varying(40), 
@@ -2429,6 +2432,9 @@ COMMENT ON COLUMN public.rrr.neighbor_east IS 'Name of the owner of the parcel o
 COMMENT ON COLUMN public.rrr.neighbor_west IS 'Name of the owner of the parcel on the west side.';
 COMMENT ON COLUMN public.rrr.adjudicator1 IS 'Name of the first adjudicator. Applicable only for ownership rights.';
 COMMENT ON COLUMN public.rrr.adjudicator2 IS 'Name of the second adjudicator. Applicable only for ownership rights.';
+COMMENT ON COLUMN public.rrr.witness1 IS 'Name of the first witness.';
+COMMENT ON COLUMN public.rrr.witness2 IS 'Name of the second witness.';
+COMMENT ON COLUMN public.rrr.witness3 IS 'Name of the third witness.';
 COMMENT ON COLUMN public.rrr.description IS 'Free text description of the right. Can be comments as well.';
 COMMENT ON COLUMN public.rrr.application_id IS 'Application id, used to create the right.';
 COMMENT ON COLUMN public.rrr.end_application_id IS 'Application id, used to terminate the right.';
@@ -2464,7 +2470,7 @@ CREATE TABLE history.rrr
    reg_date date, 
    start_date date, 
    end_date date, 
-   duration integer, 
+   duration double precision, 
    annual_fee double precision, 
    juridical_area double precision, 
    folio_number character varying(20), 
@@ -2478,6 +2484,9 @@ CREATE TABLE history.rrr
    neighbor_west character varying(500), 
    adjudicator1 character varying(250), 
    adjudicator2 character varying(250), 
+   witness1 character varying(250), 
+   witness2 character varying(250),
+   witness3 character varying(250),
    description character varying(1000), 
    application_id character varying(40), 
    end_application_id character varying(40), 
@@ -3581,28 +3590,26 @@ INSERT INTO public.ref_app_type_group(code, val) VALUES ('restrictions', 'Restri
 --INSERT INTO public.ref_app_type_group(code, val) VALUES ('info', 'Information');
 
 -- Transaction types
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('reg_ownership', 'Registration of ownership right');
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('trans_ownership', 'Transfer of ownership right');
+INSERT INTO public.ref_transaction_type(code, val) VALUES ('registration', 'Registration of new right');
+INSERT INTO public.ref_transaction_type(code, val) VALUES ('first_registration', 'First registration of new ownership right');
+INSERT INTO public.ref_transaction_type(code, val) VALUES ('remove', 'Remove or discharge of the right');
+INSERT INTO public.ref_transaction_type(code, val) VALUES ('transfer', 'Transfer of right');
+INSERT INTO public.ref_transaction_type(code, val) VALUES ('vary', 'Variation of right');
+INSERT INTO public.ref_transaction_type(code, val) VALUES ('rectify', 'Rectification of ownership right and parcel');
 INSERT INTO public.ref_transaction_type(code, val) VALUES ('surrender', 'Surrender of ownership right');
 INSERT INTO public.ref_transaction_type(code, val) VALUES ('terminate', 'Termination of ownership right');
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('merge', 'Merge of ownership rights');
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('split', 'Split of ownership right');
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('reg_mortgage', 'Registration of mortgage');
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('remove_mortgage', 'Discharge of mortgage');
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('reg_caveat', 'Registration of caveat');
-INSERT INTO public.ref_transaction_type(code, val) VALUES ('remove_caveat', 'Removal of caveat');
+INSERT INTO public.ref_transaction_type(code, val) VALUES ('change_name', 'Change of name');
 
 -- Application types
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_new', 'New CCRO', 'ccro', 'reg_ownership');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_trans', 'Transfer', 'ccro', 'trans_ownership');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_surrender', 'Surrender', 'ccro', 'surrender');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_new', 'New CCRO', 'ccro', 'first_registration');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_trans', 'Transfer', 'ccro', 'transfer');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_surrender', 'Surrender of Right', 'ccro', 'surrender');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_terminate', 'Termination', 'ccro', 'terminate');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_split', 'Split', 'ccro', 'split');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_merge', 'Merge', 'ccro', 'merge');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_reg', 'Registration of Mortgage', 'restrictions', 'reg_mortgage');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_remove', 'Discharge of Mortgage', 'restrictions', 'remove_mortgage');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('caveat_reg', 'Registration of Caveat', 'restrictions', 'reg_caveat');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('caveat_remove', 'Removal of Caveat', 'restrictions', 'remove_caveat');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_full_surrender', 'Surrender', 'ccro', 'terminate');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_reg', 'Registration of Mortgage', 'restrictions', 'registration');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_remove', 'Discharge of Mortgage', 'restrictions', 'remove');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('caveat_reg', 'Registration of Caveat', 'restrictions', 'registration');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('caveat_remove', 'Removal of Caveat', 'restrictions', 'remove');
 
 -- Right type groups
 INSERT INTO public.ref_right_type_group(code, val) VALUES ('ownership', 'Ownership');
@@ -3707,6 +3714,14 @@ INSERT INTO public.ref_landuse(code, val) VALUES ('mining', 'Mining::::Maeneo ya
 -- Layer types
 INSERT INTO public.ref_layer_type(code, val) VALUES ('wms', 'WMS');
 INSERT INTO public.ref_layer_type(code, val) VALUES ('wfs', 'WFS');
+
+-- Owner types
+INSERT INTO public.ref_owner_type(code, val) VALUES ('owner', 'Owner::::Mmiliki');
+INSERT INTO public.ref_owner_type(code, val) VALUES ('administrator', 'Administrator::::Msimamizi');
+INSERT INTO public.ref_owner_type(code, val) VALUES ('guardian', 'Guardian::::Mlezi');
+
+
+
 
 
 

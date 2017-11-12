@@ -50,7 +50,6 @@ PropertyDao.Property = function () {
 PropertyDao.Right = function () {
     return {
         id: null,
-        propertyId: null,
         parentId: null,
         rightTypeCode: null,
         duration: null,
@@ -70,9 +69,13 @@ PropertyDao.Right = function () {
         neighborWest: null,
         adjudicator1: null,
         adjudicator2: null,
+        witness1: null,
+        witness2: null,
+        witness3: null,
         allocationDate: null,
         interesetRate: null,
         rightholders: null,
+        documents: null,
         pois: null,
         deceasedOwner: null,
         description: null,
@@ -80,6 +83,18 @@ PropertyDao.Right = function () {
         endApplicationId: null,
         terminationDate: null,
         statusCode: null,
+        version: 0
+    };
+};
+
+PropertyDao.Poi = function () {
+    return {
+        id: null,
+        firstName: null,
+        lastName: null,
+        middleName: null,
+        dob: null,
+        description: null,
         version: 0
     };
 };

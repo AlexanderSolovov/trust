@@ -1,7 +1,7 @@
 package com.dai.trust.models.property;
 
 import com.dai.trust.models.AbstractEntity;
-import com.dai.trust.models.party.Party;
+import com.dai.trust.models.document.Document;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,9 +14,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "rightholder")
-@IdClass(RightholderId.class)
-public class Rightholder extends AbstractEntity {
+@Table(name = "rrr_document")
+@IdClass(RrrDocumentId.class)
+public class RrrDocument extends AbstractEntity {
 
     @Id
     @JsonIgnore
@@ -25,25 +25,19 @@ public class Rightholder extends AbstractEntity {
 
     @Id
     @JsonIgnore
-    @Column(name = "party_id", insertable = false, updatable = false)
-    private String partyId;
-
+    @Column(name = "document_id", insertable = false, updatable = false)
+    private String documentId;
+    
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rrr_id", updatable = false, insertable = false, referencedColumnName = "id")
     private Rrr rrr;
-
+    
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name = "party_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private Party party;
+    @JoinColumn(name = "document_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Document document;
 
-    @Column(name = "owner_type_code")
-    private String ownerTypeCode;
-
-    @Column(name = "share_size")
-    private Double shareSize;
-
-    public Rightholder() {
+    public RrrDocument() {
         super();
     }
 
@@ -63,35 +57,19 @@ public class Rightholder extends AbstractEntity {
         this.rrr = rrr;
     }
 
-    public String getPartyId() {
-        return partyId;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public void setPartyId(String partyId) {
-        this.partyId = partyId;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
-    public Party getParty() {
-        return party;
+     public Document getDocument() {
+        return document;
     }
 
-    public void setParty(Party party) {
-        this.party = party;
-    }
-
-    public String getOwnerTypeCode() {
-        return ownerTypeCode;
-    }
-
-    public void setOwnerTypeCode(String ownerTypeCode) {
-        this.ownerTypeCode = ownerTypeCode;
-    }
-
-    public Double getShareSize() {
-        return shareSize;
-    }
-
-    public void setShareSize(Double shareSize) {
-        this.shareSize = shareSize;
+    public void setDocument(Document document) {
+        this.document = document;
     }
 }

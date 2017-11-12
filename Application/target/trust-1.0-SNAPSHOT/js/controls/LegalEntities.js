@@ -111,10 +111,15 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
         });
 
         if (editable) {
+            var copyFromApp = "";
+            if (!isNull(options.app)) {
+                copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
+            }
             $("#" + controlVarId + "_wrapper div.tableToolbar").html(
                     String.format(DataTablesUtility.getAddLink(), controlVarId + ".showLegalEntityDialog(null);return false;")
                     + "&nbsp;&nbsp;" +
-                    String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;")
+                    String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;") +
+                    copyFromApp
                     );
         }
     };
@@ -144,6 +149,28 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
 
     var selectedRow = null;
 
+    this.copyFromApp = function () {
+        if (!isNull(options.app.applicants)) {
+            for (var i = 0; i < options.app.applicants.length; i++) {
+                var party = options.app.applicants[i].party;
+
+                if (!party.isPrivate) {
+                    // Check if it's already exists
+                    var found = false;
+                    table.rows().data().each(function (p) {
+                        if (String.empty(p.id) === party.id) {
+                            found = true;
+                        }
+                    });
+
+                    if (!found) {
+                        highlight(table.row.add(party).draw().node());
+                    }
+                }
+            }
+        }
+    };
+    
     this.showLegalEntityDialog = function (rowSelector) {
         $("#" + controlVarId + "_Dialog").modal('show');
         if (isNull(rowSelector)) {

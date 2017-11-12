@@ -82,7 +82,7 @@ ApplicationCtrl.postLoad = function (app) {
         }
 
         // Load CCRO numbers
-        if (ApplicationCtrl.AppType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.OwnershipRegistration.toLowerCase()) {
+        if (ApplicationCtrl.AppType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.FirstRegistration.toLowerCase()) {
             // Hide CCRO pane
             $("#pnlCcros").hide();
         } else {
@@ -286,7 +286,7 @@ ApplicationCtrl.assign = function () {
 ApplicationCtrl.validate = function () {
     var errors = [];
     // Check CCRO attached for transactions other than new registration
-    if (ApplicationCtrl.AppType.transactionTypeCode.toLowerCase() !== RefDataDao.TRANSACTION_TYPE_CODES.OwnershipRegistration.toLowerCase()
+    if (ApplicationCtrl.AppType.transactionTypeCode.toLowerCase() !== RefDataDao.TRANSACTION_TYPE_CODES.FirstRegistration.toLowerCase()
             && (isNull(ApplicationCtrl.Application.properties) || ApplicationCtrl.Application.properties.length < 1)) {
         errors.push($.i18n("err-app-no-ccro"));
     }

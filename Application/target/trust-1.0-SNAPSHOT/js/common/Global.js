@@ -610,6 +610,15 @@ function restrictInputForIds(e) {
 }
 
 /** 
+ * Retricts input for numbers. Restriction pattern is [0-9\.] 
+ * @param e Event object from input field 
+ */
+function restrictInputDouble(e) {
+    var pattern = /[0-9\.]/g;
+    return restrictInput(e, pattern);
+}
+
+/** 
  * Retricts input for input fields.
  * @param e Event object from input field 
  * @param pattern Regular expression pattern to use for restriction.
@@ -664,11 +673,11 @@ function makeObjectsList(vlist, propName) {
     if (isNull(vlist) || vlist.length < 1 || !vlist[0].hasOwnProperty(propName)) {
         return [];
     }
-    var docs = [];
-    for (i = 0; i < vlist.length; i++) {
-        docs.push(vlist[i][propName]);
+    var resultList = [];
+    for (var i = 0; i < vlist.length; i++) {
+        resultList.push(vlist[i][propName]);
     }
-    return docs;
+    return resultList;
 }
 ;
 

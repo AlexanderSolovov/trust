@@ -10,7 +10,7 @@ import com.dai.trust.models.refdata.AppTypeGroup;
 import com.dai.trust.models.refdata.District;
 import com.dai.trust.models.refdata.Hamlet;
 import com.dai.trust.models.refdata.Language;
-import com.dai.trust.models.refdata.Region;
+import com.dai.trust.models.refdata.RightType;
 import com.dai.trust.models.refdata.Village;
 import com.dai.trust.services.AbstractService;
 import java.util.ArrayList;
@@ -26,6 +26,22 @@ public class RefDataService extends AbstractService {
         super();
     }
 
+    /** 
+     * Returns right types by application type code. 
+     * @param appTypeCode Application type code
+     * @param langCode Language code for localization. If null or empty value is
+     * provided, then unlocalized full string will be returned.
+     * @return 
+     */
+    public List<RightType> getRightTypesByAppType(String appTypeCode, String langCode) {
+        List<RightType> result = getEM().createNativeQuery(
+                "SELECT " + getRefDataColumns("t", langCode) + getExtraColumns(RightType.class)
+                + " FROM ref_right_type t "
+                + "WHERE t.active = true and t.code in (select right_type_code from ref_app_type_right_type where app_type_code = :appTypeCode) ORDER BY t.val",
+                RightType.class).setParameter("appTypeCode", appTypeCode).getResultList();
+        return result;
+    }
+
     /**
      * Returns reference data table records.
      *
@@ -39,24 +55,26 @@ public class RefDataService extends AbstractService {
      */
     public <T extends AbstractRefDataEntity> List<T> getRefDataRecords(Class<T> clazz, boolean onlyActive, String langCode) {
         String refColumns;
-        String where = onlyActive ? " WHERE active = true" : "";
         String table = clazz.getName();
         Table t = clazz.getAnnotation(Table.class);
+        String where = onlyActive ? " WHERE t.active = true" : "";
 
         if (t != null && !StringUtility.isEmpty(t.name())) {
             table = t.name();
         }
 
+        table = table + " t";
+
         if (StringUtility.isEmpty(langCode)) {
             // Return unlocalizaed languages
-            refColumns = getRefDataColumnsUnlocalized(null);
+            refColumns = getRefDataColumnsUnlocalized("t");
         } else {
             // Return localizaed languages
-            refColumns = getRefDataColumns(langCode);
+            refColumns = getRefDataColumns("t", langCode);
         }
 
         List<T> result = getEM().createNativeQuery(
-                "SELECT " + refColumns + getExtraColumns(clazz) + " FROM " + table + where + " ORDER BY " + getOrderByColumn(clazz),
+                "SELECT " + refColumns + getExtraColumns(clazz) + getFromClause(clazz, table) + where + getOrderByColumn(clazz),
                 clazz).getResultList();
 
         // Make recursive requests for sublists if any.
@@ -83,19 +101,22 @@ public class RefDataService extends AbstractService {
             table = t.name();
         }
 
+        table = table + " t";
+
         if (StringUtility.isEmpty(langCode)) {
             // Return unlocalizaed languages
-            refColumns = getRefDataColumnsUnlocalized(null);
+            refColumns = getRefDataColumnsUnlocalized("t");
         } else {
             // Return localizaed languages
-            refColumns = getRefDataColumns(langCode);
+            refColumns = getRefDataColumns("t", langCode);
         }
 
         T result = (T) getEM().createNativeQuery(
-                "SELECT " + refColumns + getExtraColumns(clazz) + " FROM " + table + " WHERE code=:code",
+                "SELECT " + refColumns + getExtraColumns(clazz) + getFromClause(clazz, table) + " WHERE t.code=:code",
                 clazz)
                 .setParameter("code", code)
                 .getSingleResult();
+
         populateSubLists(result, true, langCode);
         return result;
     }
@@ -129,20 +150,30 @@ public class RefDataService extends AbstractService {
         }
     }
 
-    // Returns ordder by column based on the reference data object
+    // Returns order by column based on the reference data object
     private <T extends AbstractRefDataEntity> String getOrderByColumn(Class<T> clazz) {
         if (Language.class.isAssignableFrom(clazz)) {
-            return "item_order";
+            return " ORDER BY t.item_order";
         }
-        return "val";
+        return " ORDER BY t.val";
+    }
+
+    // Returns from clause
+    private <T extends AbstractRefDataEntity> String getFromClause(Class<T> clazz, String table) {
+        if (AppType.class.isAssignableFrom(clazz)) {
+            return " FROM " + table + " JOIN ref_app_type_right_type art ON t.code = art.app_type_code";
+        }
+        return " FROM " + table;
     }
 
     // Returns extra columns of reference data object
     private <T extends AbstractRefDataEntity> String getExtraColumns(Class<T> clazz) {
         if (Language.class.isAssignableFrom(clazz)) {
-            return ", ltr, item_order, is_default";
+            return ", t.ltr, t.item_order, t.is_default";
+        } else if (RightType.class.isAssignableFrom(clazz)) {
+            return ", t.right_type_group_code, t.allow_multiple";
         } else if (AppType.class.isAssignableFrom(clazz)) {
-            return ", app_type_group_code, transaction_type_code";
+            return ", t.app_type_group_code, t.transaction_type_code, art.*";
         }
         return "";
     }
@@ -181,9 +212,10 @@ public class RefDataService extends AbstractService {
 
     /**
      * Returns list of hamlets by village code.
+     *
      * @param villageCode Village code
      * @param langCode Language code
-     * @return 
+     * @return
      */
     public List<Hamlet> getHamletsByVillage(String villageCode, String langCode) {
         return getEM().createNativeQuery(
@@ -195,10 +227,12 @@ public class RefDataService extends AbstractService {
     }
 
     /**
-     * Returns list of hamlets, which belong to the same village as provided hamlet code.
+     * Returns list of hamlets, which belong to the same village as provided
+     * hamlet code.
+     *
      * @param hamletCode Hamlet code
      * @param langCode Language code
-     * @return 
+     * @return
      */
     public List<Hamlet> getHamletsByHamlet(String hamletCode, String langCode) {
         return getEM().createNativeQuery(
@@ -208,12 +242,13 @@ public class RefDataService extends AbstractService {
                 + "ORDER BY val", Hamlet.class)
                 .setParameter("hamletCode", hamletCode).getResultList();
     }
-    
+
     /**
      * Returns list of villages by district code.
+     *
      * @param districtCode District code
      * @param langCode Language code
-     * @return 
+     * @return
      */
     public List<Village> getVillagesByDistrict(String districtCode, String langCode) {
         return getEM().createNativeQuery(
@@ -223,12 +258,14 @@ public class RefDataService extends AbstractService {
                 + "ORDER BY val", Village.class)
                 .setParameter("districtCode", districtCode).getResultList();
     }
-    
+
     /**
-     * Returns list of villages, which belong to the same district as provided village code.
+     * Returns list of villages, which belong to the same district as provided
+     * village code.
+     *
      * @param villageCode Village code
      * @param langCode Language code
-     * @return 
+     * @return
      */
     public List<Village> getVillagesByVillage(String villageCode, String langCode) {
         return getEM().createNativeQuery(
@@ -238,12 +275,13 @@ public class RefDataService extends AbstractService {
                 + "ORDER BY val", Village.class)
                 .setParameter("villageCode", villageCode).getResultList();
     }
-    
+
     /**
      * Returns list of districts by region code.
+     *
      * @param regionCode Region code
      * @param langCode Language code
-     * @return 
+     * @return
      */
     public List<District> getDistrictsByRegion(String regionCode, String langCode) {
         return getEM().createNativeQuery(
@@ -253,12 +291,14 @@ public class RefDataService extends AbstractService {
                 + "ORDER BY val", District.class)
                 .setParameter("regionCode", regionCode).getResultList();
     }
-    
+
     /**
-     * Returns list of districts, which belong to the same region as provided district code.
+     * Returns list of districts, which belong to the same region as provided
+     * district code.
+     *
      * @param districtCode District code
      * @param langCode Language code
-     * @return 
+     * @return
      */
     public List<District> getDistrictsByDistrict(String districtCode, String langCode) {
         return getEM().createNativeQuery(

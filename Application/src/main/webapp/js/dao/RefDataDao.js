@@ -21,7 +21,8 @@ RefDataDao.REF_DATA_TYPES = {
     Hamlet: {type: "Hamlet", labelSingle: "ref-hamlet", labelPlural: "ref-hamlets"},
     LandType: {type: "LandType", labelSingle: "ref-land-type", labelPlural: "ref-land-types"},
     RegStatus: {type: "RegStatus", labelSingle: "ref-reg-status", labelPlural: "ref-reg-statuses"},
-    RightType: {type: "RightType", labelSingle: "ref-right-type", labelPlural: "ref-right-types"}
+    RightType: {type: "RightType", labelSingle: "ref-right-type", labelPlural: "ref-right-types"},
+    OwnerType: {type: "OwnerType", labelSingle: "ref-owner-type", labelPlural: "ref-owner-types"}
 };
 
 $(function () {
@@ -40,19 +41,32 @@ $(function () {
     RefDataDao.URL_GET_VILLAGES_BY_VILLAGE = baseUrl + "getvillagesbyvillage/{0}";
     RefDataDao.URL_GET_DISTRICTS_BY_REGION = baseUrl + "getdistrictsbyregion/{0}";
     RefDataDao.URL_GET_DISTRICTS_BY_DISTRICT = baseUrl + "getdistrictsbydistrict/{0}";
+    RefDataDao.URL_GET_RIGHT_TYPES_BY_APP_TYPE_CODE = baseUrl + "getrighttypesbyapptype/{0}";
 });
 
 RefDataDao.TRANSACTION_TYPE_CODES = {
-    CaveatRegistration: "reg_caveat",
-    MortgageRegistration: "reg_mortgage",
-    OwnershipRegistration: "reg_ownership",
-    CaveatRemoval: "remove_caveat",
-    MortgageRemoval: "remove_mortgage",
+    Registration: "registration",
+    FirstRegistration: "first_registration",
+    Remove: "remove",
     Surrender: "surrender",
     Termination: "terminate",
-    OwnershipTransfer: "trans_ownership"
+    Transfer: "transfer",
+    Vary: "vary",
+    Rectify: "rectify",
+    ChangeName: "change_name"
 };
 
+RefDataDao.RIGHT_TYPE_GROUP_CODES = {
+    Ownership: "ownership",
+    Restriction: "restriction"
+};
+
+RefDataDao.OWNER_TYPE_CODES = {
+    Owner: "owner",
+    Administrator: "administrator",
+    Guardian: "guardian"
+};
+        
 RefDataDao.RefData = function () {
     return {code: "", val: "", active: true, version: 0};
 };
@@ -156,6 +170,10 @@ RefDataDao.getDistrictsByRegion = function (code, successAction, failAction, alw
 
 RefDataDao.getDistrictsByDistrict = function (code, successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(String.format(RefDataDao.URL_GET_DISTRICTS_BY_DISTRICT, code), successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+RefDataDao.getRightTypesByAppType = function (appTypeCode, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(RefDataDao.URL_GET_RIGHT_TYPES_BY_APP_TYPE_CODE, appTypeCode), successAction, failAction, alwaysAction, showErrorAlert);
 };
 
 /**

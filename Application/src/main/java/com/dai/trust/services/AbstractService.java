@@ -229,7 +229,7 @@ public abstract class AbstractService implements Serializable {
         } else {
             prefix = "";
         }
-        return String.format("%s, %s, %s, %s", prefix + "action_code", prefix + "action_user", prefix + "action_time", "rowversion");
+        return String.format("%s, %s, %s, %s", prefix + "action_code", prefix + "action_user", prefix + "action_time", prefix + "rowversion");
     }
 
     /**
@@ -252,17 +252,16 @@ public abstract class AbstractService implements Serializable {
      * @return
      */
     public String getRefDataColumns(String prefix, String langCode) {
+        String pref = "";
         if (!StringUtility.isEmpty(prefix)) {
-            prefix = prefix + ".";
-        } else {
-            prefix = "";
+            pref = prefix + ".";
         }
         if (StringUtility.isEmpty(langCode)) {
             langCode = "null";
         } else {
             langCode = "'" + langCode + "'";
         }
-        return String.format("%s, %s, %s, %s", prefix + "code", prefix + "get_translation(val, " + langCode + ") as val", prefix + "active", getSystemColumns(prefix));
+        return String.format("%s, %s, %s, %s", pref + "code", "get_translation(" + pref + "val, " + langCode + ") as val", pref + "active", getSystemColumns(prefix));
     }
 
     /**
@@ -287,11 +286,10 @@ public abstract class AbstractService implements Serializable {
      * @return
      */
     public String getRefDataColumnsUnlocalized(String prefix) {
+        String pref = "";
         if (!StringUtility.isEmpty(prefix)) {
-            prefix = prefix + ".";
-        } else {
-            prefix = "";
+            pref = prefix + ".";
         }
-        return String.format("%s, %s, %s, %s", prefix + "code", prefix + "val", prefix + "active", getSystemColumns(prefix));
+        return String.format("%s, %s, %s, %s", pref + "code", pref + "val", pref + "active", getSystemColumns(prefix));
     }
 }

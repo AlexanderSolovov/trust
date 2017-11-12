@@ -1,12 +1,12 @@
 package com.dai.trust.models.property;
 
 import com.dai.trust.models.AbstractIdEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -18,6 +18,7 @@ import javax.persistence.Temporal;
 public class Rrr extends AbstractIdEntity {
 
     @Column(name = "property_id", insertable = false, updatable = false)
+    @JsonIgnore
     private String propertyId;
 
     @Column(name = "parent_id")
@@ -27,7 +28,7 @@ public class Rrr extends AbstractIdEntity {
     private String rightTypeCode;
 
     @Column
-    private Integer duration;
+    private Double duration;
 
     @Column(name = "folio_number")
     private String folioNumber;
@@ -79,7 +80,16 @@ public class Rrr extends AbstractIdEntity {
 
     @Column(name = "adjudicator2")
     private String adjudicator2;
+    
+    @Column
+    private String witness1;
 
+    @Column
+    private String witness2;
+    
+    @Column
+    private String witness3;
+    
     @Column(name = "allocation_date")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date allocationDate;
@@ -114,6 +124,9 @@ public class Rrr extends AbstractIdEntity {
     @JoinColumn(name = "rrr_id")
     private DeceasedOwner deceasedOwner;
 
+    @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RrrDocument> documents;
+    
     public Rrr() {
         super();
     }
@@ -214,6 +227,30 @@ public class Rrr extends AbstractIdEntity {
         this.adjudicator2 = adjudicator2;
     }
 
+    public String getWitness1() {
+        return witness1;
+    }
+
+    public void setWitness1(String witness1) {
+        this.witness1 = witness1;
+    }
+
+    public String getWitness2() {
+        return witness2;
+    }
+
+    public void setWitness2(String witness2) {
+        this.witness2 = witness2;
+    }
+
+    public String getWitness3() {
+        return witness3;
+    }
+
+    public void setWitness3(String witness3) {
+        this.witness3 = witness3;
+    }
+
     public Date getAllocationDate() {
         return allocationDate;
     }
@@ -246,11 +283,11 @@ public class Rrr extends AbstractIdEntity {
         this.rightTypeCode = rightTypeCode;
     }
 
-    public Integer getDuration() {
+    public Double getDuration() {
         return duration;
     }
 
-    public void setDuration(Integer duration) {
+    public void setDuration(Double duration) {
         this.duration = duration;
     }
 
@@ -356,5 +393,13 @@ public class Rrr extends AbstractIdEntity {
 
     public void setDeceasedOwner(DeceasedOwner deceasedOwner) {
         this.deceasedOwner = deceasedOwner;
+    }
+
+    public List<RrrDocument> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(List<RrrDocument> documents) {
+        this.documents = documents;
     }
 }

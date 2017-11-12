@@ -35,6 +35,8 @@ PartyDao.Party = function () {
         endApplicationId: null,
         statusCode: null,
         editable: true,
+        ownerTypeCode: null,
+        shareSize: null,
         version: 0
     };
 };

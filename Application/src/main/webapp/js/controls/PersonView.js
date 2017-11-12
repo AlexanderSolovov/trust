@@ -4,16 +4,19 @@
  */
 var Controls = Controls || {};
 
-Controls.PersonView = function (controlId, targetElementId, person) {
+Controls.PersonView = function (controlId, targetElementId, options) {
     validateControl(controlId, targetElementId);
 
+    options = options ? options : {};
     var that = this;
-    var localPerson = person;
+    var localPerson = options.person;
+    var isOwnership = isNull(options.isOwnership) ? false : options.isOwnership;
     var controlVarId = "__control_person_view_" + controlId;
     var genders;
     var maritalStatuses;
     var idTypes;
     var citizenships;
+    var ownerTypes;
     var loaded = false;
     var docsControl = null;
 
@@ -44,7 +47,19 @@ Controls.PersonView = function (controlId, targetElementId, person) {
                                                     RefDataDao.REF_DATA_TYPES.Citizenship.type,
                                                     function (list) {
                                                         citizenships = RefDataDao.filterActiveRecords(list);
-                                                    }, null, loadControl, true, true);
+                                                    }, null,
+                                                    function () {
+                                                        if (isOwnership) {
+                                                            // Owner type
+                                                            RefDataDao.getAllRecords(
+                                                                    RefDataDao.REF_DATA_TYPES.OwnerType.type,
+                                                                    function (list) {
+                                                                        ownerTypes = RefDataDao.filterActiveRecords(list);
+                                                                    }, null, loadControl, true, true);
+                                                        } else {
+                                                            loadControl();
+                                                        }
+                                                    }, true, true);
                                         }, true, true);
                             }, true, true);
                 }, true, true);
@@ -81,11 +96,27 @@ Controls.PersonView = function (controlId, targetElementId, person) {
         p = isNull(p) ? new PartyDao.Person() : p;
         localPerson = p;
 
+        if (isOwnership) {
+            $("#divPartyRole").show();
+        } else {
+            $("#divPartyRole").hide();
+        }
+
         // Set fields
         var gender = RefDataDao.getRefDataByCode(genders, p.genderCode);
         var idType = RefDataDao.getRefDataByCode(idTypes, p.idTypeCode);
         var maritalStatus = RefDataDao.getRefDataByCode(maritalStatuses, p.maritalStatusCode);
         var citizenship = RefDataDao.getRefDataByCode(citizenships, p.citizenshipCode);
+
+        if (isOwnership) {
+            var ownerType = RefDataDao.getRefDataByCode(ownerTypes, p.ownerTypeCode);
+            if (!isNull(ownerType)) {
+                $("#" + controlVarId + "_lblOwnerRole").text(ownerType.val);
+            }
+            if (!isNull(p.shareSize)) {
+                $("#" + controlVarId + "_lblShareSize").text(p.shareSize);
+            }
+        }
 
         if (!isNull(gender)) {
             $("#" + controlVarId + "_lblGender").text(gender.val);

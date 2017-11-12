@@ -7,15 +7,15 @@ import javax.persistence.Table;
 @Table(name="ref_transaction_type")
 @Entity
 public class TransactionType extends AbstractRefDataEntity {
-    public static final String CAVEAT_REGISTRATION = "reg_caveat";
-    public static final String MORTGAGE_REGISTRATION = "reg_mortgage";
-    public static final String OWNERSHIP_REGISTRATION = "reg_ownership";
-    public static final String CAVEAT_REMOVAL = "remove_caveat";
-    public static final String MORTGAGE_REMOVAL = "remove_mortgage";
+    public static final String FIRST_REGISTRATION = "first_registration";
+    public static final String REMOVE = "remove";
     public static final String SURRENDER = "surrender";
     public static final String TERMINATION = "terminate";
-    public static final String OWNERSHIP_TRANSFER = "trans_ownership";
-
+    public static final String TRANSFER = "transfer";
+    public static final String VARY = "vary";
+    public static final String RECTIFY = "rectify";
+    public static final String CHANGE_NAME = "change_name";
+    
     public TransactionType(){
         super();
     }

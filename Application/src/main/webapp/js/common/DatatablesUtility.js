@@ -27,6 +27,11 @@ DataTablesUtility.getSearchLink = function () {
             '<i class="glyphicon glyphicon-search"></i> ' + $.i18n('gen-search') + '</a>';
 };
 
+DataTablesUtility.getCopyFromAppLink = function () {
+    return '<a href="#" onclick="{0}" class="BlueLink">' +
+            '<i class="glyphicon glyphicon-save-file"></i> ' + $.i18n('gen-copy-from-app') + '</a>';
+};
+
 DataTablesUtility.currentLanguage = null;
 
 DataTablesUtility.getLanguage = function () {

@@ -19,15 +19,17 @@ Controls.Persons = function (controlId, targetElementId, options) {
         }
         return result;
     };
-    
+
     options = options ? options : {};
     var persons = filterParties(options.persons);
     var editable = isNull(options.editable) ? true : options.editable;
+    var isOwnership = isNull(options.isOwnership) ? false : options.isOwnership;
     var that = this;
     var table;
     var controlVarId = "__control_persons_" + controlId;
     var loaded = false;
     var idTypes;
+    var ownerTypes;
     var personControl = null;
     var personViewControl = null;
     var personSearchControl = null;
@@ -36,23 +38,27 @@ Controls.Persons = function (controlId, targetElementId, options) {
         RefDataDao.getAllRecords(RefDataDao.REF_DATA_TYPES.IdType.type, function (list) {
             idTypes = list;
         }, null, function () {
-            // Load control template
-            $.get(Global.APP_ROOT + '/js/templates/ControlPersons.html', function (tmpl) {
-                var template = Handlebars.compile(tmpl);
-                $('#' + targetElementId).html(template({id: controlVarId}));
-                // Localize
-                $("#" + targetElementId).i18n();
+            RefDataDao.getAllRecords(RefDataDao.REF_DATA_TYPES.OwnerType.type, function (list) {
+                ownerTypes = list;
+            }, null, function () {
+                // Load control template
+                $.get(Global.APP_ROOT + '/js/templates/ControlPersons.html', function (tmpl) {
+                    var template = Handlebars.compile(tmpl);
+                    $('#' + targetElementId).html(template({id: controlVarId}));
+                    // Localize
+                    $("#" + targetElementId).i18n();
 
-                // Assign control variable
-                eval(controlVarId + " = that;");
+                    // Assign control variable
+                    eval(controlVarId + " = that;");
 
-                loadTable(persons);
-                loaded = true;
+                    loadTable(persons);
+                    loaded = true;
 
-                if (isFunction(onInit)) {
-                    onInit();
-                }
-            });
+                    if (isFunction(onInit)) {
+                        onInit();
+                    }
+                });
+            }, true, true);
         }, true, true);
     };
 
@@ -67,6 +73,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
             language: DataTablesUtility.getLanguage(),
             columns: [
                 {data: "fullName", title: $.i18n("gen-name")},
+                {data: "ownerTypeCode", title: $.i18n("person-role"), visible: isOwnership},
                 {title: $.i18n("person-id-data")},
                 {data: "dob", title: $.i18n("person-dob")},
                 {data: "mobileNumber", title: $.i18n("person-mobile-num")},
@@ -88,6 +95,16 @@ Controls.Persons = function (controlId, targetElementId, options) {
                 },
                 {
                     targets: 1,
+                    "render": function (data, type, row, meta) {
+                        var ownerType = RefDataDao.getRefDataByCode(ownerTypes, data);
+                        if (!isNullOrEmpty(ownerType)) {
+                            return ownerType.val;
+                        }
+                        return "";
+                    }
+                },
+                {
+                    targets: 2,
                     width: "120px",
                     "render": function (data, type, row, meta) {
                         var idData = String.empty(row.idNumber);
@@ -109,7 +126,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
                     }
                 },
                 {
-                    targets: 2,
+                    targets: 3,
                     "render": function (data, type, row, meta) {
                         return dateFormat(data);
                     }
@@ -118,10 +135,15 @@ Controls.Persons = function (controlId, targetElementId, options) {
         });
 
         if (editable) {
+            var copyFromApp = "";
+            if (!isNull(options.app)) {
+                copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
+            }
             $("#" + controlVarId + "_wrapper div.tableToolbar").html(
                     String.format(DataTablesUtility.getAddLink(), controlVarId + ".showPersonDialog(null);return false;")
                     + "&nbsp;&nbsp;" +
-                    String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;")
+                    String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;") +
+                    copyFromApp
                     );
         }
     };
@@ -151,6 +173,32 @@ Controls.Persons = function (controlId, targetElementId, options) {
 
     var selectedRow = null;
 
+    this.copyFromApp = function () {
+        if (!isNull(options.app.applicants)) {
+            for (var i = 0; i < options.app.applicants.length; i++) {
+                var party = options.app.applicants[i].party;
+
+                if (party.isPrivate) {
+                    // Check if it's already exists
+                    var found = false;
+                    table.rows().data().each(function (p) {
+                        if (String.empty(p.id) === party.id) {
+                            found = true;
+                        }
+                    });
+
+                    if (!found) {
+                        // Add owner type related fields
+                        if (isOwnership) {
+                            //party.ownerTypeCode = RefDataDao.OWNER_TYPE_CODES.Owner;
+                        }
+                        highlight(table.row.add(party).draw().node());
+                    }
+                }
+            }
+        }
+    };
+
     this.showPersonDialog = function (rowSelector) {
         $("#" + controlVarId + "_Dialog").modal('show');
         if (isNull(rowSelector)) {
@@ -165,7 +213,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
             $("#" + controlVarId + "_personview").hide();
             $("#" + controlVarId + "_person").show();
             if (isNull(personControl)) {
-                personControl = new Controls.Person(controlVarId + "_person", controlVarId + "_person", person);
+                personControl = new Controls.Person(controlVarId + "_person", controlVarId + "_person", {person: person, isOwnership: isOwnership});
                 personControl.init();
             } else {
                 personControl.setPerson(person);
@@ -175,7 +223,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
             $("#" + controlVarId + "_personview").show();
             $("#" + controlVarId + "_person").hide();
             if (isNull(personViewControl)) {
-                personViewControl = new Controls.PersonView(controlVarId + "_personview", controlVarId + "_personview", person);
+                personViewControl = new Controls.PersonView(controlVarId + "_personview", controlVarId + "_personview", {person: person, isOwnership: isOwnership});
                 personViewControl.init();
             } else {
                 personViewControl.setPerson(person);

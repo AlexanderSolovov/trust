@@ -195,7 +195,7 @@ public class ApplicationService extends AbstractService {
 
         permissions.setCanDrawParcel(false);
         if (isAssignee && isInRole(RolesConstants.MANAGE_PARCELS) && isPending(app)
-                && transCode.equalsIgnoreCase(TransactionType.OWNERSHIP_REGISTRATION)) {
+                && transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)) {
             permissions.setCanDrawParcel(true);
         }
 
@@ -203,9 +203,9 @@ public class ApplicationService extends AbstractService {
         permissions.setCanRegisterRight(false);
         if (!StringUtility.isEmpty(app.getId()) && isAssignee && isInRole(RolesConstants.MANAGE_RIGHTS) && isPending(app)
                 && !transCode.equalsIgnoreCase(TransactionType.SURRENDER) && !transCode.equalsIgnoreCase(TransactionType.TERMINATION)) {
-            if (!transCode.equalsIgnoreCase(TransactionType.OWNERSHIP_REGISTRATION) && app.getProperties() != null && app.getProperties().size() > 0) {
+            if (!transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION) && app.getProperties() != null && app.getProperties().size() > 0) {
                 permissions.setCanRegisterRight(true);
-            } else if (transCode.equalsIgnoreCase(TransactionType.OWNERSHIP_REGISTRATION)) {
+            } else if (transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)) {
                 // Check for created parcels, needed for right 
                 PropertyService propService = new PropertyService();
                 List<Parcel> parcels = propService.getParcelsByApplicationId(app.getId());
@@ -329,7 +329,7 @@ public class ApplicationService extends AbstractService {
         RefDataService refService = new RefDataService();
         AppType appTye = refService.getRefDataRecord(AppType.class, app.getAppTypeCode(), langCode);
 
-        if (!appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.OWNERSHIP_REGISTRATION)
+        if (!appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)
                 && (app.getProperties() == null || app.getProperties().size() < 1)) {
             throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
         }

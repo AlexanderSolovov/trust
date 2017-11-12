@@ -19,6 +19,7 @@ import com.dai.trust.models.refdata.LandType;
 import com.dai.trust.models.refdata.Language;
 import com.dai.trust.models.refdata.LegalEntityType;
 import com.dai.trust.models.refdata.MaritalStatus;
+import com.dai.trust.models.refdata.OwnerType;
 import com.dai.trust.models.refdata.PartyStatus;
 import com.dai.trust.models.refdata.RegStatus;
 import com.dai.trust.models.refdata.Region;
@@ -69,6 +70,7 @@ public class RefDataResource extends AbstractResource {
         REF_DATA_CLASSES.put(LandType.class.getSimpleName(), LandType.class);
         REF_DATA_CLASSES.put(RegStatus.class.getSimpleName(), RegStatus.class);
         REF_DATA_CLASSES.put(RightType.class.getSimpleName(), RightType.class);
+        REF_DATA_CLASSES.put(OwnerType.class.getSimpleName(), OwnerType.class);
     }
 
     /**
@@ -353,6 +355,26 @@ public class RefDataResource extends AbstractResource {
         try {
             RefDataService refService = new RefDataService();
             return getMapper().writeValueAsString(refService.getDistrictsByDistrict(districtCode, langCode));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Returns right types by application type code.
+     *
+     * @param langCode Language code for localization
+     * @param appTypeCode Application type code
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getrighttypesbyapptype|getRightTypesByAppType}/{appTypeCode}")
+    @Authenticated
+    public String getRightTypesByAppType(@PathParam(value = LANG_CODE) String langCode, @PathParam(value = "appTypeCode") String appTypeCode) {
+        try {
+            RefDataService refService = new RefDataService();
+            return getMapper().writeValueAsString(refService.getRightTypesByAppType(appTypeCode, langCode));
         } catch (Exception e) {
             throw processException(e, langCode);
         }

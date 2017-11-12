@@ -104,11 +104,36 @@ Controls.Documents = function (controlId, targetElementId, options) {
             ]
         });
         if (editable) {
-            $("#" + controlVarId + "_wrapper div.tableToolbar").html(String.format(DataTablesUtility.getAddLink(), controlVarId + ".showDocumentDialog(null);return false;"));
+            var copyFromApp = "";
+            if (!isNull(options.app)) {
+                copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
+            }
+            $("#" + controlVarId + "_wrapper div.tableToolbar").html(
+                    String.format(DataTablesUtility.getAddLink(), controlVarId + ".showDocumentDialog(null);return false;") +
+                    copyFromApp
+                    );
         }
     };
 
     var selectedRow = null;
+
+    this.copyFromApp = function () {
+        if (!isNull(options.app.documents)) {
+            for (var i = 0; i < options.app.documents.length; i++) {
+                // Check if it's already exists
+                var found = false;
+                table.rows().data().each(function (d) {
+                    if (String.empty(d.id) === options.app.documents[i].document.id) {
+                        found = true;
+                    }
+                });
+
+                if (!found) {
+                    highlight(table.row.add(options.app.documents[i].document).draw().node());
+                }
+            }
+        }
+    };
 
     this.showDocumentDialog = function (rowSelector) {
         $("#" + controlVarId + "_Dialog").detach().appendTo('body');

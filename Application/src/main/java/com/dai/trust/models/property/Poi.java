@@ -1,6 +1,7 @@
 package com.dai.trust.models.property;
 
 import com.dai.trust.models.AbstractIdEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +12,8 @@ import javax.persistence.Temporal;
 @Table(name = "poi")
 public class Poi extends AbstractIdEntity {
 
-    @Column(name = "rrr_id")
+    @Column(name = "rrr_id", insertable = false, updatable = false)
+    @JsonIgnore
     private String rrrId;
     
     @Column(name = "first_name")

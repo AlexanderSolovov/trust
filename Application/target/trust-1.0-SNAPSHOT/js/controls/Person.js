@@ -4,16 +4,19 @@
  */
 var Controls = Controls || {};
 
-Controls.Person = function (controlId, targetElementId, person) {
+Controls.Person = function (controlId, targetElementId, options) {
     validateControl(controlId, targetElementId);
 
+    options = options ? options : {};
     var that = this;
-    var localPerson = person;
+    var localPerson = options.person;
+    var isOwnership = isNull(options.isOwnership) ? false : options.isOwnership;
     var controlVarId = "__control_person_" + controlId;
     var genders;
     var maritalStatuses;
     var idTypes;
     var citizenships;
+    var ownerTypes;
     var loaded = false;
     var docsControl = null;
 
@@ -44,7 +47,19 @@ Controls.Person = function (controlId, targetElementId, person) {
                                                     RefDataDao.REF_DATA_TYPES.Citizenship.type,
                                                     function (list) {
                                                         citizenships = RefDataDao.filterActiveRecords(list);
-                                                    }, null, loadControl, true, true);
+                                                    }, null,
+                                                    function () {
+                                                        if (isOwnership) {
+                                                            // Owner type
+                                                            RefDataDao.getAllRecords(
+                                                                    RefDataDao.REF_DATA_TYPES.OwnerType.type,
+                                                                    function (list) {
+                                                                        ownerTypes = RefDataDao.filterActiveRecords(list);
+                                                                    }, null, loadControl, true, true);
+                                                        } else {
+                                                            loadControl();
+                                                        }
+                                                    }, true, true);
                                         }, true, true);
                             }, true, true);
                 }, true, true);
@@ -82,11 +97,22 @@ Controls.Person = function (controlId, targetElementId, person) {
         p = isNull(p) ? new PartyDao.Party() : p;
         localPerson = p;
 
+        if(isOwnership){
+            $("#divPartyRole").show();
+        } else {
+            $("#divPartyRole").hide();
+        }
+        
         // Populate lists
         populateSelectList(genders, controlVarId + "_cbxGenders");
         populateSelectList(idTypes, controlVarId + "_cbxIdTypes");
         populateSelectList(citizenships, controlVarId + "_cbxCitezenships");
         populateSelectList(maritalStatuses, controlVarId + "_cbxMaritalStatuses");
+        if(isOwnership){
+            populateSelectList(ownerTypes, controlVarId + "_cbxOwnerRoles");
+            $("#" + controlVarId + "_cbxOwnerRoles").val(p.ownerTypeCode);
+            $("#" + controlVarId + "_txtShareSize").val(p.shareSize);
+        }
 
         // Set other fields
         $("#" + controlVarId + "_cbxGenders").val(p.genderCode);
@@ -152,7 +178,10 @@ Controls.Person = function (controlId, targetElementId, person) {
         if (isNullOrEmpty($("#" + controlVarId + "_cbxCitezenships").val())) {
             errors.push($.i18n("err-person-citizenship-empty"));
         }
-
+        if(isOwnership && isNullOrEmpty($("#" + controlVarId + "_cbxOwnerRoles").val())){
+            errors.push($.i18n("err-person-select-role"));
+        }
+        
         if (errors.length > 0) {
             if (showErrors) {
                 alertErrorMessages(errors);
@@ -188,6 +217,12 @@ Controls.Person = function (controlId, targetElementId, person) {
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_cbxCitezenships").val())) {
             result.citizenshipCode = $("#" + controlVarId + "_cbxCitezenships").val();
+        }
+        if(isOwnership && !isNullOrEmpty($("#" + controlVarId + "_cbxOwnerRoles").val())){
+            result.ownerTypeCode = $("#" + controlVarId + "_cbxOwnerRoles").val();
+        }
+        if(isOwnership && !isNullOrEmpty($("#" + controlVarId + "_txtShareSize").val())){
+            result.shareSize = $("#" + controlVarId + "_txtShareSize").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_cbxMaritalStatuses").val())) {
             result.maritalStatusCode = $("#" + controlVarId + "_cbxMaritalStatuses").val();
