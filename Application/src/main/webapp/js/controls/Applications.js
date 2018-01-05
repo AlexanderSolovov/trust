@@ -72,7 +72,10 @@ Controls.Applications = function (controlId, targetElementId, options) {
                 targets: allowSelection ? 3 : 2,
                 width: "125px",
                 "render": function (data, type, row, meta) {
-                    return dateFormat(data, dateFormat.masks.dateTime);
+                    if (type === "display") {
+                        return dateFormat(data, dateFormat.masks.dateTime);
+                    }
+                    return data;
                 }
             },
             {

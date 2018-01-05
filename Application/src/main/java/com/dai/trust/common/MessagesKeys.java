@@ -15,6 +15,19 @@ public class MessagesKeys {
      * 0.1
      */
     public static final String GENERAL_VERSION = "GENERAL_VERSION";
+    
+    /**
+     * Created
+     */
+    public static final String GENERAL_CREATED = "GENERAL_CREATED";
+    /**
+     * Terminated
+     */
+    public static final String GENERAL_TERMINATED = "GENERAL_TERMINATED";
+    /**
+     * Modified
+     */
+    public static final String GENERAL_MODIFIED = "GENERAL_MODIFIED";
 
     // Errors
     /**
@@ -55,6 +68,11 @@ public class MessagesKeys {
      * Description must be provided.
      */
     public static final String ERR_DESCRIPTION_EMPTY = "ERR_DESCRIPTION_EMPTY";
+    
+    /**
+     * Setting is read-only and cannot be modified.
+     */
+    public static final String ERR_SETTING_READONLY = "ERR_SETTING_READONLY";
 
     /**
      * Table name was not found for the class {0}.
@@ -223,6 +241,21 @@ public class MessagesKeys {
      * This application cannot be edited.
      */
     public static final String ERR_APP_READ_ONLY = "ERR_APP_READ_ONLY";
+    
+    /**
+     * Application must have pending status.
+     */
+    public static final String ERR_APP_NOT_PENDING = "ERR_APP_NOT_PENDING";
+    
+    /**
+     * Application must have approved status.
+     */
+    public static final String ERR_APP_NOT_APPROVED = "ERR_APP_NOT_APPROVED";
+    
+    /**
+     * Application must must not have pending status.
+     */
+    public static final String ERR_APP_PENDING = "ERR_APP_PENDING";
 
     /**
      * Application type is empty.
@@ -254,6 +287,22 @@ public class MessagesKeys {
      * Application #{0} is archived and cannot be modified or assigned.
      */
     public static final String ERR_APP_ARCHIVED = "ERR_APP_ARCHIVED";
+    
+    /**
+     * Property #{0} is being processed by application #{1}. It has to be completed first.
+     */
+    public static final String ERR_APP_PROP_IN_USE = "ERR_APP_PROP_IN_USE";
+    
+    /**
+     * Property #{0} must have registered status.
+     */
+    public static final String ERR_APP_PROP_NOT_REGISTERED = "ERR_APP_PROP_NOT_REGISTERED";
+    
+    /**
+     * Property #{0} cannot be removed from the application, since changes were already made.
+     */
+    public static final String ERR_APP_PROP_CANNOT_REMOVE = "ERR_APP_PROP_IN_USE";
+    
     /**
      * You don't have permissions to assign applications.
      */
@@ -270,6 +319,16 @@ public class MessagesKeys {
      * Application is not assigned to you.
      */
     public static final String ERR_APP_NOT_ASSIGNED_TO_APPLICATION = "ERR_APP_NOT_ASSIGNED_TO_APPLICATION";
+    
+    /** You don't have permissions to approve or reject applications. */
+    public static final String ERR_NO_APPROVE_REJECT_ROLE = "ERR_NO_APPROVE_REJECT_ROLE";
+    
+    /** You don't have permissions to withdraw applications. */
+    public static final String ERR_NO_WITHDRAW_ROLE = "ERR_NO_WITHDRAW_ROLE";
+    
+    /** You don't have permissions to manage applications. */
+    public static final String ERR_NO_MANAGE_APP_ROLE = "ERR_NO_MANAGE_APP_ROLE";
+        
     /**
      * Application ID is not provided.
      */
@@ -304,9 +363,157 @@ public class MessagesKeys {
      * Application was not found.
      */
     public static final String ERR_APP_NOT_FOUND = "ERR_APP_NOT_FOUND";
+    
+    /**
+     * There were no changes made under this application. There is nothing to approve.
+     */
+    public static final String ERR_APP_NO_CHANGES_IN_THE_SYSTEM = "ERR_APP_NO_CHANGES_IN_THE_SYSTEM";
 
     /**
      * Only 1 plot is required for this transaction.
      */
     public static final String ERR_PARCEL_ONE_PARCEL_REQUIRED = "ERR_PARCEL_ONE_PARCEL_REQUIRED";
+    
+    /**
+     * This property cannot be edited.
+     */
+    public static final String ERR_PROP_READ_ONLY = "ERR_PROP_READ_ONLY";
+    
+    /** Property object was not found. */
+    public static final String ERR_PROP_NOT_FOUND = "ERR_PROP_NOT_FOUND";
+    
+    /** Application is not provided or doesn't exist */
+    public static final String ERR_PROP_APP_NOT_PROVIDED = "ERR_PROP_APP_NOT_PROVIDED";
+    
+    /** Property must have pending status */
+    public static final String ERR_PROP_MUST_BE_PEDNING = "ERR_PROP_MUST_BE_PEDNING";
+    
+    /** Plot is not provided */
+    public static final String ERR_PROP_NO_PARCEL = "ERR_PROP_NO_PARCEL";
+    
+    /** Plot is is already attached to the property #{0} */
+    public static final String ERR_PROP_PARCEL_ALREADY_INUSE = "ERR_PROP_PARCEL_ALREADY_INUSE";
+    
+    /** This property is not listed in the application */
+    public static final String ERR_PROP_NOT_IN_APP = "ERR_PROP_NOT_IN_APP";
+    
+    /** No rights found for saving */
+    public static final String ERR_PROP_NO_RIGHTS_FOR_SAVE = "ERR_PROP_NO_RIGHTS_FOR_SAVE";
+    
+    /** There were found rights, not allowed for saving */
+    public static final String ERR_PROP_FOUND_RIGHTS_NOT_FOR_SAVE = "ERR_PROP_FOUND_RIGHTS_NOT_FOR_SAVE";
+    
+    /** Right type is empty */
+    public static final String ERR_PROP_RIGHT_TYPE_EMPTY = "ERR_PROP_RIGHT_TYPE_EMPTY";
+    
+    /** Right attached to a different property object. */
+    public static final String ERR_PROP_RIGHT_HAS_DIFFERENT_PROP = "ERR_PROP_RIGHT_HAS_DIFFERENT_PROP";
+    
+    /** Right must have registered status. */
+    public static final String ERR_PROP_RIGHT_MUST_BE_REGISTERED = "ERR_PROP_RIGHT_MUST_BE_REGISTERED";
+    
+    /** Right must have pending status. */
+    public static final String ERR_PROP_RIGHT_MUST_BE_PENDING = "ERR_PROP_RIGHT_MUST_BE_PENDING";
+    
+    /** Parent right must be referenced. */
+    public static final String ERR_PROP_PARENT_RIGHT_EMPTY = "ERR_PROP_PARENT_RIGHT_EMPTY";
+    
+    /** Parent right must have registered status. */
+    public static final String ERR_PROP_PARENT_RIGHT_MUST_BE_REGISTERED = "ERR_PROP_PARENT_RIGHT_MUST_BE_REGISTERED";
+    
+    /** Parent right was not found. */
+    public static final String ERR_PROP_PARENT_RIGHT_NOT_FOUND = "ERR_PROP_PARENT_RIGHT_NOT_FOUND";
+    
+    /** Right holders are not provided. */
+    public static final String ERR_PROP_NO_RIGHTHOLDERS = "ERR_PROP_NO_RIGHTHOLDERS";
+    
+    /** Right type was not found. */
+    public static final String ERR_PROP_RIGHT_TYPE_NOT_FOUND = "ERR_PROP_RIGHT_TYPE_NOT_FOUND";
+    
+    /** Multiple "{0}" rights are not allowed. */
+    public static final String ERR_PROP_MULTIPLE_RIGHTS_NOT_ALLOWED = "ERR_PROP_MULTIPLE_RIGHTS_NOT_ALLOWED";
+    
+    /** Allocation Date is empty */
+    public static final String ERR_PROP_ALLOCATION_DATE_EMPTY = "ERR_PROP_ALLOCATION_DATE_EMPTY";
+    
+    /** Allocation Date can't be in future */
+    public static final String ERR_PROP_ALLOCATION_DATE_IN_FUTURE = "ERR_PROP_ALLOCATION_DATE_IN_FUTURE";
+    
+    /** Start Date is empty */
+    public static final String ERR_PROP_START_DATE_EMPTY = "ERR_PROP_START_DATE_EMPTY";
+            
+    /** Start Date can't be greater than Allocation Date */
+    public static final String ERR_PROP_START_DATE_GREATER_ALLOCATION = "ERR_PROP_START_DATE_GREATER_ALLOCATION";
+    
+    /** Declared Land Use is not selected */
+    public static final String ERR_PROP_DECLARED_LANDUSE_EMPTY = "ERR_PROP_DECLARED_LANDUSE_EMPTY";
+    
+    /** Approved Land Use is not selected */
+    public static final String ERR_PROP_APPROVED_LANDUSE_EMPTY = "ERR_PROP_APPROVED_LANDUSE_EMPTY";
+    
+    /** Adjudicator #1 is empty */
+    public static final String ERR_PROP_ADJUDICATOR1_EMPTY = "ERR_PROP_ADJUDICATOR1_EMPTY";
+    
+    /** Adjudicator #2 is empty */
+    public static final String ERR_PROP_ADJUDICATOR2_EMPTY = "ERR_PROP_ADJUDICATOR2_EMPTY";
+    
+    /** Neighbor (north) is empty */
+    public static final String ERR_PROP_NORTH_EMPTY = "ERR_PROP_NORTH_EMPTY";
+    
+    /** Neighbor (south) is empty */
+    public static final String ERR_PROP_SOUTH_EMPTY = "ERR_PROP_SOUTH_EMPTY";
+    
+    /** Neighbor (east) is empty */
+    public static final String ERR_PROP_EAST_EMPTY = "ERR_PROP_EAST_EMPTY";
+    
+    /** Neighbor (west) is empty */
+    public static final String ERR_PROP_WEST_EMPTY = "ERR_PROP_WEST_EMPTY";
+    
+    /** Occupancy Type is not selected */
+    public static final String ERR_PROP_OCCUPANCY_TYPE_EMPTY = "ERR_PROP_OCCUPANCY_TYPE_EMPTY";
+    
+    /** Deceased person is not provided */
+    public static final String ERR_PROP_DP_EMPTY = "ERR_PROP_DP_EMPTY";
+    
+    /** Deceased person first name is empty */
+    public static final String ERR_PROP_DP_FIRST_NAME_EMPTY = "ERR_PROP_DP_FIRST_NAME_EMPTY";
+    
+    /** Deceased person last name is empty */
+    public static final String ERR_PROP_DP_LAST_NAME_EMPTY = "ERR_PROP_DP_LAST_NAME_EMPTY";
+    
+    /** Legal Entity is not provided */
+    public static final String ERR_PROP_LE_EMPTY = "ERR_PROP_LE_EMPTY";
+    
+    /** Only one Legal Entity is allowed */
+    public static final String ERR_PROP_ONE_LE_ALLOWED = "ERR_PROP_ONE_LE_ALLOWED";
+    
+    /** Share size must be provided for {0} */
+    public static final String ERR_PROP_SHARE_SIZE_EMPTY = "ERR_PROP_SHARE_SIZE_EMPTY";
+    
+    /** {0} must be older than 18 */
+    public static final String ERR_PROP_YOUNG_OWNER = "ERR_PROP_YOUNG_OWNER";
+    
+    /** {0} must be younger than 18 */
+    public static final String ERR_PROP_OLD_OWNER = "ERR_PROP_OLD_OWNER";
+    
+    /** One owner must be provided. Make sure owner role is assigned to the person. No guardians or administrators allowed. */
+    public static final String ERR_PROP_ONE_OWNER_ALLOWED = "ERR_PROP_ONE_OWNER_ALLOWED";
+    
+    /** At least one administrator must be provided. Make sure administrator role is assigned to the person. No guardians or owners allowed. */
+    public static final String ERR_PROP_ONE_OR_MANY_ADMINS_ALLOWED = "ERR_PROP_ONE_OR_MANY_ADMINS_ALLOWED";
+    
+    /** At least two owners must be provided. Make sure owner role is assigned to the persons. No guardians or administrators allowed. */
+    public static final String ERR_PROP_MULTIPLE_OWNERS_REQUIRED = "ERR_PROP_MULTIPLE_OWNERS_REQUIRED";
+    
+    /** At least one minor and one guardian must be provided. Make sure owner and guardian roles are assigned to the persons. No administrators allowed. */
+    public static final String ERR_PROP_WRONG_GUARDINASHIP = "ERR_PROP_WRONG_GUARDINASHIP";
+    
+    /** Party is not provided */
+    public static final String ERR_PROP_NO_PARTY = "ERR_PROP_NO_PARTY";
+    
+    /** Person of interest first name is empty. */
+    public static final String ERR_PROP_POI_FIRST_NAME_EMPTY = "ERR_PROP_POI_FIRST_NAME_EMPTY";
+    
+    /** Person of interest last name is empty. */
+    public static final String ERR_PROP_POI_LAST_NAME_EMPTY = "ERR_PROP_POI_LAST_NAME_EMPTY";
 }

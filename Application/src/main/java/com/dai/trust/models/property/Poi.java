@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
@@ -12,9 +15,14 @@ import javax.persistence.Temporal;
 @Table(name = "poi")
 public class Poi extends AbstractIdEntity {
 
-    @Column(name = "rrr_id", insertable = false, updatable = false)
+    @Column(name = "rrr_id")
     @JsonIgnore
     private String rrrId;
+    
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rrr_id", updatable = false, insertable = false, referencedColumnName = "id")
+    private Rrr rrr;
     
     @Column(name = "first_name")
     private String firstName;
@@ -34,6 +42,14 @@ public class Poi extends AbstractIdEntity {
         
     public Poi() {
         super();
+    }
+
+    public Rrr getRrr() {
+        return rrr;
+    }
+
+    public void setRrr(Rrr rrr) {
+        this.rrr = rrr;
     }
 
     public String getRrrId() {

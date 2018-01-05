@@ -100,6 +100,48 @@ public class ApplicationResource extends AbstractResource {
     }
     
     /**
+     * Approves application 
+     *
+     * @param langCode Language code for localization
+     * @param id Application id.
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "approve/{id}")
+    @Authorized(roles = RolesConstants.APPROVE_TRANSACTIONS)
+    public String approveApplication(@PathParam(value = LANG_CODE) String langCode, @PathParam("id") String id) {
+        try {
+            ApplicationService service = new ApplicationService();
+            service.approveApplication(id);
+            return ResponseFactory.buildOk();
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Completes application 
+     *
+     * @param langCode Language code for localization
+     * @param id Application id.
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "complete/{id}")
+    @Authorized(roles = RolesConstants.MANAGE_APPLICATIONS)
+    public String completeApplication(@PathParam(value = LANG_CODE) String langCode, @PathParam("id") String id) {
+        try {
+            ApplicationService service = new ApplicationService();
+            service.completeApplication(id);
+            return ResponseFactory.buildOk();
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
      * Assigns applications and returns OK status.
      *
      * @param langCode Language code for localization
@@ -150,6 +192,68 @@ public class ApplicationResource extends AbstractResource {
             ids.add(id);
             
             service.assignApplications(ids, userName);
+            return ResponseFactory.buildOk();
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Rejects application and returns OK status if success.
+     *
+     * @param langCode Language code for localization
+     * @param id Application ID
+     * @param json Reason for rejection
+     * @return
+     */
+    @POST
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "reject/{id}")
+    @Authorized(roles = RolesConstants.APPROVE_TRANSACTIONS)
+    public String rejectApplication(@PathParam(value = LANG_CODE) String langCode, 
+            @PathParam(value = "id") String id, String json) {
+        try {
+            ApplicationService service = new ApplicationService();
+            String reason = "";
+            try {
+                reason = getMapper().readValue(json, String.class);
+            } catch (Exception e) {
+                logger.error("Failed to convert rejection reason JSON", e);
+                throw ExceptionFactory.buildBadJson(langCode, "Application");
+            }
+            service.rejectApplication(id, reason);
+            
+            return ResponseFactory.buildOk();
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Withdraws application and returns OK status if success.
+     *
+     * @param langCode Language code for localization
+     * @param id Application ID
+     * @param json Reason for withdrawal
+     * @return
+     */
+    @POST
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "withdraw/{id}")
+    @Authorized(roles = RolesConstants.MANAGE_APPLICATIONS)
+    public String withdrawApplication(@PathParam(value = LANG_CODE) String langCode, 
+            @PathParam(value = "id") String id, String json) {
+        try {
+            ApplicationService service = new ApplicationService();
+            String reason = "";
+            try {
+                reason = getMapper().readValue(json, String.class);
+            } catch (Exception e) {
+                logger.error("Failed to convert withdrawal reason JSON", e);
+                throw ExceptionFactory.buildBadJson(langCode, "Application");
+            }
+            service.withdrawApplication(id, reason);
+            
             return ResponseFactory.buildOk();
         } catch (Exception e) {
             throw processException(e, langCode);

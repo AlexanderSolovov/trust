@@ -4,6 +4,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import static java.util.Calendar.DATE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -186,7 +189,7 @@ public class DateUtility {
     }
 
     /**
-     * Adds the specified part of  date or time to the provided date instance.
+     * Adds the specified part of date or time to the provided date instance.
      *
      * @param baseDate The date to add the specified part of the date.
      * @param amount Amount to add.
@@ -201,7 +204,7 @@ public class DateUtility {
         }
         return cal.getTime();
     }
-    
+
     /**
      * Returns the maximum value of 2 dates.
      *
@@ -430,6 +433,34 @@ public class DateUtility {
         }
     }
 
+    /** 
+     * Returns difference between 2 dates in years 
+     * @param first First date
+     * @param last Second date
+     * @return 
+     */
+    public static int getDiffYears(Date first, Date last) {
+        Calendar a = Calendar.getInstance();
+        a.setTime(first);
+        Calendar b = Calendar.getInstance();
+        b.setTime(last);
+        int diff = b.get(YEAR) - a.get(YEAR);
+        if (a.get(MONTH) > b.get(MONTH)
+                || (a.get(MONTH) == b.get(MONTH) && a.get(DATE) > b.get(DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+
+    /** 
+     * Returns age based on provided date of birth 
+     * @param dob Date of birth
+     * @return 
+     */
+    public static int getAge(Date dob) {
+        return getDiffYears(dob, Calendar.getInstance().getTime());
+    }
+    
     /**
      * Returns the number of days difference between <code>t1</code> and
      * <code>t2</code>.
@@ -703,7 +734,7 @@ public class DateUtility {
             return null;
         }
     }
-    
+
     /**
      * Formats provided date using date format string.
      *

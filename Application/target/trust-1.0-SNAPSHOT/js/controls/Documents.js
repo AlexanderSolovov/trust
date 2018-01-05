@@ -93,7 +93,10 @@ Controls.Documents = function (controlId, targetElementId, options) {
                         if (isNull(data)) {
                             return "";
                         } else {
-                            return dateFormat(data);
+                            if (type === "display") {
+                                return dateFormat(data, dateFormat.masks.dateTime);
+                            }
+                            return data;
                         }
                     }
                 },
@@ -103,15 +106,19 @@ Controls.Documents = function (controlId, targetElementId, options) {
                 }
             ]
         });
+
+        var copyFromApp = "";
+        if (!isNull(options.app)) {
+            copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
+        }
+        $("#" + controlVarId + "_wrapper div.tableToolbar").html(
+                String.format(DataTablesUtility.getAddLink(), controlVarId + ".showDocumentDialog(null);return false;") +
+                copyFromApp
+                );
         if (editable) {
-            var copyFromApp = "";
-            if (!isNull(options.app)) {
-                copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
-            }
-            $("#" + controlVarId + "_wrapper div.tableToolbar").html(
-                    String.format(DataTablesUtility.getAddLink(), controlVarId + ".showDocumentDialog(null);return false;") +
-                    copyFromApp
-                    );
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
         }
     };
 
@@ -222,6 +229,17 @@ Controls.Documents = function (controlId, targetElementId, options) {
         docs = list ? list : [];
         table.rows.add(docs);
         table.draw();
+    };
+
+    this.setEditable = function (allowEdit) {
+        editable = allowEdit;
+        if (allowEdit) {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
+        }
+        table.rows().invalidate("data");
+        table.draw(false);
     };
 
     this.getDocuments = function () {

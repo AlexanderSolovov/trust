@@ -97,18 +97,29 @@ Controls.Person = function (controlId, targetElementId, options) {
         p = isNull(p) ? new PartyDao.Party() : p;
         localPerson = p;
 
-        if(isOwnership){
+        if (isOwnership) {
             $("#divPartyRole").show();
         } else {
             $("#divPartyRole").hide();
         }
-        
+
+        if (!localPerson.editable) {
+            $("#" + controlVarId + "_main .form-control").prop('disabled', true);
+            $("#" + controlVarId + "_main input:checkbox").prop('disabled', true);
+            $("#" + controlVarId + "_cbxOwnerRoles").prop('disabled', false);
+            $("#" + controlVarId + "_txtShareSize").prop('disabled', false);
+        } else {
+            $("#" + controlVarId + "_main .form-control").prop('disabled', false);
+            $("#" + controlVarId + "_main input:checkbox").prop('disabled', false);
+        }
+
         // Populate lists
         populateSelectList(genders, controlVarId + "_cbxGenders");
         populateSelectList(idTypes, controlVarId + "_cbxIdTypes");
         populateSelectList(citizenships, controlVarId + "_cbxCitezenships");
         populateSelectList(maritalStatuses, controlVarId + "_cbxMaritalStatuses");
-        if(isOwnership){
+        
+        if (isOwnership) {
             populateSelectList(ownerTypes, controlVarId + "_cbxOwnerRoles");
             $("#" + controlVarId + "_cbxOwnerRoles").val(p.ownerTypeCode);
             $("#" + controlVarId + "_txtShareSize").val(p.shareSize);
@@ -140,17 +151,27 @@ Controls.Person = function (controlId, targetElementId, options) {
         // Set documents
         if (!isNull(docsControl)) {
             docsControl.setDocuments(makeObjectsList(p.documents, "document"));
+            docsControl.setEditable(localPerson.editable);
         }
     };
 
     var showHidePhotoPanel = function (fileId) {
         if (isNull(fileId)) {
-            $("#" + controlVarId + "_photoUploadPanel").show();
+            if (localPerson.editable) {
+                $("#" + controlVarId + "_photoUploadPanel").show();
+            } else {
+                $("#" + controlVarId + "_photoUploadPanel").hide();
+            }
             $("#" + controlVarId + "_photoViewPanel").hide();
         } else {
             $("#" + controlVarId + "_photoUploadPanel").hide();
             $("#" + controlVarId + "_photoViewPanel").show();
             $("#" + controlVarId + "_photo").attr("src", String.format(DocumentDao.URL_GET_FILE, fileId));
+            if (localPerson.editable) {
+                $("#" + controlVarId + "_lnkDeletePhoto").show();
+            } else {
+                $("#" + controlVarId + "_lnkDeletePhoto").hide();
+            }
         }
     };
 
@@ -178,10 +199,10 @@ Controls.Person = function (controlId, targetElementId, options) {
         if (isNullOrEmpty($("#" + controlVarId + "_cbxCitezenships").val())) {
             errors.push($.i18n("err-person-citizenship-empty"));
         }
-        if(isOwnership && isNullOrEmpty($("#" + controlVarId + "_cbxOwnerRoles").val())){
+        if (isOwnership && isNullOrEmpty($("#" + controlVarId + "_cbxOwnerRoles").val())) {
             errors.push($.i18n("err-person-select-role"));
         }
-        
+
         if (errors.length > 0) {
             if (showErrors) {
                 alertErrorMessages(errors);
@@ -218,10 +239,10 @@ Controls.Person = function (controlId, targetElementId, options) {
         if (!isNullOrEmpty($("#" + controlVarId + "_cbxCitezenships").val())) {
             result.citizenshipCode = $("#" + controlVarId + "_cbxCitezenships").val();
         }
-        if(isOwnership && !isNullOrEmpty($("#" + controlVarId + "_cbxOwnerRoles").val())){
+        if (isOwnership && !isNullOrEmpty($("#" + controlVarId + "_cbxOwnerRoles").val())) {
             result.ownerTypeCode = $("#" + controlVarId + "_cbxOwnerRoles").val();
         }
-        if(isOwnership && !isNullOrEmpty($("#" + controlVarId + "_txtShareSize").val())){
+        if (isOwnership && !isNullOrEmpty($("#" + controlVarId + "_txtShareSize").val())) {
             result.shareSize = $("#" + controlVarId + "_txtShareSize").val();
         }
         if (!isNullOrEmpty($("#" + controlVarId + "_cbxMaritalStatuses").val())) {

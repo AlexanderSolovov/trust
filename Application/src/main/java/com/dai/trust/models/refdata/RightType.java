@@ -14,6 +14,10 @@ public class RightType extends AbstractRefDataEntity {
     @Column(name = "allow_multiple")
     private boolean allowMultiple;
     
+    public static final String TYPE_CCRO = "ccro";
+    public static final String TYPE_CAVEAT = "caveat";
+    public static final String TYPE_MORTGAGE = "mortgage";
+
     public RightType(){
         super();
     }

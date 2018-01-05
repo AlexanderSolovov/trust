@@ -12,8 +12,8 @@
             <property name="hibernate.order_inserts" value="true"/>
             <property name="hibernate.order_updates" value="true"/>
             <property name="hibernate.cache.use_second_level_cache" value="false"/>
-            <property name="hibernate.show_sql" value="false"/>
-            <property name="hibernate.format_sql" value="false"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
             <property name="hibernate.use_sql_comments" value="false"/>
       
             <property name="hibernate.session_factory.interceptor" value="com.dai.trust.db.EntityInterceptor"/>

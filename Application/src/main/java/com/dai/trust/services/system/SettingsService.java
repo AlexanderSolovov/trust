@@ -6,24 +6,16 @@ import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.MultipleTrustException;
 import com.dai.trust.exceptions.TrustException;
-import com.dai.trust.models.system.MapLayer;
-import com.dai.trust.models.system.MapSettings;
 import com.dai.trust.models.system.Setting;
 import com.dai.trust.services.AbstractService;
 import java.io.File;
 import java.util.List;
-import javax.persistence.Query;
 import javax.servlet.http.HttpSession;
 
 /**
  * Contains methods, related to managing system settings.
  */
 public class SettingsService extends AbstractService {
-
-    public final static String SETTING_VERSION = "version";
-    public final static String SETTING_MEDIA_PATH = "media-path";
-    public final static String SETTING_MAX_FILE_SIZE = "max-file-size";
-    public final static String SETTING_FILE_EXTENSIONS = "file-extensions";
 
     public SettingsService() {
         super();
@@ -55,14 +47,14 @@ public class SettingsService extends AbstractService {
      */
     public String getMediaPath() {
         if (SharedData.getSession() != null) {
-            Object tmpPath = SharedData.getSession().getAttribute(SETTING_MEDIA_PATH);
+            Object tmpPath = SharedData.getSession().getAttribute(Setting.SETTING_MEDIA_PATH);
             if (tmpPath != null && !StringUtility.isEmpty(tmpPath.toString())) {
                 return tmpPath.toString();
             }
         }
 
         String mediaPath = SharedData.getAppPath() + "/../trust_files";
-        Setting settgingPath = getSetting(SETTING_MEDIA_PATH);
+        Setting settgingPath = getSetting(Setting.SETTING_MEDIA_PATH);
 
         if (settgingPath != null) {
             if (new File(settgingPath.getVal()).isAbsolute()) {
@@ -74,13 +66,13 @@ public class SettingsService extends AbstractService {
 
         // Save to session
         if (SharedData.getSession() != null) {
-            SharedData.getSession().setAttribute(SETTING_MEDIA_PATH, mediaPath);
+            SharedData.getSession().setAttribute(Setting.SETTING_MEDIA_PATH, mediaPath);
         }
         return mediaPath;
     }
 
     private String getMediaPathFromSetting() {
-        Setting settgingPath = getSetting(SETTING_MEDIA_PATH);
+        Setting settgingPath = getSetting(Setting.SETTING_MEDIA_PATH);
         if (settgingPath != null) {
             return settgingPath.getVal();
         }
@@ -111,6 +103,12 @@ public class SettingsService extends AbstractService {
             errors.addError(new TrustException(MessagesKeys.ERR_DESCRIPTION_EMPTY));
         }
 
+        // Check in db
+        Setting dbSetting = getSetting(setting.getId());
+        if(dbSetting != null && dbSetting.isReadOnly()){
+            errors.addError(new TrustException(MessagesKeys.ERR_SETTING_READONLY));
+        }
+        
         if (errors.getErrors().size() > 0) {
             throw errors;
         }
@@ -123,13 +121,13 @@ public class SettingsService extends AbstractService {
      * @param session HttpSession object to save db version for subsequent checks
      */
     public void verifyVersion(HttpSession session) {
-        String dbVersion = (String) session.getAttribute(SettingsService.SETTING_VERSION);
+        String dbVersion = (String) session.getAttribute(Setting.SETTING_VERSION);
         if (StringUtility.isEmpty(dbVersion)) {
             // Get system version from string values
             MessageProvider msgProvider = new MessageProvider(null);
             String systemVersion = msgProvider.getMessage(MessagesKeys.GENERAL_VERSION);
             SettingsService service = new SettingsService();
-            Setting setting = service.getSetting(SettingsService.SETTING_VERSION);
+            Setting setting = service.getSetting(Setting.SETTING_VERSION);
 
             if (setting != null) {
                 // Compare versions
@@ -148,7 +146,7 @@ public class SettingsService extends AbstractService {
                     dbVersion = "0.1";
                 }
             }
-            session.setAttribute(SettingsService.SETTING_VERSION, dbVersion);
+            session.setAttribute(Setting.SETTING_VERSION, dbVersion);
         }
     }
 }

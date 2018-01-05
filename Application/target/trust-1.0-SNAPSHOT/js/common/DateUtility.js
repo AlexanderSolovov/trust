@@ -1,16 +1,4 @@
-/*
- * Date Format 1.2.3
- * (c) 2007-2009 Steven Levithan <stevenlevithan.com>
- * MIT license
- *
- * Includes enhancements by Scott Trenda <scott.trenda.net>
- * and Kris Kowal <cixar.com/~kris.kowal/>
- *
- * Accepts a date, a mask, or a date and a mask.
- * Returns a formatted version of the given date.
- * The date defaults to the current date/time.
- * The mask defaults to dateFormat.masks.default.
- */
+var DateUtility = DateUtility || {};
 
 var dateFormat = function () {
     var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
@@ -125,4 +113,52 @@ dateFormat.i18n = {
 // For convenience...
 Date.prototype.format = function (mask, utc) {
     return dateFormat(this, mask, utc);
+};
+
+DateUtility.dateDiffInYears = function (dateold, datenew) {
+    var ynew = datenew.getFullYear();
+    var mnew = datenew.getMonth();
+    var dnew = datenew.getDate();
+    var yold = dateold.getFullYear();
+    var mold = dateold.getMonth();
+    var dold = dateold.getDate();
+    var diff = ynew - yold;
+    if (mold > mnew)
+        diff--;
+    else {
+        if (mold === mnew) {
+            if (dold > dnew)
+                diff--;
+        }
+    }
+    return diff;
+};
+
+DateUtility.compareDates = function (date1, date2){
+    if(isNull(date1) || isNull(date2)){
+        return;
+    }
+    var d1 = new Date(date1);
+    var d2 = new Date(date2);
+    var diff = d2.getTime() - d1.getTime();
+    
+    if(diff > 0){
+        return 1;
+    } else if(diff < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
+};
+
+DateUtility.getAge = function (dateOfBirth) {
+    if (isNullOrEmpty(dateOfBirth))
+        return 0;
+    return DateUtility.dateDiffInYears(new Date(dateOfBirth), new Date());
+};
+
+DateUtility.isFuture = function (date) {
+    if (isNullOrEmpty(date))
+        return false;
+    return DateUtility.compareDates(date, new Date()) < 0;
 };

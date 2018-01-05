@@ -14,4 +14,6 @@ $(function () {
     URLS.EDIT_PROPERTY = Global.APP_ROOT + "/property/property.jsp?appid={0}";
     URLS.EDIT_PROPERTY_WITH_MESSAGE = URLS.EDIT_PROPERTY + "&msg={1}";
     URLS.VIEW_PROPERTY = Global.APP_ROOT + "/property/property.jsp?id={0}";
+    URLS.VIEW_PROPERTY_BY_RIGHT = Global.APP_ROOT + "/property/property.jsp?rightid={0}";
+    URLS.VIEW_PROPERTY_WITH_MESSAGE = URLS.VIEW_PROPERTY + "&msg={1}";
 });

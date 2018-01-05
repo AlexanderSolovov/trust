@@ -16,7 +16,10 @@ $(function () {
     SearchDao.URL_SEARCH_APPS = baseUrl + "applications";
     SearchDao.URL_SEARCH_PARCEL_BY_POINT = baseUrl + "parcelbypoint?x={0}&y={1}";
     SearchDao.URL_SEARCH_PARCELS_BY_APPLICATION = baseUrl + "parcelsbyapplication/{0}";
+    SearchDao.URL_SEARCH_APPLICATION_PROPS = baseUrl + "applicationproperties/{0}";
     SearchDao.URL_SEARCH_PARCEL_BY_ID = baseUrl + "parcelbyid/{0}";
+    SearchDao.URL_SEARCH_AFFECTED_OBJECTS = baseUrl + "affectedobjectsbyapplication/{0}";
+    SearchDao.URL_SEARCH_RIGHTS = baseUrl + "rights";
 });
 
 SearchDao.PersonSearchResult = function () {
@@ -56,6 +59,22 @@ SearchDao.AppSearchParams = function () {
         lodgemenetDateFrom: null,
         lodgemenetDateTo: null
     };
+};
+
+SearchDao.RightSearchParams = function () {
+    return {
+        propNumber: null,
+        fileNumber: null,
+        ukaNumber: null,
+        rightTypeCode: null,
+        rightholderName: null,
+        rightholderIdNumber: null,
+        statusCode: null
+    };
+};
+
+SearchDao.searchAffectedObjects = function (appId, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_SEARCH_AFFECTED_OBJECTS, appId), successAction, failAction, alwaysAction, showErrorAlert);
 };
 
 SearchDao.searchMyApps = function (successAction, failAction, alwaysAction, showErrorAlert) {
@@ -101,6 +120,14 @@ SearchDao.searchParcelsByApp = function (appId, successAction, failAction, alway
     getAjaxData(String.format(SearchDao.URL_SEARCH_PARCELS_BY_APPLICATION, appId), successAction, failAction, alwaysAction, showErrorAlert);
 };
 
+SearchDao.searchApplicationProps = function (appId, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_SEARCH_APPLICATION_PROPS, appId), successAction, failAction, alwaysAction, showErrorAlert);
+};
+
 SearchDao.searchParcelById = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(String.format(SearchDao.URL_SEARCH_PARCEL_BY_ID, id), successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SearchDao.searchRights = function (data, successAction, failAction, alwaysAction, showErrorAlert) {
+    postAjaxData(SearchDao.URL_SEARCH_RIGHTS, data, successAction, failAction, alwaysAction, showErrorAlert);
 };

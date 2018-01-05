@@ -6,20 +6,20 @@ var Controls = Controls || {};
 
 Controls.LegalEntities = function (controlId, targetElementId, options) {
     validateControl(controlId, targetElementId);
-    
-    var filterParties = function (list){
-        if(isNull(list)){
+
+    var filterParties = function (list) {
+        if (isNull(list)) {
             return [];
         }
         var result = [];
-        for(var i = 0; i < list.length; i++){
-            if(!isNull(list[i].isPrivate) && !list[i].isPrivate){
+        for (var i = 0; i < list.length; i++) {
+            if (!isNull(list[i].isPrivate) && !list[i].isPrivate) {
                 result.push(list[i]);
             }
         }
         return result;
     };
-    
+
     options = options ? options : {};
     var legalEntities = filterParties(options.legalEntities);
     var editable = isNull(options.editable) ? true : options.editable;
@@ -104,23 +104,30 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
                 {
                     targets: 3,
                     "render": function (data, type, row, meta) {
-                        return dateFormat(data);
+                        if (type === "display") {
+                            return dateFormat(data, dateFormat.masks.dateTime);
+                        }
+                        return data;
                     }
                 }
             ]
         });
 
+        var copyFromApp = "";
+        if (!isNull(options.app)) {
+            copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
+        }
+        $("#" + controlVarId + "_wrapper div.tableToolbar").html(
+                String.format(DataTablesUtility.getAddLink(), controlVarId + ".showLegalEntityDialog(null);return false;")
+                + "&nbsp;&nbsp;" +
+                String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;") +
+                copyFromApp
+                );
+
         if (editable) {
-            var copyFromApp = "";
-            if (!isNull(options.app)) {
-                copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
-            }
-            $("#" + controlVarId + "_wrapper div.tableToolbar").html(
-                    String.format(DataTablesUtility.getAddLink(), controlVarId + ".showLegalEntityDialog(null);return false;")
-                    + "&nbsp;&nbsp;" +
-                    String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;") +
-                    copyFromApp
-                    );
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
         }
     };
 
@@ -147,6 +154,16 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
         table.draw();
     };
 
+    this.setEditable = function (allowEdit) {
+        editable = allowEdit;
+        if (allowEdit) {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
+        }
+        table.draw();
+    };
+
     var selectedRow = null;
 
     this.copyFromApp = function () {
@@ -170,7 +187,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
             }
         }
     };
-    
+
     this.showLegalEntityDialog = function (rowSelector) {
         $("#" + controlVarId + "_Dialog").modal('show');
         if (isNull(rowSelector)) {
@@ -245,7 +262,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
         }
         // Add/update person
         var legalEntity = leControl.getLegalEntity(true);
-        if(!isNull(legalEntity)){
+        if (!isNull(legalEntity)) {
             $("#" + controlVarId + "_Dialog").modal('hide');
             var currentRow;
 

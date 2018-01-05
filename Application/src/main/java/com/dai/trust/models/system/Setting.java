@@ -11,6 +11,10 @@ public class Setting extends AbstractIdEntity {
     public static final String SETTING_SRS = "srs";
     public static final String SETTING_OFFLINE_MODE = "offline-mode";
     public static final String SETTING_MAP_EXTENT = "map-extent";
+    public final static String SETTING_VERSION = "version";
+    public final static String SETTING_MEDIA_PATH = "media-path";
+    public final static String SETTING_MAX_FILE_SIZE = "max-file-size";
+    public final static String SETTING_FILE_EXTENSIONS = "file-extensions";
     
     @Column
     private String val;
@@ -21,6 +25,9 @@ public class Setting extends AbstractIdEntity {
     @Column
     private String description;
 
+    @Column(name="read_only")
+    private boolean readOnly;
+    
     public Setting() {
         super();
     }
@@ -47,5 +54,13 @@ public class Setting extends AbstractIdEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 }

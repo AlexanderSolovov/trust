@@ -23,7 +23,6 @@ public class ApplicationProperty extends AbstractEntity {
     private String appId;
 
     @Id
-    @JsonIgnore
     @Column(name = "property_id", insertable = false, updatable = false)
     private String propId;
     

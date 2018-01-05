@@ -11,6 +11,8 @@ import javax.persistence.Temporal;
 public class ApplicationSearchResult implements Serializable {
     @Id
     private String id;
+    @Column(name = "app_type_code")
+    private String appTypeCode;
     @Column(name = "app_type")
     private String appType;
     @Column(name ="app_number")
@@ -43,6 +45,14 @@ public class ApplicationSearchResult implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getAppTypeCode() {
+        return appTypeCode;
+    }
+
+    public void setAppTypeCode(String appTypeCode) {
+        this.appTypeCode = appTypeCode;
     }
 
     public String getAppType() {

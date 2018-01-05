@@ -379,11 +379,7 @@ function runSafe(func) {
         }
     } catch (e) {
         if (!isNull(e)) {
-            if (!isNull(e.message)) {
-                console.error(e.message);
-            } else {
-                console.error(e);
-            }
+            console.error(e);
         } else {
             console.error("Exception is empty");
         }

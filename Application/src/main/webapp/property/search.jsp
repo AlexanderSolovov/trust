@@ -6,30 +6,29 @@
 
 <t:BasePage>
     <jsp:attribute name="title">
-        <fmt:message key="SEARCH_APP_SEARCH" />
+        <fmt:message key="SEARCH_RIGHT_SEARCH" />
     </jsp:attribute>
     <jsp:attribute name="head">
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/dao/RefDataDao.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/dao/SearchDao.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/js/dao/ApplicationDao.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/Applications.js"></script>
-        <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/ApplicationSearch.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/Rights.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/RightSearch.js"></script>
     </jsp:attribute>
     <jsp:body>
         <h1>
             <i class=" glyphicon glyphicon-search"></i>
-            <fmt:message key="SEARCH_APP_SEARCH" />
+            <fmt:message key="SEARCH_RIGHT_SEARCH" />
         </h1>
         
-        <div id="pnlAppSearch"></div>
+        <div id="pnlRightSearch"></div>
         
         <script type="text/javascript">
             $(document).ready(function () {
-                var ctrlSearch = new Controls.ApplicationSearch("ctrlAppSearch", "pnlAppSearch");
+                var ctrlSearch = new Controls.RightSearch("ctrlRightSearch", "pnlRightSearch");
                 ctrlSearch.init();
                 
                 // Localize
-                $("#pnlAppSearch").i18n();
+                $("#pnlRightSearch").i18n();
             });
         </script>
     </jsp:body>

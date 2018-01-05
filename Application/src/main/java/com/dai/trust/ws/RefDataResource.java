@@ -16,9 +16,11 @@ import com.dai.trust.models.refdata.Gender;
 import com.dai.trust.models.refdata.Hamlet;
 import com.dai.trust.models.refdata.IdType;
 import com.dai.trust.models.refdata.LandType;
+import com.dai.trust.models.refdata.LandUse;
 import com.dai.trust.models.refdata.Language;
 import com.dai.trust.models.refdata.LegalEntityType;
 import com.dai.trust.models.refdata.MaritalStatus;
+import com.dai.trust.models.refdata.OccupancyType;
 import com.dai.trust.models.refdata.OwnerType;
 import com.dai.trust.models.refdata.PartyStatus;
 import com.dai.trust.models.refdata.RegStatus;
@@ -71,6 +73,8 @@ public class RefDataResource extends AbstractResource {
         REF_DATA_CLASSES.put(RegStatus.class.getSimpleName(), RegStatus.class);
         REF_DATA_CLASSES.put(RightType.class.getSimpleName(), RightType.class);
         REF_DATA_CLASSES.put(OwnerType.class.getSimpleName(), OwnerType.class);
+        REF_DATA_CLASSES.put(LandUse.class.getSimpleName(), LandUse.class);
+        REF_DATA_CLASSES.put(OccupancyType.class.getSimpleName(), OccupancyType.class);
     }
 
     /**

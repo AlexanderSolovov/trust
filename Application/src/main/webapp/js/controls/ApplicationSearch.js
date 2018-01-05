@@ -1,5 +1,5 @@
 /* 
- * Applications control.
+ * ApplicationSearch control.
  * Requires Global.js, DataTablesUtility.js, SearchDao.js,  ApplicationDao.js, 
  * Applications.js, ApplicationAssign.js, RefDataDao.js
  */

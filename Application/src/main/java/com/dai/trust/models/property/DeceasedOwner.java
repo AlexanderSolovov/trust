@@ -1,8 +1,12 @@
 package com.dai.trust.models.property;
 
 import com.dai.trust.models.AbstractIdEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -11,6 +15,11 @@ public class DeceasedOwner extends AbstractIdEntity {
 
     @Column(name = "rrr_id")
     private String rrrId;
+    
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rrr_id", updatable = false, insertable = false, referencedColumnName = "id")
+    private Rrr rrr;
     
     @Column(name = "first_name")
     private String firstName;
@@ -26,6 +35,14 @@ public class DeceasedOwner extends AbstractIdEntity {
         
     public DeceasedOwner() {
         super();
+    }
+
+    public Rrr getRrr() {
+        return rrr;
+    }
+
+    public void setRrr(Rrr rrr) {
+        this.rrr = rrr;
     }
 
     public String getRrrId() {

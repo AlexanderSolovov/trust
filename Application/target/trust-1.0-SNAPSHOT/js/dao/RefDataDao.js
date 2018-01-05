@@ -22,7 +22,9 @@ RefDataDao.REF_DATA_TYPES = {
     LandType: {type: "LandType", labelSingle: "ref-land-type", labelPlural: "ref-land-types"},
     RegStatus: {type: "RegStatus", labelSingle: "ref-reg-status", labelPlural: "ref-reg-statuses"},
     RightType: {type: "RightType", labelSingle: "ref-right-type", labelPlural: "ref-right-types"},
-    OwnerType: {type: "OwnerType", labelSingle: "ref-owner-type", labelPlural: "ref-owner-types"}
+    OwnerType: {type: "OwnerType", labelSingle: "ref-owner-type", labelPlural: "ref-owner-types"},
+    OccupancyType: {type: "OccupancyType", labelSingle: "ref-occupancy-type", labelPlural: "ref-occupancy-types"},
+    LandUse: {type: "LandUse", labelSingle: "ref-landuse-type", labelPlural: "ref-landuse-types"}
 };
 
 $(function () {
@@ -61,12 +63,27 @@ RefDataDao.RIGHT_TYPE_GROUP_CODES = {
     Restriction: "restriction"
 };
 
+RefDataDao.RIGHT_TYPE_CODES = {
+    Ccro: "ccro",
+    Caveat: "caveat",
+    Mortgage: "mortgage"
+};
+
 RefDataDao.OWNER_TYPE_CODES = {
     Owner: "owner",
     Administrator: "administrator",
     Guardian: "guardian"
 };
-        
+
+RefDataDao.OCCUPANCY_TYPE_CODES = {
+    Common: "common",
+    Guardian: "guardian",
+    Joint: "joint",
+    NonNatural: "nonnatural",
+    Probate: "probate",
+    Single: "single"
+};
+
 RefDataDao.RefData = function () {
     return {code: "", val: "", active: true, version: 0};
 };

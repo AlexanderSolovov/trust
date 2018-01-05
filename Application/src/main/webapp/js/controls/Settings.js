@@ -48,9 +48,13 @@ Controls.Settings = function (controlId, targetElementId) {
                 {
                     targets: 0,
                     width: "250px",
-                    "render": function (data, type, full, meta) {
-                        return String.format(DataTablesUtility.getEditLink(), controlVarId + ".showSettingDialog($(this).parents('tr'));return false;") +
-                                " " + data;
+                    "render": function (data, type, row, meta) {
+                        if (row.readOnly) {
+                            return data;
+                        } else {
+                            return String.format(DataTablesUtility.getEditLink(), controlVarId + ".showSettingDialog($(this).parents('tr'));return false;") +
+                                    " " + data;
+                        }
                     }
                 },
                 {
@@ -101,10 +105,10 @@ Controls.Settings = function (controlId, targetElementId) {
         setting.description = $("#" + controlVarId + "_txtDescription").val();
         setting.active = $("#" + controlVarId + "_cbxActive").prop("checked");
         setting.version = $("#" + controlVarId + "_hVersion").val();
-        
+
         if (selectedRow === null && table.data()) {
-            for (i=0; i<table.data().length; i++){
-                if(setting.id.toLowerCase() === table.data()[i].id.toLowerCase()){
+            for (i = 0; i < table.data().length; i++) {
+                if (setting.id.toLowerCase() === table.data()[i].id.toLowerCase()) {
                     alertErrorMessage($.i18n("err-name-exists"));
                     return;
                 }

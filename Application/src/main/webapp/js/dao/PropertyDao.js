@@ -11,6 +11,7 @@ $(function () {
     PropertyDao.URL_GET_PARCEL = baseUrl + "getparcel/{0}";
     PropertyDao.URL_GET_PARCELS_BY_APP = baseUrl + "getparcelsbyapplication/{0}";
     PropertyDao.URL_SAVE_PARCELS = baseUrl + "saveparcels";
+    PropertyDao.URL_SAVE_PROPERTY = baseUrl + "saveproperty";
     PropertyDao.URL_GET_PROPERTY_BY_RIGHT = baseUrl + "getpropertybyright/{0}";
 });
 
@@ -81,6 +82,7 @@ PropertyDao.Right = function () {
         description: null,
         applicationId: null,
         endApplicationId: null,
+        terminationApplicationId: null,
         terminationDate: null,
         statusCode: null,
         version: 0
@@ -94,6 +96,17 @@ PropertyDao.Poi = function () {
         lastName: null,
         middleName: null,
         dob: null,
+        description: null,
+        version: 0
+    };
+};
+
+PropertyDao.DeceasedPerson = function () {
+    return {
+        id: null,
+        firstName: null,
+        lastName: null,
+        middleName: null,
         description: null,
         version: 0
     };
@@ -126,4 +139,8 @@ PropertyDao.getPropertiesByApplication = function (appId, successAction, failAct
 
 PropertyDao.saveParcels = function (data, successAction, failAction, alwaysAction, showErrorAlert) {
     postAjaxData(PropertyDao.URL_SAVE_PARCELS, data, successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+PropertyDao.saveProperty = function (data, successAction, failAction, alwaysAction, showErrorAlert) {
+    postAjaxData(PropertyDao.URL_SAVE_PROPERTY, data, successAction, failAction, alwaysAction, showErrorAlert);
 };

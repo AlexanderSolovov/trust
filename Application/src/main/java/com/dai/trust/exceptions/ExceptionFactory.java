@@ -30,7 +30,7 @@ public class ExceptionFactory {
         MessageProvider msgProvider = new MessageProvider(langCode);
         return new RestException(
                 statusCode, 
-                "[" + String.format(RESPONSE_MESSAGE, msgProvider.getMessage(errorCode, params)) + "]"
+                "[" + String.format(RESPONSE_MESSAGE, msgProvider.getMessage(errorCode, params).replace("\"", "\\\"")) + "]"
         );
     }
     

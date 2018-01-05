@@ -1035,8 +1035,8 @@ CREATE TABLE public.application
    reject_reason character varying(1000), 
    withdraw_date timestamp without time zone, 
    withdraw_reason character varying(1000), 
-   assignee character varying(50) NOT NULL DEFAULT 'db:' || current_user,
-   assigned_on timestamp without time zone NOT NULL DEFAULT now(),
+   assignee character varying(50) DEFAULT 'db:' || current_user,
+   assigned_on timestamp without time zone DEFAULT now(),
    complete_date timestamp without time zone, 
    comment character varying(40), 
    rowversion integer NOT NULL DEFAULT 0,
@@ -2360,7 +2360,7 @@ ALTER TABLE history.application_property OWNER TO postgres;
 CREATE TABLE public.rrr
 (
    id character varying(40) NOT NULL, 
-   property_id character varying(40),
+   property_id character varying(40) NOT NULL,
    parent_id character varying(40), 
    right_type_code character varying(20) NOT NULL, 
    occupancy_type_code character varying(20), 
@@ -2388,6 +2388,7 @@ CREATE TABLE public.rrr
    description character varying(1000), 
    application_id character varying(40) NOT NULL, 
    end_application_id character varying(40), 
+   termination_application_id character varying(40),
    termination_date date, 
    status_code character varying(20) NOT NULL DEFAULT 'pending', 
    rowversion integer NOT NULL DEFAULT 0,
@@ -2403,6 +2404,7 @@ CREATE TABLE public.rrr
    CONSTRAINT rrr_ref_landuse_approved_fk FOREIGN KEY (approved_landuse_code) REFERENCES public.ref_landuse (code) ON UPDATE NO ACTION ON DELETE NO ACTION, 
    CONSTRAINT rrr_application_fk FOREIGN KEY (application_id) REFERENCES public.application (id) ON UPDATE NO ACTION ON DELETE NO ACTION, 
    CONSTRAINT rrr_end_application_fk FOREIGN KEY (end_application_id) REFERENCES public.application (id) ON UPDATE NO ACTION ON DELETE NO ACTION, 
+   CONSTRAINT rrr_termination_application_fk FOREIGN KEY (termination_application_id) REFERENCES public.application (id) ON UPDATE NO ACTION ON DELETE NO ACTION,
    CONSTRAINT rrr_ref_reg_status_fk FOREIGN KEY (status_code) REFERENCES public.ref_reg_status (code) ON UPDATE NO ACTION ON DELETE NO ACTION
 ) 
 WITH (
@@ -2438,6 +2440,7 @@ COMMENT ON COLUMN public.rrr.witness3 IS 'Name of the third witness.';
 COMMENT ON COLUMN public.rrr.description IS 'Free text description of the right. Can be comments as well.';
 COMMENT ON COLUMN public.rrr.application_id IS 'Application id, used to create the right.';
 COMMENT ON COLUMN public.rrr.end_application_id IS 'Application id, used to terminate the right.';
+COMMENT ON COLUMN public.rrr.termination_application_id IS 'Application ID used for termination. Comapred to end_application_id this field is used to mark right for termination before approval.';
 COMMENT ON COLUMN public.rrr.termination_date IS 'Right termination date.';
 COMMENT ON COLUMN public.rrr.status_code IS 'Registration status code.';
 COMMENT ON COLUMN public.rrr.rowversion IS 'Row version number, indicating number of modifications done to the record and controlling concurrent access for modification.';
@@ -2490,6 +2493,7 @@ CREATE TABLE history.rrr
    description character varying(1000), 
    application_id character varying(40), 
    end_application_id character varying(40), 
+   termination_application_id character varying(40),
    termination_date date, 
    status_code character varying(20), 
    rowversion integer,
@@ -3231,6 +3235,7 @@ CREATE TABLE public.setting
   id character varying(50) NOT NULL,
   val character varying(2000) NOT NULL, 
   active boolean NOT NULL DEFAULT TRUE,
+  read_only boolean NOT NULL DEFAULT 'f',
   description character varying(555) NOT NULL, 
   rowversion integer NOT NULL DEFAULT 0,
   action_code character(1) NOT NULL DEFAULT 'i'::bpchar,
@@ -3246,6 +3251,7 @@ COMMENT ON TABLE public.setting IS 'Contains different system settings.';
 COMMENT ON COLUMN public.setting.id IS 'Identifier of the setting';
 COMMENT ON COLUMN public.setting.val IS 'Value for the setting.';
 COMMENT ON COLUMN public.setting.active IS 'Indicates if the setting is active or not.';
+COMMENT ON COLUMN public.setting.read_only IS 'Indicates if setting is read-only and not supposed for modification.';
 COMMENT ON COLUMN public.setting.description IS 'Description of the setting. ';
 COMMENT ON COLUMN public.setting.rowversion IS 'Row version number, indicating number of modifications done to the record and controlling concurrent access for modification.';
 COMMENT ON COLUMN public.setting.action_code IS 'Code of action, made to the record. Insert (i), update (u) or delete (d).';
@@ -3269,6 +3275,7 @@ CREATE TABLE history.setting
   id character varying(50),
   val character varying(2000), 
   active boolean,
+  read_only boolean,
   description character varying(555), 
   rowversion integer,
   action_code character(1),
@@ -3564,17 +3571,17 @@ INSERT INTO public.ref_language(code, val, active, is_default, item_order, ltr) 
 INSERT INTO public.ref_language(code, val, active, is_default, item_order, ltr) VALUES ('sw', 'Kiswahili', true, false, 2, true);
 
 -- Settings
-INSERT INTO public.setting(id, val, active, description) VALUES ('version', '0.1', 't', 'Current version of the database. It is used to check compatibility with application version. If versions does not match, an exception will be thrown');
-INSERT INTO public.setting(id, val, active, description) VALUES ('office-code', 'IRD', 't', 'Office code, which will be used for generating various numbers, e.g. application number');
-INSERT INTO public.setting(id, val, active, description) VALUES ('file-number-prefix', 'IRD/HW/', 't', 'File number prefix, used for generation of the file (case) number in archive.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('district-officer', 'GEOFREY REUBEN KALUWA', 't', 'District officer name. This officer is responsible for signing certificates.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('office-district', '119IR', 't', 'District code, where the office operates.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('media-path', '../trust_files', 't', 'Folder path where all files related to applications, parties and rights will be stored. If relative path is provided, then web-application root folder will be used as starting point.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('max-file-size', '20480', 't', 'Maximum file size in KB that can be uploaded into the system.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('file-extensions', 'pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,tif,tiff,csv', 't', 'Allowed file extensions for uploading into the system.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('srs', 'EPSG:4326', 't', 'Spatial reference system to be used on the map nad printings.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('map-extent', 'Polygon ((35.674 -7.759, 35.713 -7.759, 35.713 -7.786, 35.674 -7.786, 35.674 -7.759))', 't', 'Default map extent in WKT format to zoom in when openning the map.');
-INSERT INTO public.setting(id, val, active, description) VALUES ('offline-mode', '0', 't', 'Indicates map mode. 1 - offline, 0 - online. If online, Google Maps layers will be added.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('version', '0.1', 't', 't', 'Current version of the database. It is used to check compatibility with application version. If versions does not match, an exception will be thrown');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-code', 'IRD', 't', 'f', 'Office code, which will be used for generating various numbers, e.g. application number');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('file-number-prefix', 'IRD/HW/', 't', 'f', 'File number prefix, used for generation of the file (case) number in archive.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('district-officer', 'GEOFREY REUBEN KALUWA', 't', 'f', 'District officer name. This officer is responsible for signing certificates.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-district', '119IR', 't', 'f', 'District code, where the office operates.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('media-path', '../trust_files', 't', 't', 'Folder path where all files related to applications, parties and rights will be stored. If relative path is provided, then web-application root folder will be used as starting point.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('max-file-size', '20480', 't', 'f', 'Maximum file size in KB that can be uploaded into the system.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('file-extensions', 'pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,tif,tiff,csv', 't', 'f', 'Allowed file extensions for uploading into the system.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('srs', 'EPSG:4326', 't', 'f', 'Spatial reference system to be used on the map nad printings.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('map-extent', 'Polygon ((35.674 -7.759, 35.713 -7.759, 35.713 -7.786, 35.674 -7.786, 35.674 -7.759))', 't', 'f', 'Default map extent in WKT format to zoom in when openning the map.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('offline-mode', '0', 't', 'f', 'Indicates map mode. 1 - offline, 0 - online. If online, Google Maps layers will be added.');
 
 -- Doc types
 INSERT INTO public.ref_doc_type(code, val) VALUES ('irs', 'Informal Receipt of Sale::::Hati ya manunuzi isiyo rasmi');

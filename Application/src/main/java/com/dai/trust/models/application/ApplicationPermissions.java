@@ -14,8 +14,17 @@ public class ApplicationPermissions implements Serializable {
     private boolean canReAssign;
     private boolean canDrawParcel;
     private boolean canRegisterRight;
+    private boolean canComplete;
     
     public ApplicationPermissions(){
+    }
+
+    public boolean isCanComplete() {
+        return canComplete;
+    }
+
+    public void setCanComplete(boolean canComplete) {
+        this.canComplete = canComplete;
     }
 
     public boolean isCanEdit() {

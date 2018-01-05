@@ -14,7 +14,7 @@ Controls.Pois = function (controlId, targetElementId, options) {
     var loaded = false;
     var controlVarId = "__control_pois_" + controlId;
     var poi;
-    
+
     // Assign control variable
     window[controlVarId] = this;
 
@@ -75,9 +75,13 @@ Controls.Pois = function (controlId, targetElementId, options) {
             ]
         });
 
+        $("#" + controlVarId + "_wrapper div.tableToolbar")
+                .html(String.format(DataTablesUtility.getAddLink(), controlVarId + ".showPoiDialog(null);return false;"));
+
         if (editable) {
-            $("#" + controlVarId + "_wrapper div.tableToolbar")
-                    .html(String.format(DataTablesUtility.getAddLink(), controlVarId + ".showPoiDialog(null);return false;"));
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
         }
     };
 
@@ -87,10 +91,20 @@ Controls.Pois = function (controlId, targetElementId, options) {
             records.push(d);
         });
         if (records.length < 1) {
-            return null;
+            return [];
         } else {
             return records;
         }
+    };
+
+    this.setEditable = function (allowEdit) {
+        editable = allowEdit;
+        if (allowEdit) {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
+        }
+        table.draw();
     };
 
     this.setPois = function (list) {
@@ -99,7 +113,7 @@ Controls.Pois = function (controlId, targetElementId, options) {
             return;
         }
         table.clear();
-        pois = list;
+        pois = list ? list : [];
         table.rows.add(pois);
         table.draw();
     };
@@ -123,6 +137,7 @@ Controls.Pois = function (controlId, targetElementId, options) {
             $("#" + controlVarId + "_lblDob").hide();
             $("#" + controlVarId + "_lblDescription").hide();
 
+            $("#" + controlVarId + "_btnSavePoi").show();
             $("#" + controlVarId + "_Dialog .glyphicon-required").show();
             $("#" + controlVarId + "_txtFirstName").show();
             $("#" + controlVarId + "_txtMiddleName").show();
@@ -147,6 +162,7 @@ Controls.Pois = function (controlId, targetElementId, options) {
             $("#" + controlVarId + "_lblDob").show();
             $("#" + controlVarId + "_lblDescription").show();
 
+            $("#" + controlVarId + "_btnSavePoi").hide();
             $("#" + controlVarId + "_Dialog .glyphicon-required").hide();
             $("#" + controlVarId + "_txtFirstName").hide();
             $("#" + controlVarId + "_txtMiddleName").hide();
@@ -160,9 +176,9 @@ Controls.Pois = function (controlId, targetElementId, options) {
             $("#" + controlVarId + "_lblDescription").text(poi.description);
 
             if (isNull(poi.dob)) {
-                $("#" + controlVarId + "_lblDob").val("");
+                $("#" + controlVarId + "_lblDob").text("");
             } else {
-                $("#" + controlVarId + "_lblDob").val(dateFormat(poi.dob));
+                $("#" + controlVarId + "_lblDob").text(dateFormat(poi.dob));
             }
         }
     };
@@ -184,14 +200,14 @@ Controls.Pois = function (controlId, targetElementId, options) {
             alertErrorMessages(errors);
             return;
         }
-        
+
         // Add/update poi
         var result = new PropertyDao.Poi();
         if (!isNull(poi)) {
             result.id = poi.id;
             result.version = poi.version;
         }
-        
+
         if (!isNullOrEmpty($("#" + controlVarId + "_txtDob").val())) {
             result.dob = dateFormat($("#" + controlVarId + "_txtDob").datepicker("getDate"), dateFormat.masks.isoDateTime);
         }
@@ -207,7 +223,7 @@ Controls.Pois = function (controlId, targetElementId, options) {
         if (!isNullOrEmpty($("#" + controlVarId + "_txtDescription").val())) {
             result.description = $("#" + controlVarId + "_txtDescription").val();
         }
-        
+
         $("#" + controlVarId + "_Dialog").modal('hide');
         var currentRow;
 

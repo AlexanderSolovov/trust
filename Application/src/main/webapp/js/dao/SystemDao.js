@@ -22,7 +22,7 @@ $(function () {
 });
 
 SystemDao.Setting = function () {
-    return {id: null, val: null, active: true, description: null, version: 0};
+    return {id: null, val: null, active: true, readOnly: false, description: null, version: 0};
 };
 
 SystemDao.Group = function () {

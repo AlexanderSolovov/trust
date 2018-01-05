@@ -4,6 +4,7 @@ import com.dai.trust.common.RolesConstants;
 import com.dai.trust.exceptions.ExceptionFactory;
 import com.dai.trust.models.application.Application;
 import com.dai.trust.models.property.Parcel;
+import com.dai.trust.models.property.Property;
 import com.dai.trust.services.property.PropertyService;
 import com.dai.trust.ws.filters.Authorized;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -151,6 +152,35 @@ public class PropertyResource extends AbstractResource {
             }
             
             return getMapper().writeValueAsString(service.saveParcels(parcels, langCode));
+            
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Saves property and returns it updated.
+     *
+     * @param langCode Language code for localization
+     * @param json Property object in JSON format
+     * @return
+     */
+    @POST
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:saveproperty|saveProperty}")
+    @Authorized(roles = RolesConstants.MANAGE_RIGHTS)
+    public String saveProperty(@PathParam(value = LANG_CODE) String langCode, String json) {
+        try {
+            PropertyService service = new PropertyService();
+            Property prop;
+            try {
+                prop = getMapper().readValue(json, Property.class);
+            } catch (Exception e) {
+                logger.error("Failed to convert Property JSON", e);
+                throw ExceptionFactory.buildBadJson(langCode, "Property");
+            }
+            
+            return getMapper().writeValueAsString(service.saveProperty(prop, langCode));
             
         } catch (Exception e) {
             throw processException(e, langCode);

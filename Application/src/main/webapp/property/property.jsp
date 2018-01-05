@@ -181,12 +181,6 @@
                             <div class="subSectionHeader" data-i18n="prop-historic-rights" style="margin-bottom: 0px;"></div>
                             <table id="tableHistoricRights" class="table table-striped table-bordered table-hover white" style="width:100%"></table>
 
-                            <a href="#" onclick="EditRight()"><i class="glyphicon glyphicon-pencil"></i> <span data-i18n="gen-edit"></span></a>
-                            <br>
-                            <a href="#" onclick="deleteRight()"><i class="glyphicon glyphicon-remove"></i> <span data-i18n="gen-delete"></span></a>
-                            <br>
-                            <a href="#" onclick="TransferRight()"><i class="glyphicon glyphicon-transfer"></i> <span data-i18n="right-transfer"></span></a>
-                            <br>
                             <a href="#" onclick="RemoveRight()"><i class="glyphicon glyphicon-trash"></i> <span data-i18n="right-remove"></span></a>
                             <br>
                             <a href="#" onclick="CancelRemoveRight()"><i class="icon-undo"></i> <span data-i18n="right-cancel-remove"></span></a>
@@ -203,10 +197,10 @@
             <div id="rightDiv" style="display: none;">
                 <div id="rightToolbar">
                     <div class="btn-group" role="group">
-                        <button type="button" id="btnBackToProp" class="btn btn-default" onclick="PropertyCtrl.showProp(true)">
+                        <button type="button" id="btnBackToProp" class="btn btn-default" onclick="PropertyCtrl.showPropPanel(true)">
                             <i class="glyphicon glyphicon-arrow-left"></i> <span data-i18n="prop-prop"></span>
                         </button>
-                        <button type="button" id="btnSaveRight" class="btn btn-default">
+                        <button type="button" id="btnSaveRight" class="btn btn-default" onclick="PropertyCtrl.saveRight()">
                             <i class="glyphicon glyphicon-floppy-disk"></i> <span data-i18n="gen-save"></span>
                         </button>
                     </div>
@@ -312,12 +306,14 @@
                                 </div>
                                 <div class="col-md-3" id="divDuration">
                                     <label data-i18n="right-duration"></label><br>
-                                    <input id="txtDuration" class="form-control" maxlength="5" autocomplete="off">
+                                    <input id="txtDuration" class="form-control" maxlength="5" autocomplete="off" 
+                                           onkeypress="return restrictInputDouble(event);" ondrop="return false;" onpaste="return false;">
                                     <span id="lblDuration"></span>
                                 </div>
                                 <div class="col-md-3" id="divAnnualFee">
                                     <label data-i18n="right-rental-fee"></label><br>
-                                    <input id="txtAnnualFee" class="form-control" maxlength="5" autocomplete="off">
+                                    <input id="txtAnnualFee" class="form-control" maxlength="5" autocomplete="off" 
+                                           onkeypress="return restrictInputDouble(event);" ondrop="return false;" onpaste="return false;">
                                     <span id="lblAnnualFee"></span>
                                 </div>
                             </div>
@@ -344,13 +340,13 @@
                                         <label data-i18n="right-adjudicator1"></label>
                                         <i class="glyphicon glyphicon-required"></i>
                                         <br>
-                                        <select id="cbxAdjudicator1" class="form-control"></select>
+                                        <input id="txtAdjudicator1" class="form-control" maxlength="250" autocomplete="off">
                                         <span id="lblAdjudicator1"></span>
                                     </div>
                                     <div class="col-md-3">
                                         <label data-i18n="right-adjudicator2"></label>
                                         <i class="glyphicon glyphicon-required"></i><br>
-                                        <select id="cbxAdjudicator2" class="form-control"></select>
+                                        <input id="txtAdjudicator2" class="form-control" maxlength="250" autocomplete="off">
                                         <span id="lblAdjudicator2"></span>
                                     </div>
                                 </div>
@@ -406,48 +402,56 @@
                         <div class="tabContainer" style="max-width: 900px;">
                             <div id="divOccupancyType">
                                 <label data-i18n="right-occupancy-type"></label>
-                                <i class="glyphicon glyphicon-required"></i>
-                                <select id="cbxOccupancyType" class="form-control" style="width: 300px;display: inline;"></select>
+                                <i class="glyphicon glyphicon-required"></i><br>
+                                <select id="cbxOccupancyType" class="form-control" style="width: 300px;display: inline;" onchange="PropertyCtrl.occupancySelected()"></select>
                                 <span id="lblOccupancyType"></span>
                             </div>
 
-                            <div class="LineSpace"></div>
+                            <div id="divPerson" style="display: none;">
+                                <div class="LineSpace"></div>
 
-                            <div class="subSectionHeader" data-i18n="person-persons" style="margin-bottom: 0px;"></div>
-                            <div id="divRightholderPerson"></div>
+                                <div class="subSectionHeader" data-i18n="person-persons" style="margin-bottom: 0px;"></div>
+                                <div id="divRightholderPerson"></div>
+                            </div>
 
-                            <div class="LineSpace"></div>
+                            <div id="divLegalEntity" style="display: none;">
+                                <div class="LineSpace"></div>
 
-                            <div class="subSectionHeader" data-i18n="le-legalentity" style="margin-bottom: 0px;"></div>
-                            <div id="divRightholderLegalEntity"></div>
+                                <div class="subSectionHeader" data-i18n="le-legalentity" style="margin-bottom: 0px;"></div>
+                                <div id="divRightholderLegalEntity"></div>
+                            </div>
 
-                            <div class="LineSpace"></div>
+                            <div id="divDeceasedPerson" style="display: none;">
+                                <div class="LineSpace"></div>
 
-                            <div class="subSectionHeader" data-i18n="right-deceased-person"></div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <label data-i18n="person-first-name"></label>
-                                    <br>
-                                    <input id="txtDeceasedFirstName" class="form-control" maxlength="250" autocomplete="off">
-                                    <span id="lblDeceasedFirstName"></span>
-                                </div>
-                                <div class="col-md-3">
-                                    <label data-i18n="person-middle-name"></label>
-                                    <br>
-                                    <input id="txtDeceasedMiddleName" class="form-control" maxlength="250" autocomplete="off">
-                                    <span id="lblDeceasedMiddleName"></span>
-                                </div>
-                                <div class="col-md-3">
-                                    <label data-i18n="person-last-name"></label>
-                                    <br>
-                                    <input id="txtDeceasedLastName" class="form-control" maxlength="250" autocomplete="off">
-                                    <span id="lblDeceasedLastName"></span>
-                                </div>
-                                <div class="col-md-3">
-                                    <label data-i18n="gen-description"></label>
-                                    <br>
-                                    <input id="txtDeceasedDescription" class="form-control" maxlength="250" autocomplete="off">
-                                    <span id="lblDeceasedDescription"></span>
+                                <div class="subSectionHeader" data-i18n="right-deceased-person"></div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label data-i18n="person-first-name"></label>
+                                        <i class="glyphicon glyphicon-required"></i>
+                                        <br>
+                                        <input id="txtDeceasedFirstName" class="form-control" maxlength="250" autocomplete="off">
+                                        <span id="lblDeceasedFirstName"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label data-i18n="person-middle-name"></label>
+                                        <br>
+                                        <input id="txtDeceasedMiddleName" class="form-control" maxlength="250" autocomplete="off">
+                                        <span id="lblDeceasedMiddleName"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label data-i18n="person-last-name"></label>
+                                        <i class="glyphicon glyphicon-required"></i>
+                                        <br>
+                                        <input id="txtDeceasedLastName" class="form-control" maxlength="250" autocomplete="off">
+                                        <span id="lblDeceasedLastName"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label data-i18n="gen-description"></label>
+                                        <br>
+                                        <input id="txtDeceasedDescription" class="form-control" maxlength="250" autocomplete="off">
+                                        <span id="lblDeceasedDescription"></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

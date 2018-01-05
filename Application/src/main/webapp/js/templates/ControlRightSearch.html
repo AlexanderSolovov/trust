@@ -1,0 +1,55 @@
+<div style="background-color: #fff;padding: 10px;">
+    <div style="max-width: 1000px;">
+        <div class="row">
+            <div class="col-md-3">
+                <label data-i18n="search-ccro-number"></label>
+                <input id="{{id}}_txtPropNumber" class="form-control" maxlength="30" autocomplete="off">
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="prop-file-number"></label>
+                <input id="{{id}}_txtFileNumber" class="form-control" maxlength="30" autocomplete="off">
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="parcel-uka"></label>
+                <input id="{{id}}_txtUka" class="form-control" maxlength="30" autocomplete="off">
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="ref-right-type"></label> 
+                <select id="{{id}}_cbxRightTypes" class="form-control"></select>
+            </div>
+        </div>
+
+        <div class="LineSpace"></div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <label data-i18n="search-rightholder-name"></label>
+                <input id="{{id}}_txtRightholderName" class="form-control" maxlength="255" autocomplete="off">
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="search-rightholder-id-number"></label>
+                <input id="{{id}}_txtRightholderIdNumber" class="form-control" maxlength="255" autocomplete="off">
+            </div>
+            <div class="col-md-3">
+                <label data-i18n="gen-status"></label> 
+                <select id="{{id}}_cbxStatuses" class="form-control"></select>
+            </div>
+            <div class="col-md-3">
+                <label>&nbsp;</label>
+                <br />
+                <button type="button" id="{{id}}_btnSearch" class="btn btn-primary" data-i18n="gen-search" onclick="{{id}}.search()"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="{{id}}_pnlSearchWarning" class="alert alert-warning" role="alert" style="display: none;">
+    <span id="{{id}}_lblWarningMessage"></span>
+</div>
+
+<div style="font-weight: bold;padding-top: 10px;">
+    <label data-i18n="search-results" style="margin-bottom: 0px;"></label> 
+    <label id="{{id}}_lblSearchCount" style="margin-bottom: 0px;"></label>
+</div>
+
+<div id="{{id}}_pnlRights"></div>

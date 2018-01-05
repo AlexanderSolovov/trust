@@ -132,7 +132,7 @@ public class DocumentService extends AbstractService {
         if (fileStream == null || fileDetails == null) {
             errors.addError(new TrustException(MessagesKeys.ERR_FILE_EMPTY));
         } else {
-            Setting settingFileSize = settingsServeice.getSetting(SettingsService.SETTING_MAX_FILE_SIZE);
+            Setting settingFileSize = settingsServeice.getSetting(Setting.SETTING_MAX_FILE_SIZE);
 
             // File size
             if (settingFileSize != null) {
@@ -143,7 +143,7 @@ public class DocumentService extends AbstractService {
             }
 
             // File extension
-            Setting settingFileExt = settingsServeice.getSetting(SettingsService.SETTING_FILE_EXTENSIONS);
+            Setting settingFileExt = settingsServeice.getSetting(Setting.SETTING_FILE_EXTENSIONS);
             if (settingFileExt != null) {
                 String[] extensions = settingFileExt.getVal().split(",");
                 if (extensions != null && extensions.length > 0) {

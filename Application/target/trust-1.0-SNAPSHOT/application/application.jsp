@@ -24,6 +24,8 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/LegalEntitySearch.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/controllers/ApplicationCtrl.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/ApplicationAssign.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/Rights.js"></script>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/js/controls/RightSearch.js"></script>
     </jsp:attribute>
     <jsp:body>
         <div id="applicationDiv" style="display: none;">
@@ -43,6 +45,18 @@
                     <button type="button" id="btnEdit" class="btn btn-default">
                         <i class="glyphicon glyphicon-pencil"></i> <span data-i18n="gen-edit"></span>
                     </button>
+                    <button type="button" id="btnApprove" class="btn btn-default">
+                        <i class="glyphicon glyphicon-ok"></i> <span data-i18n="gen-approve"></span>
+                    </button>
+                    <button type="button" id="btnComplete" class="btn btn-default">
+                        <i class="glyphicon glyphicon-check"></i> <span data-i18n="gen-complete"></span>
+                    </button>
+                    <button type="button" id="btnReject" class="btn btn-default">
+                        <i class="glyphicon glyphicon-ban-circle"></i> <span data-i18n="gen-reject"></span>
+                    </button>
+                    <button type="button" id="btnWithdraw" class="btn btn-default">
+                        <i class="glyphicon glyphicon-upload"></i> <span data-i18n="gen-withdraw"></span>
+                    </button>
                     <button type="button" id="btnAssign" class="btn btn-default">
                         <i class="glyphicon glyphicon-share-alt"></i> <span data-i18n="app-assign"></span>
                     </button>
@@ -55,9 +69,9 @@
                 </div>
                 <div class="LineSpace"></div>
             </div>
-            
+
             <div id="pnlAssign"></div>
-            
+
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#main" aria-controls="main" role="tab" data-toggle="tab">
@@ -82,19 +96,25 @@
                         <div class="subSectionHeader" data-i18n="gen-general"></div>
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label data-i18n="app-lodgement-date"></label><br>
                                 <span id="lblLodgementDate"></span>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label data-i18n="app-assignee"></label><br>
                                 <span id="lblAssignee"></span>
                                 <br>
                                 <small><span id="lblAssignmentDate"></span></small>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label data-i18n="gen-status"></label><br>
                                 <span id="appStatus"></span>
+                                <br>
+                                <small><span id="lblStatusDate"></span></small>
+                            </div>
+                            <div class="col-md-3">
+                                <label data-i18n="app-completion-date"></label><br>
+                                <span id="lblCompletionDate"></span>
                             </div>
                         </div>
 
@@ -116,15 +136,15 @@
                                         </a>
                                     </li>
                                 </ul>
-                                
-                                 <div class="tab-content">
-                                     <div role="tabpanel" class="tab-pane active" id="personApplicantTab">
-                                         <div id="pnlPersons"></div>
-                                     </div>
-                                     <div role="tabpanel" class="tab-pane" id="leApplicantTab">
-                                         <div id="pnlLegalEntities"></div>
-                                     </div>
-                                 </div>
+
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active" id="personApplicantTab">
+                                        <div id="pnlPersons"></div>
+                                    </div>
+                                    <div role="tabpanel" class="tab-pane" id="leApplicantTab">
+                                        <div id="pnlLegalEntities"></div>
+                                    </div>
+                                </div>
                                 <div class="LineSpace"></div>
                             </div>
                         </div>
@@ -133,14 +153,9 @@
                             <div class="subSectionHeader" data-i18n="app-ccros"></div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <a href="#" onclick="alert('delete');return false;" class="deleteIcon"><i class="glyphicon glyphicon-remove"></i></a> 
-                                    <a href="#">419IRD/13456</a>, 
-                                    <a href="#" onclick="alert('delete');return false;" class="deleteIcon"><i class="glyphicon glyphicon-remove"></i></a> 
-                                    <a href="#">419IRD/45648</a> 
+                                    <div id="divCcros"></div>
                                     &nbsp;
-                                    <a href="#" onclick="alert('!');" class="BlueLink"><i class="glyphicon glyphicon-plus"></i> <span data-i18n="gen-add"></span></a>
-                                    &nbsp;
-                                    <a href="#" onclick="alert('!');" class="BlueLink"><i class="glyphicon glyphicon-search"></i> <span data-i18n="gen-search"></span></a>
+                                    <a href="#" id="lnkSearchCcro" onclick="ApplicationCtrl.showPropSearchDialog();return false;" class="BlueLink"><i class="glyphicon glyphicon-search"></i> <span data-i18n="gen-search"></span></a>
 
                                     <div class="LineSpace"></div>
                                     <div class="LineSpace"></div>
@@ -178,30 +193,37 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="affected">
                     <div class="tabContainer">
-                        <div class="subSectionHeader" data-i18n="app-parcels"></div>
-                        <ul style="line-height: 30px;">
-                            <li>
-                                <a href="">419IRD/MUGA/CHMO/12345</a> (created)
-                            </li>
-                            <li>
-                                <a href="">419IRD/MUGA/CHMO/7897</a> (terminated)
-                            </li>
-                        </ul>
+                        <div id="pnlAffectedParcels" style="display: none;">
+                            <div class="subSectionHeader" data-i18n="app-parcels"></div>
+                            <ul id="listAffectedParcels" style="line-height: 30px;">
+                            </ul>
+                            <div class="LineSpace"></div>
+                        </div>
 
-                        <div class="LineSpace"></div>
-                        <div class="subSectionHeader" data-i18n="app-ccros"></div>
-                        <ul style="line-height: 30px;">
-                            <li>
-                                <a href="">419IRD/MUGA/12345</a> (created)
-                            </li>
-                            <li>
-                                <a href="">419IRD/MUGA/7897</a> (terminated)
-                            </li>
-                            <li>
-                                <a href="">419IRD/MUGA/45566</a> (modified)
-                            </li>
-                        </ul>
+                        <div id="pnlAffectedProperties" style="display: none;">
+                            <div class="subSectionHeader" data-i18n="app-ccros"></div>
+                            <ul id="listAffectedProperties" style="line-height: 30px;">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="modal fade" id="propSearchDialog" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" style="width:1000px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only" data-i18n="gen-close"></span></button>
+                        <h4 class="modal-title" data-i18n="gen-search"></h4>
+                    </div>
+                    <div id="propSearchBody" class="modal-body" style="padding: 0px 5px 0px 5px;">
+                        <div class="content" style="min-height: 500px;">
+                            <div id="propSearch"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="margin-top: 0px;padding: 15px 20px 15px 20px;">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="gen-close"></button>
                     </div>
                 </div>
             </div>

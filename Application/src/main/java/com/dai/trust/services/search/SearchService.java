@@ -1,13 +1,19 @@
 package com.dai.trust.services.search;
 
+import com.dai.trust.common.MessageProvider;
+import com.dai.trust.common.MessagesKeys;
 import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StringUtility;
+import com.dai.trust.models.search.AffectedObjectSearchResult;
+import com.dai.trust.models.search.ApplicationNumberSearchResult;
 import com.dai.trust.models.search.ApplicationSearchParams;
 import com.dai.trust.models.search.ApplicationSearchResult;
 import com.dai.trust.models.search.LegalEntitySearchResult;
 import com.dai.trust.models.search.ParcelSearchResult;
 import com.dai.trust.models.search.PersonSearchResult;
 import com.dai.trust.models.search.PropertyCodeSearchResult;
+import com.dai.trust.models.search.RightSearchParams;
+import com.dai.trust.models.search.RightSearchResult;
 import com.dai.trust.models.search.UserSearchResult;
 import com.dai.trust.services.AbstractService;
 import java.util.Calendar;
@@ -52,13 +58,52 @@ public class SearchService extends AbstractService {
             + "        left join public.application a on p.application_id = a.id) "
             + "        left join public.application aend on p.end_application_id = aend.id";
 
-    private final String PROP_CODE_SEARCH_SELECT = "select p.id, p.prop_number, get_translation(rs.val, :langCode) as status_name "
+    private final String PROP_CODE_SEARCH_SELECT = "select p.id, p.prop_number, p.status_code, get_translation(rs.val, :langCode) as status_name "
             + "from public.property p inner join public.ref_reg_status rs on p.status_code = rs.code";
+
+    private final String APP_NUMBER_SEARCH_SELECT = "select id, app_type_code, app_number, lodgement_date, \n"
+            + "	status_code, approve_reject_date, assignee from public.application \n";
+
+    private final String AFFECTED_OBJECTS_SEARCH_SELECT = "select distinct p.id, p.prop_number as label, 'prop' as object_type, \n"
+            + " (case \n"
+            + "   when p.application_id = :appId then 'created' \n"
+            + "   when p.end_application_id = :appId then 'terminated' \n"
+            + "   else 'modified' end) as action \n"
+            + " from public.property p left join public.rrr r on p.id = r.property_id \n"
+            + " where p.application_id = :appId or p.end_application_id = :appId or \n"
+            + " r.application_id = :appId or r.end_application_id = :appId \n"
+            + "union\n"
+            + "select id, uka as label, 'parcel' as object_type, (case when application_id = :appId then 'created' else 'terminated' end) as action \n"
+            + " from public.parcel \n"
+            + " where application_id = :appId or end_application_id = :appId \n"
+            + "order by object_type";
 
     public SearchService() {
         super();
     }
 
+    /**
+     * Searches objects affected by application.
+     *
+     * @param langCode Language code
+     * @param appId Application id
+     * @return
+     */
+    public List<AffectedObjectSearchResult> searchAffectedObjects(String langCode, String appId) {
+        Query q = getEM().createNativeQuery(AFFECTED_OBJECTS_SEARCH_SELECT, AffectedObjectSearchResult.class);
+        q.setParameter("appId", appId);
+        List<AffectedObjectSearchResult> result = q.getResultList();
+        
+        // Localize actions
+        if(result != null){
+            MessageProvider msgProvider = new MessageProvider(langCode);
+            for(AffectedObjectSearchResult obj : result){
+                obj.setAction(msgProvider.getMessage("GENERAL_" + obj.getAction().toUpperCase()));
+            }
+        }
+        return result;
+    }
+    
     /**
      * Searches for current user applications.
      *
@@ -72,11 +117,24 @@ public class SearchService extends AbstractService {
         }
 
         Query q = getEM().createNativeQuery(APP_SEARCH_SELECT
-                + "\n where a.complete_date is null and a.complete_date is null and a.assignee = :username"
+                + "\n where a.complete_date is null and a.assignee = :username"
                 + APP_SEARCH_ORDER
                 + " limit 1000", ApplicationSearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("username", SharedData.getUserName());
+        return q.getResultList();
+    }
+
+    /**
+     * Searches application numbers by property id.
+     *
+     * @param propId Property id
+     * @return
+     */
+    public List<ApplicationNumberSearchResult> searchAppNumbersByProp(String propId) {
+        Query q = getEM().createNativeQuery(APP_NUMBER_SEARCH_SELECT
+                + " where id in (select app_id from public.application_property where property_id = :propId)", ApplicationNumberSearchResult.class);
+        q.setParameter("propId", propId);
         return q.getResultList();
     }
 
@@ -219,6 +277,74 @@ public class SearchService extends AbstractService {
         return q.getResultList();
     }
 
+    /**
+     * Searches property right by various parameters.
+     *
+     * @param langCode Language code for localization
+     * @param params Right search parameters object
+     * @return
+     */
+    public List<RightSearchResult> searchRights(String langCode, RightSearchParams params) {
+        if (params == null) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        if (StringUtility.isEmpty(params.getPropNumber())) {
+            params.setPropNumber("%");
+        } else {
+            params.setPropNumber("%" + params.getPropNumber().trim().toLowerCase() + "%");
+        }
+        
+        if (StringUtility.isEmpty(params.getFileNumber())) {
+            params.setFileNumber("%");
+        } else {
+            params.setFileNumber("%" + params.getFileNumber().trim().toLowerCase() + "%");
+        }
+
+        if (params.getRightTypeCode()== null) {
+            params.setRightTypeCode("");
+        }
+
+        if (StringUtility.isEmpty(params.getRightholderName())) {
+            params.setRightholderName("%");
+        } else {
+            params.setRightholderName("%" + params.getRightholderName().trim().toLowerCase() + "%");
+        }
+
+        if (StringUtility.isEmpty(params.getRightholderIdNumber())) {
+            params.setRightholderIdNumber("%");
+        } else {
+            params.setRightholderIdNumber("%" + params.getRightholderIdNumber().trim().toLowerCase() + "%");
+        }
+
+        if (params.getStatusCode() == null) {
+            params.setStatusCode("");
+        }
+
+        if (StringUtility.isEmpty(params.getUkaNumber())) {
+            params.setUkaNumber("%");
+        } else {
+            params.setUkaNumber("%" + params.getUkaNumber().trim().toLowerCase() + "%");
+        }
+
+        Query q = getEM().createNativeQuery(RightSearchResult.QUERY_SEARCH, RightSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter(RightSearchResult.PARAM_FILE_NUMBER, params.getFileNumber());
+        q.setParameter(RightSearchResult.PARAM_PROP_NUMBER, params.getPropNumber());
+        q.setParameter(RightSearchResult.PARAM_RIGHTHOLDER_ID, params.getRightholderIdNumber());
+        q.setParameter(RightSearchResult.PARAM_RIGHTHOLDER_NAME, params.getRightholderName());
+        q.setParameter(RightSearchResult.PARAM_RIGHT_TYPE_CODE, params.getRightTypeCode());
+        q.setParameter(RightSearchResult.PARAM_STATUS_CODE, params.getStatusCode());
+        q.setParameter(RightSearchResult.PARAM_UKA, params.getUkaNumber());
+
+        return q.getResultList();
+    }
+    
     /**
      * Searches for party by name and id number.
      *
@@ -395,7 +521,7 @@ public class SearchService extends AbstractService {
         }
         return result;
     }
-    
+
     /**
      * Searches property codes (CCROs) by parcel id.
      *
@@ -417,5 +543,51 @@ public class SearchService extends AbstractService {
         q.setParameter("langCode", langCode);
         q.setParameter("parcelId", parcelId);
         return q.getResultList();
+    }
+
+    /**
+     * Searches property codes (CCROs) by application id.
+     *
+     * @param langCode Language code for localization
+     * @param appId Application id
+     * @return
+     */
+    public List<PropertyCodeSearchResult> searchPropCodesByApplication(String langCode, String appId) {
+        if (StringUtility.isEmpty(appId)) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(PROP_CODE_SEARCH_SELECT + " where p.id in (select property_id from public.application_property where app_id = :appId) order by p.prop_number", PropertyCodeSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("appId", appId);
+        return q.getResultList();
+    }
+    
+    /**
+     * Searches property code by property id.
+     *
+     * @param langCode Language code for localization
+     * @param propId Property id
+     * @return
+     */
+    public PropertyCodeSearchResult searchPropCodeById(String langCode, String propId) {
+        if (StringUtility.isEmpty(propId)) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(PROP_CODE_SEARCH_SELECT + " where p.id = :propId", PropertyCodeSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("propId", propId);
+        return (PropertyCodeSearchResult)q.getSingleResult();
     }
 }

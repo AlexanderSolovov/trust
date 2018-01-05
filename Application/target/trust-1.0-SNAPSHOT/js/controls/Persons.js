@@ -128,23 +128,30 @@ Controls.Persons = function (controlId, targetElementId, options) {
                 {
                     targets: 3,
                     "render": function (data, type, row, meta) {
-                        return dateFormat(data);
+                        if (type === "display") {
+                            return dateFormat(data, dateFormat.masks.default);
+                        }
+                        return data;
                     }
                 }
             ]
         });
 
+        var copyFromApp = "";
+        if (!isNull(options.app)) {
+            copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
+        }
+        $("#" + controlVarId + "_wrapper div.tableToolbar").html(
+                String.format(DataTablesUtility.getAddLink(), controlVarId + ".showPersonDialog(null);return false;")
+                + "&nbsp;&nbsp;" +
+                String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;") +
+                copyFromApp
+                );
+
         if (editable) {
-            var copyFromApp = "";
-            if (!isNull(options.app)) {
-                copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
-            }
-            $("#" + controlVarId + "_wrapper div.tableToolbar").html(
-                    String.format(DataTablesUtility.getAddLink(), controlVarId + ".showPersonDialog(null);return false;")
-                    + "&nbsp;&nbsp;" +
-                    String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;") +
-                    copyFromApp
-                    );
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
         }
     };
 
@@ -168,6 +175,16 @@ Controls.Persons = function (controlId, targetElementId, options) {
         table.clear();
         persons = filterParties(list);
         table.rows.add(persons);
+        table.draw();
+    };
+
+    this.setEditable = function (allowEdit) {
+        editable = allowEdit;
+        if (allowEdit) {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
+        } else {
+            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
+        }
         table.draw();
     };
 
@@ -209,7 +226,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
 
         var person = isNull(selectedRow) ? null : selectedRow.data();
 
-        if ((isNull(person) || person.editable) && editable) {
+        if (isOwnership || ((isNull(person) || person.editable) && editable)) {
             $("#" + controlVarId + "_personview").hide();
             $("#" + controlVarId + "_person").show();
             if (isNull(personControl)) {

@@ -2,14 +2,16 @@ package com.dai.trust.models.property;
 
 import com.dai.trust.models.AbstractIdEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
@@ -17,10 +19,15 @@ import javax.persistence.Temporal;
 @Table(name = "rrr")
 public class Rrr extends AbstractIdEntity {
 
-    @Column(name = "property_id", insertable = false, updatable = false)
+    @Column(name = "property_id")
     @JsonIgnore
     private String propertyId;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "property_id", updatable = false, insertable = false, referencedColumnName = "id")
+    private Property property;
+    
     @Column(name = "parent_id")
     private String parentId;
 
@@ -80,16 +87,16 @@ public class Rrr extends AbstractIdEntity {
 
     @Column(name = "adjudicator2")
     private String adjudicator2;
-    
+
     @Column
     private String witness1;
 
     @Column
     private String witness2;
-    
+
     @Column
     private String witness3;
-    
+
     @Column(name = "allocation_date")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date allocationDate;
@@ -103,8 +110,11 @@ public class Rrr extends AbstractIdEntity {
     @Column(name = "application_id", updatable = false)
     private String applicationId;
 
-    @Column(name = "end_application_id", insertable = false)
+    @Column(name = "end_application_id", updatable = false, insertable = false)
     private String endApplicationId;
+
+    @Column(name = "termination_application_id")
+    private String terminationApplicationId;
 
     @Column(name = "termination_date", insertable = false, updatable = false)
     @Temporal(javax.persistence.TemporalType.DATE)
@@ -116,17 +126,15 @@ public class Rrr extends AbstractIdEntity {
     @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rightholder> rightholders;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "rrr_id", referencedColumnName = "id")
+    @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Poi> pois;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "rrr_id")
-    private DeceasedOwner deceasedOwner;
+    @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DeceasedOwner> deceasedOwners = new ArrayList<>();
 
     @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RrrDocument> documents;
-    
+
     public Rrr() {
         super();
     }
@@ -267,6 +275,14 @@ public class Rrr extends AbstractIdEntity {
         this.propertyId = propertyId;
     }
 
+    public Property getProperty() {
+        return property;
+    }
+
+    public void setProperty(Property property) {
+        this.property = property;
+    }
+
     public String getParentId() {
         return parentId;
     }
@@ -355,6 +371,14 @@ public class Rrr extends AbstractIdEntity {
         this.endApplicationId = endApplicationId;
     }
 
+    public String getTerminationApplicationId() {
+        return terminationApplicationId;
+    }
+
+    public void setTerminationApplicationId(String terminationApplicationId) {
+        this.terminationApplicationId = terminationApplicationId;
+    }
+
     public Date getTerminationDate() {
         return terminationDate;
     }
@@ -388,11 +412,25 @@ public class Rrr extends AbstractIdEntity {
     }
 
     public DeceasedOwner getDeceasedOwner() {
-        return deceasedOwner;
+        if (deceasedOwners == null || deceasedOwners.isEmpty()) {
+            return null;
+        }
+        return deceasedOwners.get(0);
     }
 
     public void setDeceasedOwner(DeceasedOwner deceasedOwner) {
-        this.deceasedOwner = deceasedOwner;
+        if (deceasedOwners == null) {
+            deceasedOwners = new ArrayList<>();
+        }
+        if (deceasedOwner != null) {
+            if (deceasedOwners.isEmpty()) {
+                deceasedOwners.add(deceasedOwner);
+            } else {
+                deceasedOwners.set(0, deceasedOwner);
+            }
+        } else {
+            deceasedOwners.clear();
+        }
     }
 
     public List<RrrDocument> getDocuments() {

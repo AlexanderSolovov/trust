@@ -3,6 +3,7 @@ package com.dai.trust.ws;
 import com.dai.trust.common.RolesConstants;
 import com.dai.trust.exceptions.ExceptionFactory;
 import com.dai.trust.models.search.ApplicationSearchParams;
+import com.dai.trust.models.search.RightSearchParams;
 import com.dai.trust.models.system.User;
 import com.dai.trust.services.search.SearchService;
 import com.dai.trust.services.system.UserService;
@@ -268,6 +269,78 @@ public class SearchResource extends AbstractResource {
         try {
             SearchService service = new SearchService();
             return getMapper().writeValueAsString(service.searchParcelById(langCode, id));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Searches objects affected by application
+     *
+     * @param langCode Language code for localization
+     * @param appId Application id
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:affectedobjectsbyapplication|AffectedObjectsByApplication}/{appid}")
+    @Authorized(roles = RolesConstants.SEARCH)
+    public String searchAffectedObjectsByApplication(
+            @PathParam(value = LANG_CODE) String langCode,
+            @PathParam(value = "appid") String appId) {
+        try {
+            SearchService service = new SearchService();
+            return getMapper().writeValueAsString(service.searchAffectedObjects(langCode, appId));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Search property rights by different parameters.
+     *
+     * @param langCode Language code for localization
+     * @param json Property right search parameters in JSON format
+     * @return
+     */
+    @POST
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "rights")
+    @Authorized(roles = RolesConstants.SEARCH)
+    public String searchRights(@PathParam(value = LANG_CODE) String langCode, String json) {
+        try {
+            SearchService service = new SearchService();
+            RightSearchParams params = null;
+            try {
+                params = getMapper().readValue(json, RightSearchParams.class);
+            } catch (Exception e) {
+                logger.error("Failed to convert RightSearchParams JSON", e);
+                throw ExceptionFactory.buildBadJson(langCode, "Search");
+            }
+            
+            return getMapper().writeValueAsString(service.searchRights(langCode, params));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Searches property codes attached to the application
+     *
+     * @param langCode Language code for localization
+     * @param appId Application id
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:applicationproperties|ApplicationProperties}/{appId}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getApplicationProperties(
+            @PathParam(value = LANG_CODE) String langCode,
+            @PathParam("appId") String appId) {
+        try {
+            SearchService service = new SearchService();
+            return getMapper().writeValueAsString(service.searchPropCodesByApplication(langCode, appId));
         } catch (Exception e) {
             throw processException(e, langCode);
         }
