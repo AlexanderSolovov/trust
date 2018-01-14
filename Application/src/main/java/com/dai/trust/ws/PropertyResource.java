@@ -2,18 +2,33 @@ package com.dai.trust.ws;
 
 import com.dai.trust.common.RolesConstants;
 import com.dai.trust.exceptions.ExceptionFactory;
-import com.dai.trust.models.application.Application;
 import com.dai.trust.models.property.Parcel;
 import com.dai.trust.models.property.Property;
+import com.dai.trust.services.property.ParcelMapService;
 import com.dai.trust.services.property.PropertyService;
+import com.dai.trust.services.report.ReportsService;
 import com.dai.trust.ws.filters.Authorized;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
+import java.util.logging.Level;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperPrint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +63,7 @@ public class PropertyResource extends AbstractResource {
             throw processException(e, langCode);
         }
     }
-    
+
     /**
      * Returns Property by Right id.
      *
@@ -68,7 +83,7 @@ public class PropertyResource extends AbstractResource {
             throw processException(e, langCode);
         }
     }
-    
+
     /**
      * Returns properties by application id.
      *
@@ -88,7 +103,7 @@ public class PropertyResource extends AbstractResource {
             throw processException(e, langCode);
         }
     }
-    
+
     /**
      * Returns parcels by application id.
      *
@@ -108,7 +123,28 @@ public class PropertyResource extends AbstractResource {
             throw processException(e, langCode);
         }
     }
-    
+
+    /**
+     * Returns Parcels by application id. If application for rectification, it
+     * will also create a pending parcels to rectify.
+     *
+     * @param langCode Language code for localization
+     * @param appId Application id.
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getcreateparcelsbyapplication|getCreateParcelsByApplication}/{appId}")
+    @Authorized(roles = RolesConstants.MANAGE_PARCELS)
+    public String getCreateParcelsByApplication(@PathParam(value = LANG_CODE) String langCode, @PathParam("appId") String appId) {
+        try {
+            PropertyService service = new PropertyService();
+            return getMapper().writeValueAsString(service.getCreateParcelsByApplicationId(appId));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+
     /**
      * Returns parcel by id.
      *
@@ -128,7 +164,7 @@ public class PropertyResource extends AbstractResource {
             throw processException(e, langCode);
         }
     }
-    
+
     /**
      * Saves parcels and returns them updated.
      *
@@ -150,14 +186,14 @@ public class PropertyResource extends AbstractResource {
                 logger.error("Failed to convert Parcels JSON", e);
                 throw ExceptionFactory.buildBadJson(langCode, "Parcel");
             }
-            
+
             return getMapper().writeValueAsString(service.saveParcels(parcels, langCode));
-            
+
         } catch (Exception e) {
             throw processException(e, langCode);
         }
     }
-    
+
     /**
      * Saves property and returns it updated.
      *
@@ -179,9 +215,9 @@ public class PropertyResource extends AbstractResource {
                 logger.error("Failed to convert Property JSON", e);
                 throw ExceptionFactory.buildBadJson(langCode, "Property");
             }
-            
+
             return getMapper().writeValueAsString(service.saveProperty(prop, langCode));
-            
+
         } catch (Exception e) {
             throw processException(e, langCode);
         }

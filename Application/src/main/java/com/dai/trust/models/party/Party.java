@@ -1,6 +1,9 @@
 package com.dai.trust.models.party;
 
 import com.dai.trust.models.AbstractIdEntity;
+import com.dai.trust.models.JsonDateOnlyDeserializer;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -47,6 +50,8 @@ public class Party extends AbstractIdEntity {
     
     @Column
     @Temporal(javax.persistence.TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = JsonDateOnlyDeserializer.class)
     private Date dob;
     
     @Column(name = "is_resident")

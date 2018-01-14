@@ -345,7 +345,11 @@ PropertyCtrl.fillForm = function () {
                     targets: 4,
                     "orderable": false,
                     "render": function (data, type, row, meta) {
-                        return RefDataDao.getRefDataByCode(PropertyCtrl.regStatuses, data).val;
+                        var icon = "";
+                        if (!isNullOrEmpty(row.terminationApplicationId)) {
+                            icon = ' <i class="glyphicon glyphicon-trash" title="' + $.i18n("right-for-remove-discharge") + '"></i>';
+                        }
+                        return (RefDataDao.getRefDataByCode(PropertyCtrl.regStatuses, data).val) + icon;
                     }
                 }
             ];
@@ -353,14 +357,44 @@ PropertyCtrl.fillForm = function () {
             if (editbale) {
                 colsDef.push({
                     targets: 5,
+                    width: "85px",
                     "orderable": false,
                     "render": function (data, type, row, meta) {
                         if (row.statusCode === Global.STATUS.pending) {
                             return String.format(DataTablesUtility.getEditLinkWithText(), "PropertyCtrl.editRight($(this).parents('tr'));return false;") +
                                     "<br>" +
                                     String.format(DataTablesUtility.getDeleteLinkWithText(), "PropertyCtrl.deleteRight($(this).parents('tr'));return false;");
-                        } else if (row.statusCode === Global.STATUS.current && PropertyCtrl.canTransfer(row.id)) {
-                            return String.format(DataTablesUtility.getTransferLink(), "PropertyCtrl.transferRight($(this).parents('tr'));return false;");
+                        } else if (row.statusCode === Global.STATUS.current) {
+                            if (PropertyCtrl.canTransact(row.id)) {
+                                if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer) {
+                                    return String.format(DataTablesUtility.getTransferLink(), "PropertyCtrl.transferRight($(this).parents('tr'));return false;");
+                                }
+                                if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Remove) {
+                                    var removeLink = "";
+                                    if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
+                                        removeLink = DataTablesUtility.getDischargeLink();
+                                    } else {
+                                        removeLink = DataTablesUtility.getWithdrawLink();
+                                    }
+                                    return String.format(removeLink, "PropertyCtrl.terminateRight($(this).parents('tr'));return false;");
+                                }
+                                if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary) {
+                                    return String.format(DataTablesUtility.getVaryLink(), "PropertyCtrl.varyRight($(this).parents('tr'));return false;");
+                                }
+                                if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Rectify) {
+                                    return String.format(DataTablesUtility.getRectifyLink(), "PropertyCtrl.rectifyRight($(this).parents('tr'));return false;");
+                                }
+                            } else {
+                                if (!isNullOrEmpty(row.terminationApplicationId)) {
+                                    var cancelRemoveLink = "";
+                                    if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
+                                        cancelRemoveLink = DataTablesUtility.getCancelDischargeLink();
+                                    } else {
+                                        cancelRemoveLink = DataTablesUtility.getCancelWithdrawLink();
+                                    }
+                                    return String.format(cancelRemoveLink, "PropertyCtrl.cancelRightTermination($(this).parents('tr'));return false;");
+                                }
+                            }
                         }
                         return "";
                     }
@@ -496,7 +530,7 @@ PropertyCtrl.getHistoricRights = function () {
     var propRights = [];
     if (PropertyCtrl.prop.rights) {
         propRights = PropertyCtrl.prop.rights;
-    } 
+    }
 
     if (propRights.length < 1) {
         return [];
@@ -538,13 +572,22 @@ PropertyCtrl.getAllowedRightTypes = function () {
     return result;
 };
 
-PropertyCtrl.canTransfer = function (rightId) {
-    if (PropertyCtrl.allowedRightTypes !== null) {
+PropertyCtrl.canTransact = function (rightId) {
+    if (PropertyCtrl.allowedRightTypes !== null &&
+            (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Rectify ||
+                    PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer ||
+                    PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary ||
+                    PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Remove)) {
         var activeRights = PropertyCtrl.getActiveRights();
         // Check for rights to exist
         if (activeRights.length > 0) {
             for (var i = 0; i < activeRights.length; i++) {
                 if (activeRights[i].id === rightId && activeRights[i].statusCode === Global.STATUS.current) {
+                    // Check if right is already marked for termination
+                    if (!isNullOrEmpty(activeRights[i].terminationApplicationId)) {
+                        return false;
+                    }
+
                     // Check if type is allowed
                     for (var j = 0; j < PropertyCtrl.allowedRightTypes.length; j++) {
                         if (activeRights[i].rightTypeCode === PropertyCtrl.allowedRightTypes[j].code) {
@@ -554,7 +597,7 @@ PropertyCtrl.canTransfer = function (rightId) {
                                     return false;
                                 }
                             }
-                            // Can transfer
+                            // Can transact
                             return true;
                         }
                     }
@@ -585,15 +628,24 @@ PropertyCtrl.backToApplication = function () {
 };
 
 PropertyCtrl.printAdjudicationForm = function () {
-
+    var w = window.open(Global.APP_ROOT + "/ws/" + Global.LANG + "/report/adjudicationform/" + PropertyCtrl.prop.id, 'AdjudicationForm', 'left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,titlebar=no,menubar=no,status=no,replace=true');
+    if (window.focus) {
+        w.focus();
+    }
 };
 
 PropertyCtrl.printCert = function () {
-
+    var w = window.open(Global.APP_ROOT + "/ws/" + Global.LANG + "/report/certificate/" + PropertyCtrl.prop.id, 'Title', 'left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,titlebar=no,menubar=no,status=no,replace=true');
+    if (window.focus) {
+        w.focus();
+    }
 };
 
 PropertyCtrl.printTransactionSheet = function () {
-
+    var w = window.open(Global.APP_ROOT + "/ws/" + Global.LANG + "/report/transactionsheet/" + PropertyCtrl.prop.id, 'TransactionSheet', 'left=10,top=10,resizable=yes,scrollbars=yes,toolbar=no,titlebar=no,menubar=no,status=no,replace=true');
+    if (window.focus) {
+        w.focus();
+    }
 };
 
 PropertyCtrl.viewHistoricRight = function (rowSelector) {
@@ -630,6 +682,11 @@ PropertyCtrl.transferRight = function (rowSelector) {
     right.id = null;
     right.folioNumber = null;
     right.regDate = null;
+    if (PropertyCtrl.app) {
+        right.applicationId = PropertyCtrl.app.id;
+    }
+    right.version = 0;
+    right.statusCode = Global.STATUS.pending;
     right.occupancyTypeCode = null;
     right.dealAmount = null;
     right.rightholders = [];
@@ -637,13 +694,71 @@ PropertyCtrl.transferRight = function (rowSelector) {
     right.pois = [];
     right.deceasedOwner = null;
     right.description = null;
+    PropertyCtrl.openRight(right, true);
+};
+
+PropertyCtrl.varyRight = function (rowSelector) {
+    PropertyCtrl.selectedRightRow = null;
+    // Copy right
+    var right = JSON.parse(JSON.stringify(PropertyCtrl.tableRights.row(rowSelector).data()));
+    // Reset parent right properties and set parent id
+    right.parentId = right.id;
+    right.id = null;
+    right.folioNumber = null;
+    right.regDate = null;
     if (PropertyCtrl.app) {
         right.applicationId = PropertyCtrl.app.id;
     }
     right.version = 0;
     right.statusCode = Global.STATUS.pending;
-
+    right.description = null;
+    // Reset POIs
+    if (!isNullOrEmpty(right.pois)) {
+        for (var i = 0; i < right.pois.length; i++) {
+            right.pois[i].id = null;
+            right.pois[i].version = 0;
+        }
+    }
     PropertyCtrl.openRight(right, true);
+};
+
+PropertyCtrl.rectifyRight = function (rowSelector) {
+    PropertyCtrl.selectedRightRow = null;
+    // Copy right
+    var right = JSON.parse(JSON.stringify(PropertyCtrl.tableRights.row(rowSelector).data()));
+    // Reset parent right properties and set parent id
+    right.parentId = right.id;
+    right.id = null;
+    right.folioNumber = null;
+    right.regDate = null;
+    if (PropertyCtrl.app) {
+        right.applicationId = PropertyCtrl.app.id;
+    }
+    right.version = 0;
+    right.statusCode = Global.STATUS.pending;
+    right.description = null;
+    // Reset POIs
+    if (!isNullOrEmpty(right.pois)) {
+        for (var i = 0; i < right.pois.length; i++) {
+            right.pois[i].id = null;
+            right.pois[i].version = 0;
+        }
+    }
+    PropertyCtrl.openRight(right, true);
+};
+
+PropertyCtrl.terminateRight = function (rowSelector) {
+    var right = PropertyCtrl.tableRights.row(rowSelector).data();
+    if (PropertyCtrl.app) {
+        right.terminationApplicationId = PropertyCtrl.app.id;
+    }
+    PropertyCtrl.refreshRightsTable();
+};
+
+PropertyCtrl.cancelRightTermination = function (rowSelector) {
+    var right = PropertyCtrl.tableRights.row(rowSelector).data();
+    right.terminationApplicationId = null;
+    PropertyCtrl.refreshRightsTable();
 };
 
 PropertyCtrl.newRight = function () {
@@ -733,11 +848,12 @@ PropertyCtrl.openRight = function (right, forEdit) {
             } else {
                 $("#lblOccupancyType").text("");
             }
-            PropertyCtrl.occupancySelected();
 
             loadingRight -= 1;
             showRight();
-        }, null, null, true, true);
+        }, null, function () {
+            PropertyCtrl.occupancySelected();
+        }, true, true);
     }
 
     if (isNull(PropertyCtrl.LegalEntities)) {
@@ -787,7 +903,7 @@ PropertyCtrl.openRight = function (right, forEdit) {
 
     if (isNull(PropertyCtrl.Pois)) {
         loadingRight += 1;
-        PropertyCtrl.Pois = new Controls.Pois("rightPois", "divPois", {pois: right.pois, editable: allowRightholdersEditing});
+        PropertyCtrl.Pois = new Controls.Pois("rightPois", "divPois", {pois: right.pois, editable: forEdit});
         PropertyCtrl.Pois.init(function () {
             loadingRight -= 1;
             showRight();
@@ -864,27 +980,32 @@ PropertyCtrl.openRight = function (right, forEdit) {
         $("#lblStartDate").text("");
     }
 
-    if (!isNull(right.duration) && right.duration !== 0) {
-        if (right.duration % 1 === 0) {
-            right.duration = Math.floor(right.duration);
-        }
-        $("#txtDuration").val(right.duration);
-        $("#lblDuration").text(right.duration);
+    if (!isNull(right.endDate)) {
+        $("#txtEndDate").val(dateFormat(right.endDate));
+        $("#lblEndDate").text(dateFormat(right.endDate));
     } else {
-        $("#txtDuration").val("");
-        $("#lblDuration").text("");
+        $("#txtEndDate").val("");
+        $("#lblEndDate").text("");
     }
 
-    if (!isNull(right.annualFee) && right.annualFee !== 0) {
-        if (right.annualFee % 1 === 0) {
-            right.annualFee = Math.floor(right.annualFee);
+    var setDoubleField = function (name) {
+        if (!isNull(right[name]) && right[name] !== 0) {
+            if (right[name] % 1 === 0) {
+                right[name] = Math.floor(right[name]);
+            }
+            var htmlName = name.charAt(0).toUpperCase() + name.slice(1);
+            $("#txt" + htmlName).val(right[name]);
+            $("#lbl" + htmlName).text(right[name]);
+        } else {
+            $("#txt" + htmlName).val("");
+            $("#lbl" + htmlName).text("");
         }
-        $("#txtAnnualFee").val(right.annualFee);
-        $("#lblAnnualFee").text(right.annualFee);
-    } else {
-        $("#txtAnnualFee").val("");
-        $("#lblAnnualFee").text("");
-    }
+    };
+
+    setDoubleField("duration");
+    setDoubleField("annualFee");
+    setDoubleField("interesetRate");
+    setDoubleField("dealAmount");
 
     $("#lblWitness1").text(String.empty(right.witness1));
     $("#txtWitness1").val(String.empty(right.witness1));
@@ -927,12 +1048,29 @@ PropertyCtrl.openRight = function (right, forEdit) {
     $("#txtDeceasedDescription").val(String.empty(deceasedOwner.description));
     $("#lblDeceasedDescription").text(String.empty(deceasedOwner.description));
 
+    // Hide fields which will be shown later by right type
+    $("#divInteresetRate").hide();
+    $("#divDealAmount").hide();
+    $("#rowAdjudicators").hide();
+    $("#rowNeigbors").hide();
+    $("#divOccupancyType").hide();
+    $("#divAllocationDate").hide();
+    $("#divAnnualFee").hide();
+    $("#tabPoisHeader").hide();
+    $("#tabPoisHeader").hide();
+    $("#divLegalEntity").hide();
+    $("#divWitness1").hide();
+    $("#divWitness2").hide();
+    $("#divEndDate").hide();
+    $("#divDuration").hide();
+
     showRight = function () {
         if (loadingRight > 0) {
             return;
         }
 
         PropertyCtrl.showPropPanel(false);
+
         if (forEdit) {
             $("#rightDiv .glyphicon-required").show();
             $("#rightDiv .form-control").show();
@@ -946,17 +1084,54 @@ PropertyCtrl.openRight = function (right, forEdit) {
         }
 
         // Enable disable based on transaction type
-        if (forEdit && PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer) {
-            $("#tabRightMain .glyphicon-required").hide();
-            $("#tabRightMain .form-control").hide();
-            $("#tabRightMain .input-group").hide();
-            $("#tabRightMain [id^=lbl]").show();
+        if (forEdit) {
+            if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer ||
+                    PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary) {
+                $("#tabRightMain .form-control").prop('disabled', true);
 
-            $("#txtFolioNumber").show();
-            $("#lblFolioNumber").hide();
+                $("#txtFolioNumber").prop('disabled', false);
+                $("#txtRightDescription").prop('disabled', false);
 
-            $("#txtRightDescription").show();
-            $("#lblRightDescription").hide();
+                if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary) {
+                    $("#txtStartDate").prop('disabled', false);
+                    $("#txtEndDate").prop('disabled', false);
+                    $("#txtDuration").prop('disabled', false);
+                    $("#txtAnnualFee").prop('disabled', false);
+                    $("#txtInteresetRate").prop('disabled', false);
+                    $("#txtDealAmount").prop('disabled', false);
+                    $("#cbxApprovedLanduse").prop('disabled', false);
+                }
+            }
+        }
+
+        // Show fields based on the right type
+        $("#reqDuration").hide();
+
+        if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Ccro) {
+            $("#rowAdjudicators").show();
+            $("#rowNeigbors").show();
+            if (allowRightholdersEditing) {
+                $("#divOccupancyType").show();
+            }
+            $("#divAllocationDate").show();
+            $("#divWitness1").show();
+            $("#divWitness2").show();
+            $("#divAnnualFee").show();
+            $("#tabPoisHeader").show();
+            $("#divDuration").show();
+        } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
+            $("#divInteresetRate").show();
+            $("#divDuration").show();
+            if (forEdit) {
+                $("#reqDuration").show();
+            }
+            $("#divDealAmount").show();
+            $("#divLegalEntity").show();
+            $("#divPerson").hide();
+        } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Caveat) {
+            $("#divEndDate").show();
+            $("#divLegalEntity").show();
+            $("#divPerson").show();
         }
     };
 
@@ -1062,11 +1237,20 @@ PropertyCtrl.saveRight = function () {
     if (!isNull($("#txtStartDate").val())) {
         result.startDate = dateFormat($("#txtStartDate").datepicker("getDate"), dateFormat.masks.isoDateTime);
     }
+    if (!isNull($("#txtEndDate").val())) {
+        result.endDate = dateFormat($("#txtEndDate").datepicker("getDate"), dateFormat.masks.isoDateTime);
+    }
     if (!isNullOrEmpty($("#txtDuration").val())) {
         result.duration = parseFloat($("#txtDuration").val());
     }
     if (!isNullOrEmpty($("#txtAnnualFee").val())) {
         result.annualFee = parseFloat($("#txtAnnualFee").val());
+    }
+    if (!isNullOrEmpty($("#txtInteresetRate").val())) {
+        result.interesetRate = parseFloat($("#txtInteresetRate").val());
+    }
+    if (!isNullOrEmpty($("#txtDealAmount").val())) {
+        result.dealAmount = parseFloat($("#txtDealAmount").val());
     }
     if (!isNull($("#txtWitness1").val())) {
         result.witness1 = $("#txtWitness1").val();
@@ -1130,13 +1314,14 @@ PropertyCtrl.saveRight = function () {
     }
 
     // Rightholders
+    result.rightholders = [];
     if (isNull(result.occupancyTypeCode) || result.occupancyTypeCode !== RefDataDao.OCCUPANCY_TYPE_CODES.NonNatural) {
         result.rightholders = makeVersionedList(right.rightholders, PropertyCtrl.Persons.getPersons(), "party");
     }
     if (isNull(result.occupancyTypeCode) || result.occupancyTypeCode === RefDataDao.OCCUPANCY_TYPE_CODES.NonNatural) {
         var legalEntities = makeVersionedList(right.rightholders, PropertyCtrl.LegalEntities.getLegalEntities(), "party");
 
-        if (!isNull(right.rightholders)) {
+        if (!isNull(result.rightholders)) {
             result.rightholders = result.rightholders.concat(legalEntities);
         } else {
             result.rightholders = legalEntities;
@@ -1301,6 +1486,33 @@ PropertyCtrl.validateRight = function (right, showErrors) {
         }
     }
 
+    if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
+        if (isNullOrEmpty($("#txtStartDate").val())) {
+            errors.push($.i18n("err-right-start-date-empty"));
+        }
+        if (isNullOrEmpty($("#txtDuration").val())) {
+            errors.push($.i18n("err-right-no-duraion"));
+        }
+
+        var les = PropertyCtrl.LegalEntities.getLegalEntities();
+
+        if (les === null || les.length < 1) {
+            errors.push($.i18n("err-right-no-le"));
+        }
+    }
+
+    if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Caveat) {
+        if (isNullOrEmpty($("#txtStartDate").val())) {
+            errors.push($.i18n("err-right-start-date-empty"));
+        } else {
+            if (!isNullOrEmpty($("#txtEndDate").val())) {
+                if (DateUtility.compareDates($("#txtStartDate").datepicker("getDate"), $("#txtEndDate").datepicker("getDate")) < 0) {
+                    errors.push($.i18n("err-right-enddate-less-startdate"));
+                }
+            }
+        }
+    }
+
     if (errors.length > 0) {
         if (showErrors) {
             alertErrorMessages(errors);
@@ -1313,23 +1525,17 @@ PropertyCtrl.validateRight = function (right, showErrors) {
 
 PropertyCtrl.save = function () {
     var rights = [];
-    if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.FirstRegistration ||
-            PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Registration ||
-            PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer ||
-            PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary ||
-            PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Rectify) {
-        // Check for pending rights
-        PropertyCtrl.tableRights.rows().data().each(function (d) {
-            // Include only pending or for termination
-            if (isNullOrEmpty(d.statusCode) || d.statusCode === Global.STATUS.pending
-                    || (d.statusCode === Global.STATUS.current && !isNullOrEmpty(d.terminationApplicationId))) {
-                rights.push(d);
-            }
-        });
-        if (rights.length < 1) {
-            alertErrorMessage($.i18n("err-right-no-rights"));
-            return;
+
+    PropertyCtrl.tableRights.rows().data().each(function (d) {
+        // Include only pending or for termination
+        if (isNullOrEmpty(d.statusCode) || d.statusCode === Global.STATUS.pending
+                || (d.statusCode === Global.STATUS.current && !isNullOrEmpty(d.terminationApplicationId))) {
+            rights.push(d);
         }
+    });
+    if (rights.length < 1) {
+        alertErrorMessage($.i18n("err-right-no-rights"));
+        return;
     }
 
     PropertyCtrl.prop.rights = rights;

@@ -10,6 +10,7 @@ $(function () {
     PropertyDao.URL_GET_PROPERTIES_BY_APP = baseUrl + "getpropertiessbyapplication/{0}";
     PropertyDao.URL_GET_PARCEL = baseUrl + "getparcel/{0}";
     PropertyDao.URL_GET_PARCELS_BY_APP = baseUrl + "getparcelsbyapplication/{0}";
+    PropertyDao.URL_GET_CREATE_PARCELS_BY_APP = baseUrl + "getcreateparcelsbyapplication/{0}";
     PropertyDao.URL_SAVE_PARCELS = baseUrl + "saveparcels";
     PropertyDao.URL_SAVE_PROPERTY = baseUrl + "saveproperty";
     PropertyDao.URL_GET_PROPERTY_BY_RIGHT = baseUrl + "getpropertybyright/{0}";
@@ -119,6 +120,11 @@ PropertyDao.getParcel = function (id, successAction, failAction, alwaysAction, s
 
 PropertyDao.getParcelsByApplication = function (appId, successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(String.format(PropertyDao.URL_GET_PARCELS_BY_APP, String.empty(appId)),
+            successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+PropertyDao.getCreateParcelsByApplication = function (appId, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(PropertyDao.URL_GET_CREATE_PARCELS_BY_APP, String.empty(appId)),
             successAction, failAction, alwaysAction, showErrorAlert);
 };
 

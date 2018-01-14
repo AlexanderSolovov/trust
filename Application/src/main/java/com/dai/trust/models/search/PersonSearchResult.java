@@ -9,6 +9,7 @@ import javax.persistence.Temporal;
 
 @Entity
 public class PersonSearchResult implements Serializable {
+
     @Id
     private String id;
     @Column
@@ -26,8 +27,12 @@ public class PersonSearchResult implements Serializable {
     private Date dob;
     @Column(name = "status_code")
     private String statusCode;
-    
-    public PersonSearchResult(){
+
+    public static final String QUERY_SELECT
+            = "select p.id, get_translation(idt.val, :langCode) as id_type, (name1 || ' ' || coalesce(name3, '') || ' ' || coalesce(name2, '')) as name, p.id_number, p.dob, p.mobile_number, p.address, p.status_code\n "
+            + "from party p inner join ref_id_type idt on p.id_type_code = idt.code\n ";
+
+    public PersonSearchResult() {
         super();
     }
 

@@ -1,7 +1,6 @@
 package com.dai.trust.services.search;
 
 import com.dai.trust.common.MessageProvider;
-import com.dai.trust.common.MessagesKeys;
 import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.models.search.AffectedObjectSearchResult;
@@ -93,17 +92,17 @@ public class SearchService extends AbstractService {
         Query q = getEM().createNativeQuery(AFFECTED_OBJECTS_SEARCH_SELECT, AffectedObjectSearchResult.class);
         q.setParameter("appId", appId);
         List<AffectedObjectSearchResult> result = q.getResultList();
-        
+
         // Localize actions
-        if(result != null){
+        if (result != null) {
             MessageProvider msgProvider = new MessageProvider(langCode);
-            for(AffectedObjectSearchResult obj : result){
+            for (AffectedObjectSearchResult obj : result) {
                 obj.setAction(msgProvider.getMessage("GENERAL_" + obj.getAction().toUpperCase()));
             }
         }
         return result;
     }
-    
+
     /**
      * Searches for current user applications.
      *
@@ -299,14 +298,14 @@ public class SearchService extends AbstractService {
         } else {
             params.setPropNumber("%" + params.getPropNumber().trim().toLowerCase() + "%");
         }
-        
+
         if (StringUtility.isEmpty(params.getFileNumber())) {
             params.setFileNumber("%");
         } else {
             params.setFileNumber("%" + params.getFileNumber().trim().toLowerCase() + "%");
         }
 
-        if (params.getRightTypeCode()== null) {
+        if (params.getRightTypeCode() == null) {
             params.setRightTypeCode("");
         }
 
@@ -344,7 +343,7 @@ public class SearchService extends AbstractService {
 
         return q.getResultList();
     }
-    
+
     /**
      * Searches for party by name and id number.
      *
@@ -369,14 +368,33 @@ public class SearchService extends AbstractService {
             idNumber = "%" + idNumber.toLowerCase().trim() + "%";
         }
 
-        Query q = getEM().createNativeQuery("select p.id, get_translation(idt.val, :langCode) as id_type, (name1 || ' ' || coalesce(name3, '') || ' ' || coalesce(name2, '')) as name, p.id_number, p.dob, p.mobile_number, p.address, p.status_code\n "
-                + "from party p inner join ref_id_type idt on p.id_type_code = idt.code\n "
+        Query q = getEM().createNativeQuery(PersonSearchResult.QUERY_SELECT
                 + "where p.is_private = 't' and "
                 + "lower(name1 || ' ' || coalesce(name3, '') || ' ' || coalesce(name2, '')) like :name and "
                 + "lower(coalesce(p.id_number, '')) like :idNumber order by name1, name2 limit 1000", PersonSearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("name", name);
         q.setParameter("idNumber", idNumber);
+        return q.getResultList();
+    }
+    
+    /**
+     * Searches for persons, attached as applicants on the application.
+     *
+     * @param langCode Language code for localization
+     * @param appId Application id
+     * @return
+     */
+    public List<PersonSearchResult> searchPersonFromApplication(String langCode, String appId) {
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(PersonSearchResult.QUERY_SELECT
+                + "where p.is_private = 't' and p.id in (select party_id from public.application_party where app_id = :appId)", PersonSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("appId", appId);
         return q.getResultList();
     }
 
@@ -495,6 +513,39 @@ public class SearchService extends AbstractService {
     }
 
     /**
+     * Searches parcels through the property objects attached to the
+     * application.
+     *
+     * @param langCode Language code for localization
+     * @param appId Application ID
+     * @return
+     */
+    public List<ParcelSearchResult> searchParcelsByApplicationProps(String langCode, String appId) {
+        if (StringUtility.isEmpty(appId)) {
+            return null;
+        }
+
+        // Prepare params
+        if (StringUtility.isEmpty(langCode)) {
+            langCode = "en";
+        }
+
+        Query q = getEM().createNativeQuery(PARCEL_SEARCH_SELECT
+                + " where p.id in (select pr.parcel_id from public.property pr inner join public.application_property ap on pr.id = ap.property_id where ap.app_id = :appId) order by p.survey_date desc",
+                ParcelSearchResult.class);
+        q.setParameter("langCode", langCode);
+        q.setParameter("appId", appId);
+        List<ParcelSearchResult> results = q.getResultList();
+
+        if (results != null && results.size() > 0) {
+            for (ParcelSearchResult parcel : results) {
+                parcel.setPropCodes(searchPropCodesByParcel(langCode, parcel.getId()));
+            }
+        }
+        return results;
+    }
+
+    /**
      * Searches parcel by its id.
      *
      * @param langCode Language code for localization
@@ -567,7 +618,7 @@ public class SearchService extends AbstractService {
         q.setParameter("appId", appId);
         return q.getResultList();
     }
-    
+
     /**
      * Searches property code by property id.
      *
@@ -588,6 +639,6 @@ public class SearchService extends AbstractService {
         Query q = getEM().createNativeQuery(PROP_CODE_SEARCH_SELECT + " where p.id = :propId", PropertyCodeSearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("propId", propId);
-        return (PropertyCodeSearchResult)q.getSingleResult();
+        return (PropertyCodeSearchResult) q.getSingleResult();
     }
 }

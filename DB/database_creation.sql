@@ -1939,7 +1939,6 @@ CREATE TABLE public.parcel
    action_user character varying(50),
    action_time timestamp without time zone NOT NULL DEFAULT now(), 
    CONSTRAINT parcel_pk PRIMARY KEY (id), 
-   CONSTRAINT parcel_uka_unique UNIQUE (uka),
    CONSTRAINT parcel_ref_land_type_fk FOREIGN KEY (land_type_code) REFERENCES public.ref_land_type (code) ON UPDATE NO ACTION ON DELETE NO ACTION, 
    CONSTRAINT parcel_ref_hamlet_fk FOREIGN KEY (hamlet_code) REFERENCES public.ref_hamlet (code) ON UPDATE NO ACTION ON DELETE NO ACTION,
    CONSTRAINT parcel_application_fk FOREIGN KEY (application_id) REFERENCES public.application (id) ON UPDATE NO ACTION ON DELETE NO ACTION, 
@@ -2008,9 +2007,9 @@ END;
 $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION public.f_generate_app_number()
+ALTER FUNCTION public.f_generate_uka()
   OWNER TO postgres;
-COMMENT ON FUNCTION public.f_generate_app_number() IS 'This function is used to generate land parcel uka number based on hamlet and village code.';
+COMMENT ON FUNCTION public.f_generate_uka() IS 'This function is used to generate land parcel uka number based on hamlet and village code.';
 
 CREATE TRIGGER __generate_uka
   BEFORE INSERT
@@ -2018,6 +2017,30 @@ CREATE TRIGGER __generate_uka
   FOR EACH ROW
   EXECUTE PROCEDURE public.f_generate_uka();
 
+CREATE OR REPLACE FUNCTION public.f_check_uka()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+	IF (select count(1) from public.parcel where id != NEW.id and uka = NEW.uka and status_code = NEW.status_code and (status_code = 'active' or status_code = 'pending')) > 0 THEN
+	  RAISE EXCEPTION 'UKA number must be unique';
+	END IF;
+    END IF;
+    RETURN NEW;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION public.f_check_uka()
+  OWNER TO postgres;
+COMMENT ON FUNCTION public.f_check_uka() IS 'This function controls UKA number uniqueness.';
+
+CREATE TRIGGER __check_uka
+  AFTER INSERT OR UPDATE
+  ON public.parcel
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.f_check_uka();
+  
 CREATE TABLE history.parcel
 (
    id character varying(40), 
@@ -2623,7 +2646,7 @@ CREATE TABLE public.rightholder
    rrr_id character varying(40) NOT NULL, 
    party_id character varying(40) NOT NULL, 
    owner_type_code character varying(20), 
-   share_size double precision, 
+   share_size character varying(10), 
    rowversion integer NOT NULL DEFAULT 0,
    action_code character(1) NOT NULL DEFAULT 'i'::bpchar,
    action_user character varying(50),
@@ -2665,7 +2688,7 @@ CREATE TABLE history.rightholder
    rrr_id character varying(40), 
    party_id character varying(40), 
    owner_type_code character varying(20), 
-   share_size double precision, 
+   share_size character varying(10), 
    rowversion integer,
    action_code character(1),
    action_user character varying(50),
@@ -3579,7 +3602,7 @@ INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('off
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('media-path', '../trust_files', 't', 't', 'Folder path where all files related to applications, parties and rights will be stored. If relative path is provided, then web-application root folder will be used as starting point.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('max-file-size', '20480', 't', 'f', 'Maximum file size in KB that can be uploaded into the system.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('file-extensions', 'pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,tif,tiff,csv', 't', 'f', 'Allowed file extensions for uploading into the system.');
-INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('srs', 'EPSG:4326', 't', 'f', 'Spatial reference system to be used on the map nad printings.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('srs', 'EPSG:32736', 't', 'f', 'Spatial reference system to be used on the map and printings.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('map-extent', 'Polygon ((35.674 -7.759, 35.713 -7.759, 35.713 -7.786, 35.674 -7.786, 35.674 -7.759))', 't', 'f', 'Default map extent in WKT format to zoom in when openning the map.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('offline-mode', '0', 't', 'f', 'Indicates map mode. 1 - offline, 0 - online. If online, Google Maps layers will be added.');
 
@@ -3609,14 +3632,16 @@ INSERT INTO public.ref_transaction_type(code, val) VALUES ('change_name', 'Chang
 
 -- Application types
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_new', 'New CCRO', 'ccro', 'first_registration');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_trans', 'Transfer', 'ccro', 'transfer');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_surrender', 'Surrender of Right', 'ccro', 'surrender');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_terminate', 'Termination', 'ccro', 'terminate');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_full_surrender', 'Surrender', 'ccro', 'terminate');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_trans', 'Transfer of CCRO', 'ccro', 'transfer');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_surrender', 'Surrender of CCRO', 'ccro', 'surrender');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_terminate', 'Termination of CCRO', 'ccro', 'terminate');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_vary', 'Variation of CCRO', 'ccro', 'vary');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_rectify', 'Rectification of CCRO', 'ccro', 'rectify');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_reg', 'Registration of Mortgage', 'restrictions', 'registration');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_remove', 'Discharge of Mortgage', 'restrictions', 'remove');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_vary', 'Variation of Mortgage', 'restrictions', 'vary');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('caveat_reg', 'Registration of Caveat', 'restrictions', 'registration');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('caveat_remove', 'Removal of Caveat', 'restrictions', 'remove');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('caveat_remove', 'Withdrawal of Caveat', 'restrictions', 'remove');
 
 -- Right type groups
 INSERT INTO public.ref_right_type_group(code, val) VALUES ('ownership', 'Ownership');
@@ -3632,10 +3657,11 @@ INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUE
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_trans', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_surrender', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_terminate', 'ccro');
-INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_split', 'ccro');
-INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_merge', 'ccro');
+INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_vary', 'ccro');
+INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_rectify', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('mortgage_reg', 'mortgage');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('mortgage_remove', 'mortgage');
+INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('mortgage_vary', 'mortgage');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('caveat_reg', 'caveat');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('caveat_remove', 'caveat');
 

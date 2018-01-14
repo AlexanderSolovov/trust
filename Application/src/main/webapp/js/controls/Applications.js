@@ -52,7 +52,7 @@ Controls.Applications = function (controlId, targetElementId, options) {
             {data: "appType", title: $.i18n("gen-type")},
             {data: "lodgementDate", title: $.i18n("app-lodgement-date")},
             {data: "applicantData", title: $.i18n("app-applicants")},
-            {data: "ccros", title: $.i18n("app-ccros")},
+            {data: "ccros", title: $.i18n("app-ccro")},
             {data: "assigneeName", title: $.i18n("app-assignee")},
             {data: "appStatus", title: $.i18n("gen-status")}
         ];

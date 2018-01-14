@@ -44,6 +44,38 @@ DataTablesUtility.getTransferLink = function () {
     return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-transfer"></i> ' + $.i18n('right-transfer') + '</a>';
 };
 
+DataTablesUtility.getRemoveLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-trash"></i> ' + $.i18n('right-remove') + '</a>';
+};
+
+DataTablesUtility.getWithdrawLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-trash"></i> ' + $.i18n('gen-withdraw') + '</a>';
+};
+
+DataTablesUtility.getVaryLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-edit"></i> ' + $.i18n('gen-vary') + '</a>';
+};
+
+DataTablesUtility.getRectifyLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-edit"></i> ' + $.i18n('gen-rectify') + '</a>';
+};
+
+DataTablesUtility.getDischargeLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-trash"></i> ' + $.i18n('right-discharge') + '</a>';
+};
+
+DataTablesUtility.getCancelRemoveLink = function () {
+    return '<a href="#" onclick="{0}"><i class="icon-undo"></i> ' + $.i18n('right-cancel-remove') + '</a>';
+};
+
+DataTablesUtility.getCancelWithdrawLink = function () {
+    return '<a href="#" onclick="{0}"><i class="icon-undo"></i> ' + $.i18n('right-cancel-withdraw') + '</a>';
+};
+
+DataTablesUtility.getCancelDischargeLink = function () {
+    return '<a href="#" onclick="{0}"><i class="icon-undo"></i> ' + $.i18n('right-cancel-discharge') + '</a>';
+};
+
 DataTablesUtility.getSearchLink = function () {
     return '<a href="#" onclick="{0}" class="BlueLink">' +
             '<i class="glyphicon glyphicon-search"></i> ' + $.i18n('gen-search') + '</a>';

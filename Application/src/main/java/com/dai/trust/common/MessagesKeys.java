@@ -266,6 +266,16 @@ public class MessagesKeys {
      * CCRO must be provided.
      */
     public static final String ERR_APP_CCRO_EMPTY = "ERR_APP_CCRO_EMPTY";
+    
+    /**
+     * Only 1 CCRO is allowed.
+     */
+    public static final String ERR_APP_ONE_CCRO_ALLOWED = "ERR_APP_ONE_CCRO_ALLOWED";
+    
+    /**
+     * Only 1 plot is allowed for creation.
+     */
+    public static final String ERR_APP_ONE_PARCEL_ALLOWED = "ERR_APP_ONE_PARCEL_ALLOWED";
 
     /**
      * At least one person must be added as an applicant.
@@ -388,11 +398,29 @@ public class MessagesKeys {
     /** Property must have pending status */
     public static final String ERR_PROP_MUST_BE_PEDNING = "ERR_PROP_MUST_BE_PEDNING";
     
+    /** Property must have registered status. */
+    public static final String ERR_PROP_MUST_BE_REGISTERED = "ERR_PROP_MUST_BE_REGISTERED";
+    
+    /** Property must have registered ownership right. */
+    public static final String ERR_PROP_MUST_HAVE_REGISTERED_OWNERSHIP = "ERR_PROP_MUST_HAVE_REGISTERED_OWNERSHIP";
+    
+    /** Property {0} has pending rights. */
+    public static final String ERR_PROP_HAS_PENDING_RIGHTS = "ERR_PROP_HAS_PENDING_RIGHTS";
+    
+    /** Property {0} has registered mortgages, they have to be discharged first. */
+    public static final String ERR_PROP_HAS_REGISTERED_MORTGAGES = "ERR_PROP_HAS_REGISTERED_MORTGAGES";
+    
     /** Plot is not provided */
     public static final String ERR_PROP_NO_PARCEL = "ERR_PROP_NO_PARCEL";
     
-    /** Plot is is already attached to the property #{0} */
+    /** UKA numbers of new and modified plots are not matching. */
+    public static final String ERR_PROP_OLD_NEW_UKA_NOT_MATCHING = "ERR_PROP_OLD_NEW_UKA_NOT_MATCHING";
+    
+    /** Plot is already attached to the property #{0} */
     public static final String ERR_PROP_PARCEL_ALREADY_INUSE = "ERR_PROP_PARCEL_ALREADY_INUSE";
+    
+    /** Plot #{0} must have active status. */
+    public static final String ERR_PROP_PARCEL_MUST_BE_REGISTERED = "ERR_PROP_PARCEL_MUST_BE_REGISTERED";
     
     /** This property is not listed in the application */
     public static final String ERR_PROP_NOT_IN_APP = "ERR_PROP_NOT_IN_APP";
@@ -441,9 +469,15 @@ public class MessagesKeys {
     
     /** Start Date is empty */
     public static final String ERR_PROP_START_DATE_EMPTY = "ERR_PROP_START_DATE_EMPTY";
+    
+    /** Duration is empty or 0 */
+    public static final String ERR_PROP_DURATION_EMPTY = "ERR_PROP_DURATION_EMPTY";
             
     /** Start Date can't be greater than Allocation Date */
     public static final String ERR_PROP_START_DATE_GREATER_ALLOCATION = "ERR_PROP_START_DATE_GREATER_ALLOCATION";
+    
+    /** End Date can't be greater than Start Date */
+    public static final String ERR_PROP_END_DATE_GREATER_START_DATE = "ERR_PROP_END_DATE_GREATER_START_DATE";
     
     /** Declared Land Use is not selected */
     public static final String ERR_PROP_DECLARED_LANDUSE_EMPTY = "ERR_PROP_DECLARED_LANDUSE_EMPTY";
@@ -516,4 +550,7 @@ public class MessagesKeys {
     
     /** Person of interest last name is empty. */
     public static final String ERR_PROP_POI_LAST_NAME_EMPTY = "ERR_PROP_POI_LAST_NAME_EMPTY";
+    
+    /** Rightholders must be same as on the parent right. */
+    public static final String ERR_PROP_RIGHTHOLDERS_MUST_BE_SAME = "ERR_PROP_RIGHTHOLDERS_MUST_BE_SAME";
 }

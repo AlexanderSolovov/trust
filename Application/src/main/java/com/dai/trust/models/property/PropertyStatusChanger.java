@@ -10,7 +10,10 @@ import javax.persistence.Temporal;
 @Entity
 @Table(name = "property")
 public class PropertyStatusChanger extends AbstractIdEntity {
-    @Column(name = "parcel_id", insertable = false, updatable = false)
+    @Column(name = "prop_number", insertable = false, updatable = false)
+    private String propNumber;
+    
+    @Column(name = "parcel_id", insertable = false)
     private String parcelId;
     
     @Column(name = "reg_date", insertable = false)
@@ -40,6 +43,14 @@ public class PropertyStatusChanger extends AbstractIdEntity {
 
     public void setParcelId(String parcelId) {
         this.parcelId = parcelId;
+    }
+
+    public String getPropNumber() {
+        return propNumber;
+    }
+
+    public void setPropNumber(String propNumber) {
+        this.propNumber = propNumber;
     }
 
     public Date getRegDate() {

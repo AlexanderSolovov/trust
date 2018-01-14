@@ -44,7 +44,7 @@ public class RightSearchResult implements Serializable {
             + "	(select rh.rrr_id, string_agg(trim(trim(p.name1 || ' ' || coalesce(p.name3, '')) || ' ' || coalesce(p.name2, '')), ', ') as rightholder_names,\n"
             + "	  string_agg(coalesce(p.id_number, ''), ',') as rightholder_ids,\n"
             + "	  string_agg(trim(trim(p.name1 || ' ' || coalesce(p.name3, '')) || ' ' || coalesce(p.name2, '')) || \n"
-            + "	  (case when coalesce(p.id_number, '') != '' then E'\\n' || '(' || trim(coalesce(get_translation(idt.val, NULL), '') || ' #' || p.id_number) || ')' else '' end), E',\\n' order by p.is_private, p.name1) as rightholder_data \n"
+            + "	  (case when coalesce(p.id_number, '') != '' then E'\\n' || '(' || trim(coalesce(get_translation(idt.val, :langCode), '') || ' #' || p.id_number) || ')' else '' end), E',\\n' order by p.is_private, p.name1) as rightholder_data \n"
             + "	from public.rightholder rh inner join public.party p on rh.party_id = p.id left join public.ref_id_type idt on p.id_type_code = idt.code\n"
             + "	group by rh.rrr_id) rightholders on r.id = rightholders.rrr_id) on p.id = r.property_id \n";
 

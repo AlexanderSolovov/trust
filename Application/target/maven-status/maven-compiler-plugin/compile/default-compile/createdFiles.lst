@@ -1,9 +1,11 @@
+com\dai\trust\models\report\PersonWithRightSummary.class
 com\dai\trust\services\refdata\RefDataService.class
 com\dai\trust\models\system\AppRole.class
 com\dai\trust\models\application\ApplicationProperty.class
 com\dai\trust\common\RolesConstants.class
 com\dai\trust\models\search\PersonSearchResult.class
 com\dai\trust\models\property\Poi.class
+com\dai\trust\models\search\RightSearchResult.class
 com\dai\trust\models\property\Property.class
 com\dai\trust\models\search\ApplicationSearchParams.class
 com\dai\trust\models\AbstractCodeEntity.class
@@ -11,6 +13,7 @@ com\dai\trust\models\application\Application.class
 com\dai\trust\ws\AbstractResource.class
 com\dai\trust\services\AbstractService.class
 com\dai\trust\models\document\FileInfo.class
+com\dai\trust\models\report\PoiSummary.class
 com\dai\trust\models\refdata\TransactionType.class
 com\dai\trust\exceptions\ExceptionUtility.class
 com\dai\trust\models\refdata\RightType.class
@@ -18,6 +21,7 @@ com\dai\trust\ws\filters\AuthenticatedFilter.class
 com\dai\trust\models\system\User.class
 com\dai\trust\ws\RestResourceConfig.class
 com\dai\trust\models\AbstractIdEntity.class
+com\dai\trust\models\JsonDateOnlyDeserializer.class
 com\dai\trust\models\refdata\DocumentType.class
 com\dai\trust\models\party\PartyDocumentId.class
 com\dai\trust\models\document\Document.class
@@ -34,9 +38,11 @@ com\dai\trust\exceptions\TrustException.class
 com\dai\trust\models\refdata\RightTypeGroup.class
 com\dai\trust\models\refdata\LandType.class
 com\dai\trust\models\search\PropertyCodeSearchResult.class
+com\dai\trust\models\report\RegistryBookRecord.class
 com\dai\trust\models\refdata\Gender.class
 com\dai\trust\models\search\LegalEntitySearchResult.class
 com\dai\trust\listeners\AppContextListener.class
+com\dai\trust\models\property\RrrStatusChanger.class
 com\dai\trust\models\property\Rightholder.class
 com\dai\trust\common\MessageProvider.class
 com\dai\trust\models\application\ApplicationPropertyId.class
@@ -48,6 +54,7 @@ com\dai\trust\models\refdata\IdType.class
 com\dai\trust\common\MessagesKeys.class
 com\dai\trust\db\EntityInterceptor.class
 com\dai\trust\ws\PartyResource.class
+com\dai\trust\services\property\ParcelMapService.class
 com\dai\trust\models\system\MapLayerOption.class
 com\dai\trust\models\refdata\AppType.class
 com\dai\trust\services\search\SearchService.class
@@ -55,11 +62,14 @@ com\dai\trust\models\refdata\OwnerType.class
 com\dai\trust\models\system\AppRoleGroupId.class
 com\dai\trust\models\application\ApplicationDocument.class
 com\dai\trust\models\refdata\District.class
+com\dai\trust\models\report\LegalEntitySummary.class
 com\dai\trust\services\ui\MainMenuService.class
 com\dai\trust\models\refdata\OccupancyType.class
 com\dai\trust\models\refdata\AppTypeRightType.class
 com\dai\trust\models\refdata\Citizenship.class
 com\dai\trust\models\property\Rrr.class
+com\dai\trust\services\report\ReportsService.class
+com\dai\trust\models\report\PropertySummary.class
 com\dai\trust\common\SharedData.class
 com\dai\trust\models\system\Setting.class
 com\dai\trust\ws\SearchResource.class
@@ -68,6 +78,7 @@ com\dai\trust\services\document\DocumentService.class
 com\dai\trust\models\AbstractRefDataEntity.class
 com\dai\trust\models\refdata\Village.class
 com\dai\trust\servlets\LogoutServlet.class
+com\dai\trust\models\property\ParcelStatusChanger.class
 com\dai\trust\services\party\PartyService.class
 com\dai\trust\exceptions\ExceptionFactory.class
 com\dai\trust\models\refdata\Language.class
@@ -76,7 +87,9 @@ com\dai\trust\models\system\AppGroup.class
 com\dai\trust\models\refdata\AppTypeRightTypeId.class
 com\dai\trust\services\system\MapService.class
 com\dai\trust\ws\SystemResource.class
+com\dai\trust\models\property\PropertyStatusChanger.class
 com\dai\trust\models\refdata\Region.class
+com\dai\trust\models\search\RightSearchParams.class
 com\dai\trust\models\search\UserSearchResult.class
 com\dai\trust\models\application\ApplicationPartyId.class
 com\dai\trust\models\refdata\RegStatus.class
@@ -89,8 +102,10 @@ com\dai\trust\models\application\ApplicationBasic.class
 com\dai\trust\models\system\UserGroup.class
 com\dai\trust\services\system\SettingsService.class
 com\dai\trust\models\system\AppRoleGroup.class
+com\dai\trust\ws\ReportResource.class
 com\dai\trust\models\refdata\LegalEntityType.class
 com\dai\trust\models\system\UserGroupId.class
+com\dai\trust\models\report\DeceasedOwnerSummary.class
 com\dai\trust\models\system\MapLayer.class
 com\dai\trust\models\property\RightholderId.class
 com\dai\trust\models\refdata\MaritalStatus.class
@@ -107,11 +122,15 @@ com\dai\trust\exceptions\MultipleTrustException.class
 com\dai\trust\ws\responses\ResponseFactory.class
 com\dai\trust\models\system\MapSettings.class
 com\dai\trust\services\system\UserService.class
+com\dai\trust\models\application\ApplicationStatusChanger.class
+com\dai\trust\models\search\AffectedObjectSearchResult.class
 com\dai\trust\services\system\AppGroupService.class
 com\dai\trust\models\property\DeceasedOwner.class
 com\dai\trust\ws\RefDataResource.class
 com\dai\trust\models\application\ApplicationPermissions.class
 com\dai\trust\filters\ContextFilter.class
+com\dai\trust\models\search\ApplicationNumberSearchResult.class
 com\dai\trust\models\party\Party.class
+com\dai\trust\ws\ReportResource$1.class
 com\dai\trust\common\FileUtility.class
 com\dai\trust\common\StringUtility.class

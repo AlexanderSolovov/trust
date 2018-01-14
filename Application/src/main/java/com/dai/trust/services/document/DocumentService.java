@@ -66,9 +66,10 @@ public class DocumentService extends AbstractService {
      * Validates document
      *
      * @param doc Document to validate
+     * @param strict Boolean value indicating whether to check for person to be involved in registered rights and/or approved applications
      * @return
      */
-    public boolean validateDocument(Document doc) {
+    public boolean validateDocument(Document doc, boolean strict) {
         if (doc == null) {
             return true;
         }
@@ -85,7 +86,7 @@ public class DocumentService extends AbstractService {
         
         // Get document from db
         Document dbDoc = null;
-        if (!StringUtility.isEmpty(doc.getId())) {
+        if (strict && !StringUtility.isEmpty(doc.getId())) {
             dbDoc = getById(Document.class, doc.getId(), false);
         }
 

@@ -41,7 +41,7 @@ public class Rightholder extends AbstractEntity {
     private String ownerTypeCode;
 
     @Column(name = "share_size")
-    private Double shareSize;
+    private String shareSize;
 
     public Rightholder() {
         super();
@@ -87,11 +87,11 @@ public class Rightholder extends AbstractEntity {
         this.ownerTypeCode = ownerTypeCode;
     }
 
-    public Double getShareSize() {
+    public String getShareSize() {
         return shareSize;
     }
 
-    public void setShareSize(Double shareSize) {
+    public void setShareSize(String shareSize) {
         this.shareSize = shareSize;
     }
 }

@@ -127,6 +127,7 @@ LANGUAGES.en = {
     "app-lodgement-date": "Lodgement Date",
     "app-completion-date": "Completion Date",
     "app-applicants": "Applicant(s)",
+    "app-ccro": "CCRO",
     "app-ccros": "CCROs",
     "app-parcels": "Land Parcels",
     "app-withdrawal-reason": "Withdrawal Reason",
@@ -227,8 +228,12 @@ LANGUAGES.en = {
     "prop-historic-rights": "Historic",
     
     "right-transfer": "Transfer",
-    "right-remove": "Discharge/Remove",
-    "right-cancel-remove": "Cancel Discharge/Remove",
+    "right-remove": "Remove",
+    "right-discharge": "Discharge",
+    "right-cancel-remove": "Cancel Remove",
+    "right-cancel-discharge": "Cancel Discharge",
+    "right-cancel-withdraw": "Cancel Withdrawal",
+    "right-for-remove-discharge": "For Discharge/Remove",
     "right-print-cert": "Print Certificate",
     "right-print-ts": "Print Transaction Sheet",
     "right-print-adj-form": "Print Adjudication Form",
@@ -324,6 +329,7 @@ LANGUAGES.en = {
     "err-right-allocation-date-empty": "Allocation Date is empty",
     "err-right-allocation-date-in-future": "Allocation Date can't be in future",
     "err-right-start-date-empty": "Start Date is empty",
+    "err-right-no-duraion": "Duration is not provided",
     "err-right-declared-landuse-empty": "Declared Land Use is not selected",
     "err-right-approved-landuse-empty": "Approved Land Use is not selected",
     "err-right-adjudicator1-empty": "Adjudicator #1 is empty",
@@ -344,5 +350,6 @@ LANGUAGES.en = {
     "err-right-one-or-many-admins": "At least one administrator must be provided. Make sure administrator role is assigned to the person. No guardians or owners allowed.",
     "err-right-many-owners": "At least two owners must be provided. Make sure owner role is assigned to the persons. No guardians or administrators allowed.",
     "err-right-wrong-guardianship": "At least one minor and one guardian must be provided. Make sure owner and guardian roles are assigned to the persons. No administrators allowed.",
-    "err-right-no-rights": "No rights were created."
+    "err-right-no-rights": "No rights were created.",
+    "err-right-enddate-less-startdate": "End Date can not be greater than Start Date"
 };

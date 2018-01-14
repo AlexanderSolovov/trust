@@ -1,6 +1,9 @@
 package com.dai.trust.models.document;
 
 import com.dai.trust.models.AbstractIdEntity;
+import com.dai.trust.models.JsonDateOnlyDeserializer;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +22,8 @@ public class Document extends AbstractIdEntity {
 
     @Column(name = "doc_date")
     @Temporal(javax.persistence.TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = JsonDateOnlyDeserializer.class)
     private Date docDate;
 
     @Column
@@ -26,6 +31,8 @@ public class Document extends AbstractIdEntity {
 
     @Column(name = "expiry_date")
     @Temporal(javax.persistence.TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = JsonDateOnlyDeserializer.class)
     private Date expiryDate;
     
     @Column(name = "file_id")

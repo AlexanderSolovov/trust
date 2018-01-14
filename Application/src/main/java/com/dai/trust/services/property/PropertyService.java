@@ -7,6 +7,8 @@ import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StatusCodeConstants;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.TrustException;
+import com.dai.trust.models.application.Application;
+import com.dai.trust.models.application.ApplicationProperty;
 import com.dai.trust.models.party.PartyDocument;
 import com.dai.trust.models.property.Parcel;
 import com.dai.trust.models.property.ParcelStatusChanger;
@@ -26,6 +28,7 @@ import com.dai.trust.models.refdata.TransactionType;
 import com.dai.trust.models.search.ApplicationSearchResult;
 import com.dai.trust.models.search.PropertyCodeSearchResult;
 import com.dai.trust.services.AbstractService;
+import com.dai.trust.services.application.ApplicationService;
 import com.dai.trust.services.document.DocumentService;
 import com.dai.trust.services.party.PartyService;
 import com.dai.trust.services.refdata.RefDataService;
@@ -108,6 +111,62 @@ public class PropertyService extends AbstractService {
     public List<Parcel> getParcelsByApplicationId(String id) {
         Query q = getEM().createQuery("Select p From Parcel p Where p.applicationId = :appId", Parcel.class);
         return q.setParameter("appId", id).getResultList();
+    }
+
+    /**
+     * Returns Parcels by application id. If application for rectification, it
+     * will also create a pending parcels to rectify.
+     *
+     * @param id Application id.
+     * @return
+     */
+    public List<Parcel> getCreateParcelsByApplicationId(String id) {
+        ApplicationService appService = new ApplicationService();
+        Application app = appService.getApplication(id);
+        List<Parcel> parcels = null;
+
+        if (app != null) {
+            Query q = getEM().createQuery("Select p From Parcel p Where p.applicationId = :appId", Parcel.class);
+            parcels = q.setParameter("appId", id).getResultList();
+            if (parcels == null) {
+                parcels = new ArrayList<>();
+            }
+
+            RefDataService refService = new RefDataService();
+            AppType appType = refService.getRefDataRecord(AppType.class, app.getAppTypeCode(), null);
+
+            if (appType.getTransactionTypeCode().equals(TransactionType.RECTIFY)) {
+                // Make copies of the property parcels attached to the application
+                String sql = "select id, land_type_code, uka, survey_date, hamlet_code, address, comment, st_astext(geom) as geom, application_id, end_application_id, status_code, rowversion, action_code, action_user, action_time "
+                        + "from public.parcel "
+                        + "where id in (select pr.parcel_id from public.property pr inner join public.application_property ap on pr.id = ap.property_id where ap.app_id = :appId)";
+
+                List<Parcel> appParcels = getEM().createNativeQuery(sql, Parcel.class).setParameter("appId", id).getResultList();
+
+                if (app.getProperties() != null) {
+                    for (Parcel appParcel : appParcels) {
+                        // Check if parcel already in the list
+                        boolean found = false;
+
+                        for (Parcel parcel : parcels) {
+                            if (StringUtility.empty(parcel.getUka()).equals(appParcel.getUka())) {
+                                found = true;
+                            }
+                        }
+
+                        if (!found && appParcel.getStatusCode().equals(StatusCodeConstants.ACTIVE)) {
+                            // Reset version other system fields to make it as new
+                            appParcel.setApplicationId(id);
+                            appParcel.setVersion(0);
+                            appParcel.setId(null);
+                            appParcel.setStatusCode(StatusCodeConstants.PENDING);
+                            parcels.add(appParcel);
+                        }
+                    }
+                }
+            }
+        }
+        return parcels;
     }
 
     /**
@@ -262,7 +321,8 @@ public class PropertyService extends AbstractService {
                 app = searchService.searchApplicationById(langCode, prop.getApplicationId());
             }
         } else // Search in the list of rights
-         if (prop.getRights() != null) {
+        {
+            if (prop.getRights() != null) {
                 for (Rrr right : prop.getRights()) {
                     if ((StringUtility.isEmpty(right.getStatusCode()) || right.getStatusCode().equalsIgnoreCase(StatusCodeConstants.PENDING))
                             && !StringUtility.isEmpty(right.getApplicationId())) {
@@ -274,6 +334,7 @@ public class PropertyService extends AbstractService {
                     }
                 }
             }
+        }
 
         // Validate application
         if (app == null) {
@@ -401,27 +462,30 @@ public class PropertyService extends AbstractService {
                                     throw new TrustException(MessagesKeys.ERR_PROP_PARENT_RIGHT_MUST_BE_REGISTERED);
                                 }
                                 parentOk = true;
-                                
+
                                 // Copy over values from parent to make sure they are not modified
                                 right.setRightTypeCode(r.getRightTypeCode());
-                                
-                                if (transactionType.equals(TransactionType.TRANSFER)){
+
+                                if (transactionType.equals(TransactionType.TRANSFER)) {
+                                    right.setDuration(r.getDuration());
+                                    right.setAnnualFee(r.getAnnualFee());
+                                    right.setApprovedLanduseCode(r.getApprovedLanduseCode());
+                                    right.setStartDate(r.getStartDate());
+                                    right.setEndDate(r.getEndDate());
+                                }
+
+                                if (transactionType.equals(TransactionType.VARY) || transactionType.equals(TransactionType.TRANSFER)) {
                                     right.setWitness1(r.getWitness1());
                                     right.setWitness2(r.getWitness2());
                                     right.setWitness3(r.getWitness3());
                                     right.setAllocationDate(r.getAllocationDate());
-                                    right.setStartDate(r.getStartDate());
-                                    right.setDuration(r.getDuration());
-                                    right.setAnnualFee(r.getAnnualFee());
                                     right.setDeclaredLanduseCode(r.getDeclaredLanduseCode());
-                                    right.setApprovedLanduseCode(r.getApprovedLanduseCode());
                                     right.setAdjudicator1(r.getAdjudicator1());
                                     right.setAdjudicator2(r.getAdjudicator2());
                                     right.setNeighborNorth(r.getNeighborNorth());
                                     right.setNeighborEast(r.getNeighborEast());
                                     right.setNeighborSouth(r.getNeighborSouth());
                                     right.setNeighborWest(r.getNeighborWest());
-                                    right.setEndDate(r.getEndDate());
                                 }
                                 break;
                             }
@@ -443,7 +507,7 @@ public class PropertyService extends AbstractService {
 
                     // Assign application id
                     right.setApplicationId(app.getId());
-                    
+
                     // Check right attributes
                     // Check rightholders
                     if (right.getRightholders() == null || right.getRightholders().size() < 1) {
@@ -451,7 +515,7 @@ public class PropertyService extends AbstractService {
                     }
 
                     // Validate CCRO
-                    if (isFirstReg && right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CCRO)) {
+                    if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CCRO)) {
                         if (right.getAllocationDate() == null) {
                             throw new TrustException(MessagesKeys.ERR_PROP_ALLOCATION_DATE_EMPTY);
                         } else if (right.getAllocationDate().after(Calendar.getInstance().getTime())) {
@@ -491,9 +555,7 @@ public class PropertyService extends AbstractService {
                         if (StringUtility.isEmpty(right.getOccupancyTypeCode())) {
                             throw new TrustException(MessagesKeys.ERR_PROP_OCCUPANCY_TYPE_EMPTY);
                         }
-                    }
-                    
-                    if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CCRO)) {
+
                         // Check occupancy types
                         List<Rightholder> persons = filterRightholders(right.getRightholders(), true);
                         List<Rightholder> les = filterRightholders(right.getRightholders(), false);
@@ -512,7 +574,7 @@ public class PropertyService extends AbstractService {
                                 }
 
                                 // Share
-                                if (occupancyType.equals(OccupancyType.TYPE_COMMON) && (person.getShareSize() == null || person.getShareSize() <= 0)) {
+                                if (occupancyType.equals(OccupancyType.TYPE_COMMON) && StringUtility.isEmpty(person.getShareSize())) {
                                     throw new TrustException(MessagesKeys.ERR_PROP_SHARE_SIZE_EMPTY, new Object[]{person.getParty().getFullName()});
                                 }
 
@@ -560,7 +622,7 @@ public class PropertyService extends AbstractService {
                             if (StringUtility.isEmpty(right.getDeceasedOwner().getLastName())) {
                                 throw new TrustException(MessagesKeys.ERR_PROP_DP_LAST_NAME_EMPTY);
                             }
-                            
+
                             // Set right id
                             right.getDeceasedOwner().setRrrId(right.getId());
                         }
@@ -586,6 +648,49 @@ public class PropertyService extends AbstractService {
                         }
                     }
 
+                    // Validate mortgage
+                    if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_MORTGAGE)) {
+                        // Set fields not allowed for mortgage to null
+                        clearOwnershipFields(right);
+                        right.setEndDate(null);
+
+                        if (right.getStartDate() == null) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
+                        }
+                        if (right.getDuration() == null || right.getDuration() <= 0) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_DURATION_EMPTY);
+                        }
+
+                        List<Rightholder> les = filterRightholders(right.getRightholders(), false);
+
+                        if (les.size() < 1) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_LE_EMPTY);
+                        }
+                    }
+
+                    // Validate caveat
+                    if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CAVEAT)) {
+                        // Set fields not allowed for mortgage to null
+                        clearOwnershipFields(right);
+                        right.setDuration(null);
+                        right.setInteresetRate(null);
+                        right.setDealAmount(null);
+
+                        if (right.getStartDate() == null) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
+                        }
+
+                        if (right.getStartDate() != null && right.getEndDate() != null && right.getEndDate().before(right.getStartDate())) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_END_DATE_GREATER_START_DATE);
+                        }
+                    }
+
+                    boolean strict = true;
+                    if (transactionType.equals(TransactionType.RECTIFY)) {
+                        // Allow rightholders editing
+                        //strict = false;
+                    }
+
                     // Validate rightholders
                     PartyService partyService = new PartyService();
 
@@ -594,15 +699,75 @@ public class PropertyService extends AbstractService {
                             throw new TrustException(MessagesKeys.ERR_PROP_NO_PARTY);
                         }
                         if (rightholder.getParty().isIsPrivate()) {
-                            partyService.validatePerson(rightholder.getParty(), langCode);
+                            partyService.validatePerson(rightholder.getParty(), langCode, strict);
                         } else {
-                            partyService.validateLegalEntity(rightholder.getParty(), langCode);
+                            partyService.validateLegalEntity(rightholder.getParty(), langCode, strict);
                         }
+                    }
 
-                        // Make sure right id is assigned properly
+                    if (transactionType.equals(TransactionType.VARY)) {
+                        // Make sure same rightholders provided on the right for variation
+                        if (dbProp != null && dbProp.getRights() != null) {
+                            for (Rrr r : dbProp.getRights()) {
+                                if (r.getId().equalsIgnoreCase(right.getParentId())) {
+                                    if (right.getRightholders().size() != r.getRightholders().size()) {
+                                        throw new TrustException(MessagesKeys.ERR_PROP_RIGHTHOLDERS_MUST_BE_SAME);
+                                    }
+                                    for (Rightholder dbRh : r.getRightholders()) {
+                                        boolean found = false;
+                                        for (Rightholder rh : right.getRightholders()) {
+                                            if (dbRh.getParty().getId().equals(StringUtility.empty(rh.getParty().getId()))) {
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!found) {
+                                            throw new TrustException(MessagesKeys.ERR_PROP_RIGHTHOLDERS_MUST_BE_SAME);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                    // Validate POIs
+                    if (right.getPois() != null && right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CCRO)) {
+                        for (Poi poi : right.getPois()) {
+                            if (StringUtility.isEmpty(poi.getFirstName())) {
+                                throw new TrustException(MessagesKeys.ERR_PROP_POI_FIRST_NAME_EMPTY);
+                            }
+                            if (StringUtility.isEmpty(poi.getLastName())) {
+                                throw new TrustException(MessagesKeys.ERR_PROP_POI_LAST_NAME_EMPTY);
+                            }
+                        }
+                    }
+
+                    // Validate right documents
+                    if (right.getDocuments() != null) {
+                        DocumentService docService = new DocumentService();
+                        for (RrrDocument rrrDoc : right.getDocuments()) {
+                            if (rrrDoc.getDocument() != null) {
+                                docService.validateDocument(rrrDoc.getDocument(), strict);
+                            }
+                        }
+                    }
+
+                    // Check multiplicity 
+                    RightType rightType = refService.getRefDataRecord(RightType.class, right.getRightTypeCode(), langCode);
+                    if (rightType == null) {
+                        throw new TrustException(MessagesKeys.ERR_PROP_RIGHT_TYPE_NOT_FOUND);
+                    }
+
+                    if (!rightType.isAllowMultiple() && rightsForSave.size() > 0) {
+                        throw new TrustException(MessagesKeys.ERR_PROP_MULTIPLE_RIGHTS_NOT_ALLOWED, new Object[]{StringUtility.empty(rightType.getVal())});
+                    }
+                }
+
+                // Assign party ids
+                for (Rightholder rightholder : right.getRightholders()) {
+                    if (rightholder.getParty() != null) {
                         rightholder.setRrrId(right.getId());
-
-                        // Assign id to party if missing
                         if (StringUtility.isEmpty(rightholder.getParty().getId())) {
                             rightholder.getParty().setId(UUID.randomUUID().toString());
                         }
@@ -622,50 +787,32 @@ public class PropertyService extends AbstractService {
                             }
                         }
                     }
+                }
 
-                    // Validate POIs
-                    if (right.getPois() != null) {
-                        for (Poi poi : right.getPois()) {
-                            if (StringUtility.isEmpty(poi.getFirstName())) {
-                                throw new TrustException(MessagesKeys.ERR_PROP_POI_FIRST_NAME_EMPTY);
-                            }
-                            if (StringUtility.isEmpty(poi.getLastName())) {
-                                throw new TrustException(MessagesKeys.ERR_PROP_POI_LAST_NAME_EMPTY);
-                            }
+                // Assign document IDs
+                if (right.getDocuments() != null) {
+                    for (RrrDocument rrrDoc : right.getDocuments()) {
+                        if (rrrDoc.getDocument() != null) {
                             // Assign id if missing
-                            if (StringUtility.isEmpty(poi.getId())) {
-                                poi.setId(UUID.randomUUID().toString());
+                            if (StringUtility.isEmpty(rrrDoc.getDocument().getId())) {
+                                rrrDoc.getDocument().setId(UUID.randomUUID().toString());
                             }
-                            // Assign right id
-                            poi.setRrrId(right.getId());
+                            rrrDoc.setDocumentId(rrrDoc.getDocument().getId());
                         }
+                        // Assign right id to the document relation
+                        rrrDoc.setRrrId(right.getId());
                     }
+                }
 
-                    // Validate right documents
-                    if (right.getDocuments() != null) {
-                        DocumentService docService = new DocumentService();
-                        for (RrrDocument rrrDoc : right.getDocuments()) {
-                            if (rrrDoc.getDocument() != null) {
-                                docService.validateDocument(rrrDoc.getDocument());
-                                // Assign id if missing
-                                if (StringUtility.isEmpty(rrrDoc.getDocument().getId())) {
-                                    rrrDoc.getDocument().setId(UUID.randomUUID().toString());
-                                }
-                                rrrDoc.setDocumentId(rrrDoc.getDocument().getId());
-                            }
-                            // Assign right id to the document relation
-                            rrrDoc.setRrrId(right.getId());
+                // Assign POI IDs
+                if (right.getPois() != null) {
+                    for (Poi poi : right.getPois()) {
+                        // Assign id if missing
+                        if (StringUtility.isEmpty(poi.getId())) {
+                            poi.setId(UUID.randomUUID().toString());
                         }
-                    }
-
-                    // Check multiplicity 
-                    RightType rightType = refService.getRefDataRecord(RightType.class, right.getRightTypeCode(), langCode);
-                    if (rightType == null) {
-                        throw new TrustException(MessagesKeys.ERR_PROP_RIGHT_TYPE_NOT_FOUND);
-                    }
-
-                    if (!rightType.isAllowMultiple() && rightsForSave.size() > 0) {
-                        throw new TrustException(MessagesKeys.ERR_PROP_MULTIPLE_RIGHTS_NOT_ALLOWED, new Object[]{StringUtility.empty(rightType.getVal())});
+                        // Assign right id
+                        poi.setRrrId(right.getId());
                     }
                 }
 
@@ -694,42 +841,42 @@ public class PropertyService extends AbstractService {
             if (isFirstReg) {
                 getEM().merge(prop);
             } else {
-                for(Rrr right : rightsForSave){
+                for (Rrr right : rightsForSave) {
                     getEM().merge(right);
                 }
                 // Delete rights and reset for termination if not provided on the property object
-                if(dbProp != null && dbProp.getRights() != null && dbProp.getRights().size() > 0){
+                if (dbProp != null && dbProp.getRights() != null && dbProp.getRights().size() > 0) {
                     boolean hasChanges = false;
                     for (Iterator<Rrr> iter = dbProp.getRights().iterator(); iter.hasNext();) {
                         Rrr dbRight = iter.next();
-                        if(dbRight.getStatusCode().equals(StatusCodeConstants.PENDING)){
+                        if (dbRight.getStatusCode().equals(StatusCodeConstants.PENDING)) {
                             // Check if right exists in the rights for saving
                             boolean found = false;
-                            for(Rrr right : rightsForSave){
-                                if(dbRight.getId().equals(right.getId())){
+                            for (Rrr right : rightsForSave) {
+                                if (dbRight.getId().equals(right.getId())) {
                                     found = true;
                                 }
                             }
-                            if(!found){
+                            if (!found) {
                                 iter.remove();
                                 hasChanges = true;
                             }
-                        } else if(dbRight.getTerminationApplicationId() != null && dbRight.getStatusCode().equals(StatusCodeConstants.CURRENT)){
+                        } else if (dbRight.getTerminationApplicationId() != null && dbRight.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
                             // Check for rights where for termination application removed
                             boolean found = false;
-                            for(Rrr right : rightsForSave){
-                                if(dbRight.getId().equals(right.getId())){
+                            for (Rrr right : rightsForSave) {
+                                if (dbRight.getId().equals(right.getId())) {
                                     found = true;
                                 }
                             }
-                            if(!found){
+                            if (!found) {
                                 dbRight.setTerminationApplicationId(null);
                                 hasChanges = true;
                             }
                         }
                     }
-                    
-                    if(hasChanges){
+
+                    if (hasChanges) {
                         getEM().merge(dbProp);
                     }
                 }
@@ -748,6 +895,30 @@ public class PropertyService extends AbstractService {
         }
 
         return getProperty(prop.getId());
+    }
+
+    private void clearOwnershipFields(Rrr right) {
+        right.setWitness1(null);
+        right.setWitness2(null);
+        right.setWitness3(null);
+        right.setAllocationDate(null);
+        right.setAnnualFee(null);
+        right.setDeclaredLanduseCode(null);
+        right.setApprovedLanduseCode(null);
+        right.setAdjudicator1(null);
+        right.setAdjudicator2(null);
+        right.setNeighborNorth(null);
+        right.setNeighborEast(null);
+        right.setNeighborSouth(null);
+        right.setNeighborWest(null);
+        right.setOccupancyTypeCode(null);
+        right.setJuridicalArea(null);
+        if (right.getPois() != null) {
+            right.getPois().clear();
+        } else {
+            right.setPois(new ArrayList());
+        }
+        right.setDeceasedOwner(null);
     }
 
     private List<Rightholder> filterRightholders(List<Rightholder> rightholders, boolean isPerson) {
@@ -782,54 +953,105 @@ public class PropertyService extends AbstractService {
         }
         return isInRole(RolesConstants.MANAGE_RIGHTS);
     }
-    
+
     /**
      * Returns list of {@link ParcelStatusChanger} by application id.
+     *
      * @param appId Application ID
-     * @return 
+     * @return
      */
-    public List<ParcelStatusChanger> getParcelStatusChangersByApp(String appId){
+    public List<ParcelStatusChanger> getParcelStatusChangersByApp(String appId) {
         Query q = getEM().createQuery("Select p From ParcelStatusChanger p Where p.applicationId = :appId", ParcelStatusChanger.class);
-        return q.setParameter("appId", appId).getResultList(); 
+        return q.setParameter("appId", appId).getResultList();
     }
-    
+
+    /**
+     * Returns {@link ParcelStatusChanger} by id.
+     *
+     * @param id Parcel ID
+     * @return
+     */
+    public ParcelStatusChanger getParcelStatusChangerById(String id) {
+        Query q = getEM().createQuery("Select p From ParcelStatusChanger p Where p.id = :id", ParcelStatusChanger.class);
+        return (ParcelStatusChanger) q.setParameter("id", id).getSingleResult();
+    }
+
     /**
      * Returns list of {@link PropertyStatusChanger} by application id.
+     *
      * @param appId Application ID
-     * @return 
+     * @return
      */
-    public List<PropertyStatusChanger> getPropertyStatusChangersByApp(String appId){
+    public List<PropertyStatusChanger> getPropertyStatusChangersByApp(String appId) {
         Query q = getEM().createQuery("Select p From PropertyStatusChanger p Where p.applicationId = :appId", PropertyStatusChanger.class);
-        return q.setParameter("appId", appId).getResultList(); 
+        return q.setParameter("appId", appId).getResultList();
     }
-    
+
+    /**
+     * Returns list of {@link PropertyStatusChanger} attached to the
+     * application.
+     *
+     * @param appId Application ID
+     * @return
+     */
+    public List<PropertyStatusChanger> getPropertyStatusChangersFromApp(String appId) {
+        Query q = getEM().createNativeQuery("select id, prop_number, parcel_id, reg_date, termination_date, application_id, end_application_id, status_code, rowversion, action_code, action_user, action_time \n"
+                + "from public.property where id in (select property_id from public.application_property where app_id = :appId)", PropertyStatusChanger.class);
+        return q.setParameter("appId", appId).getResultList();
+    }
+
+    /**
+     * Returns {@link PropertyStatusChanger} by id.
+     *
+     * @param id Property ID
+     * @return
+     */
+    public PropertyStatusChanger getPropertyStatusChangersById(String id) {
+        Query q = getEM().createQuery("Select p From PropertyStatusChanger p Where p.id = :id", PropertyStatusChanger.class);
+        return (PropertyStatusChanger) q.setParameter("id", id).getSingleResult();
+    }
+
     /**
      * Returns list of {@link RrrStatusChanger} by application id.
+     *
      * @param appId Application ID
-     * @return 
+     * @return
      */
-    public List<RrrStatusChanger> getRrrStatusChangersByApp(String appId){
+    public List<RrrStatusChanger> getRrrStatusChangersByApp(String appId) {
         Query q = getEM().createQuery("Select r From RrrStatusChanger r Where r.applicationId = :appId", RrrStatusChanger.class);
-        return q.setParameter("appId", appId).getResultList(); 
+        return q.setParameter("appId", appId).getResultList();
     }
-    
+
+    /**
+     * Returns list of {@link RrrStatusChanger} by property id.
+     *
+     * @param propId Property ID
+     * @return
+     */
+    public List<RrrStatusChanger> getRrrStatusChangersByProp(String propId) {
+        Query q = getEM().createQuery("Select r From RrrStatusChanger r Where r.propertyId = :propId", RrrStatusChanger.class);
+        return q.setParameter("propId", propId).getResultList();
+    }
+
     /**
      * Returns list of {@link RrrStatusChanger} by application for termination.
+     *
      * @param appId Termination application ID
-     * @return 
+     * @return
      */
-    public List<RrrStatusChanger> getRrrStatusChangersByTerminationApp(String appId){
+    public List<RrrStatusChanger> getRrrStatusChangersByTerminationApp(String appId) {
         Query q = getEM().createQuery("Select r From RrrStatusChanger r Where r.terminationApplicationId = :appId", RrrStatusChanger.class);
-        return q.setParameter("appId", appId).getResultList(); 
+        return q.setParameter("appId", appId).getResultList();
     }
-    
+
     /**
      * Returns {@link RrrStatusChanger} by RRR id.
+     *
      * @param id RRR ID
-     * @return 
+     * @return
      */
-    public RrrStatusChanger getRrrStatusChangerById(String id){
+    public RrrStatusChanger getRrrStatusChangerById(String id) {
         Query q = getEM().createQuery("Select r From RrrStatusChanger r Where r.id = :id", RrrStatusChanger.class);
-        return (RrrStatusChanger)q.setParameter("id", id).getSingleResult(); 
+        return (RrrStatusChanger) q.setParameter("id", id).getSingleResult();
     }
 }

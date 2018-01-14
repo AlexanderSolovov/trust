@@ -21,6 +21,8 @@ import com.dai.trust.models.property.ParcelStatusChanger;
 import com.dai.trust.models.property.PropertyStatusChanger;
 import com.dai.trust.models.property.RrrStatusChanger;
 import com.dai.trust.models.refdata.AppType;
+import com.dai.trust.models.refdata.RightType;
+import com.dai.trust.models.refdata.RightTypeGroup;
 import com.dai.trust.models.refdata.TransactionType;
 import com.dai.trust.models.search.AffectedObjectSearchResult;
 import com.dai.trust.models.search.ApplicationNumberSearchResult;
@@ -225,7 +227,8 @@ public class ApplicationService extends AbstractService {
 
         permissions.setCanDrawParcel(false);
         if (isAssignee && isInRole(RolesConstants.MANAGE_PARCELS) && isPending(app)
-                && transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)) {
+                && (transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)
+                || transCode.equalsIgnoreCase(TransactionType.RECTIFY))) {
             permissions.setCanDrawParcel(true);
         }
 
@@ -373,6 +376,14 @@ public class ApplicationService extends AbstractService {
             throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
         }
 
+        if ((appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.RECTIFY)
+                || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.TRANSFER)
+                || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.REMOVE)
+                || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.VARY))
+                && app.getProperties().size() != 1) {
+            throw new TrustException(MessagesKeys.ERR_APP_ONE_CCRO_ALLOWED);
+        }
+
         SearchService searchService = new SearchService();
 
         if (app.getProperties() != null) {
@@ -433,10 +444,10 @@ public class ApplicationService extends AbstractService {
             if (applicant.getParty() != null) {
                 if (applicant.getParty().isIsPrivate()) {
                     countPersons += 1;
-                    partyService.validatePerson(applicant.getParty(), langCode);
+                    partyService.validatePerson(applicant.getParty(), langCode, true);
                 } else {
                     countLe += 1;
-                    partyService.validateLegalEntity(applicant.getParty(), langCode);
+                    partyService.validateLegalEntity(applicant.getParty(), langCode, true);
                 }
             }
         }
@@ -457,7 +468,7 @@ public class ApplicationService extends AbstractService {
             DocumentService docService = new DocumentService();
             for (ApplicationDocument appDoc : app.getDocuments()) {
                 if (appDoc.getDocument() != null) {
-                    docService.validateDocument(appDoc.getDocument());
+                    docService.validateDocument(appDoc.getDocument(), true);
                 }
             }
         }
@@ -473,16 +484,32 @@ public class ApplicationService extends AbstractService {
             throw new TrustException(MessagesKeys.ERR_APP_NOT_FOUND);
         }
 
+        // Get application type
+        RefDataService refService = new RefDataService();
+        AppType appType = refService.getRefDataRecord(AppType.class, app.getAppTypeCode(), null);
+
         // Validate
         checkCanApprove(app);
 
         // Get objects for approval
         PropertyService propService = new PropertyService();
 
-        List<ParcelStatusChanger> parcels = propService.getParcelStatusChangersByApp(app.getId());
-        List<PropertyStatusChanger> props = propService.getPropertyStatusChangersByApp(app.getId());
-        List<RrrStatusChanger> rrrs = propService.getRrrStatusChangersByApp(app.getId());
-        List<RrrStatusChanger> rrrsForTermination = propService.getRrrStatusChangersByTerminationApp(app.getId());
+        List<ParcelStatusChanger> parcels = null;
+        List<PropertyStatusChanger> props = null;
+        List<RrrStatusChanger> rrrs = null;
+        List<RrrStatusChanger> rrrsForTermination = null;
+
+        if (appType.getTransactionTypeCode().equals(TransactionType.SURRENDER) || appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
+            props = propService.getPropertyStatusChangersFromApp(app.getId());
+        } else if (appType.getTransactionTypeCode().equals(TransactionType.RECTIFY)) {
+            parcels = propService.getParcelStatusChangersByApp(app.getId());
+            rrrs = propService.getRrrStatusChangersByApp(app.getId());
+        } else {
+            parcels = propService.getParcelStatusChangersByApp(app.getId());
+            props = propService.getPropertyStatusChangersByApp(app.getId());
+            rrrs = propService.getRrrStatusChangersByApp(app.getId());
+            rrrsForTermination = propService.getRrrStatusChangersByTerminationApp(app.getId());
+        }
 
         if ((parcels == null || parcels.size() < 1) && (props == null || props.size() < 1) && (rrrs == null || rrrs.size() < 1) && (rrrsForTermination == null || rrrsForTermination.size() < 1)) {
             throw new TrustException(MessagesKeys.ERR_APP_NO_CHANGES_IN_THE_SYSTEM);
@@ -496,60 +523,161 @@ public class ApplicationService extends AbstractService {
 
             Date currentDate = Calendar.getInstance().getTime();
 
-            // Approve parcels
-            if (parcels != null && parcels.size() > 0) {
-                for (ParcelStatusChanger parcel : parcels) {
-                    if (parcel.getStatusCode().equals(StatusCodeConstants.PENDING)) {
-                        parcel.setStatusCode(StatusCodeConstants.ACTIVE);
-                    }
-                }
-            }
+            if (appType.getTransactionTypeCode().equals(TransactionType.SURRENDER) || appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
+                // Do termination/surrender
 
-            // Approve properties
-            if (props != null && props.size() > 0) {
+                // Validate properties
+                if (props == null || props.size() < 1) {
+                    throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
+                }
+
                 for (PropertyStatusChanger prop : props) {
-                    if (prop.getStatusCode().equals(StatusCodeConstants.PENDING)) {
-                        prop.setRegDate(currentDate);
-                        prop.setStatusCode(StatusCodeConstants.CURRENT);
+                    if (!prop.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
+                        throw new TrustException(MessagesKeys.ERR_PROP_MUST_BE_REGISTERED);
                     }
+
+                    // Validate rights
+                    rrrs = propService.getRrrStatusChangersByProp(prop.getId());
+                    if (rrrs == null || rrrs.size() < 1) {
+                        throw new TrustException(MessagesKeys.ERR_PROP_MUST_HAVE_REGISTERED_OWNERSHIP);
+                    }
+
+                    for (RrrStatusChanger rrr : rrrs) {
+                        if (rrr.getStatusCode().equals(StatusCodeConstants.PENDING)) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_HAS_PENDING_RIGHTS, new Object[]{prop.getPropNumber()});
+                        }
+
+                        if (rrr.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
+                            if (rrr.getRightTypeCode().equals(RightType.TYPE_MORTGAGE)) {
+                                throw new TrustException(MessagesKeys.ERR_PROP_HAS_REGISTERED_MORTGAGES, new Object[]{prop.getPropNumber()});
+                            }
+
+                            // Make right historic
+                            rrr.setStatusCode(StatusCodeConstants.HISTORIC);
+                            rrr.setEndApplicationId(app.getId());
+                            rrr.setTerminationDate(currentDate);
+                        }
+                    }
+
+                    if (appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
+                        // Validate parcel 
+                        ParcelStatusChanger parcel = propService.getParcelStatusChangerById(prop.getParcelId());
+                        if (parcel != null) {
+                            if (!parcel.getStatusCode().equals(StatusCodeConstants.ACTIVE)) {
+                                throw new TrustException(MessagesKeys.ERR_PROP_PARCEL_MUST_BE_REGISTERED, new Object[]{parcel.getUka()});
+                            }
+                            // Make parcel historic
+                            parcel.setStatusCode(StatusCodeConstants.HISTORIC);
+                            parcel.setEndApplicationId(app.getId());
+                        }
+                    }
+
+                    // Make property historic
+                    prop.setStatusCode(StatusCodeConstants.HISTORIC);
+                    prop.setEndApplicationId(app.getId());
+                    prop.setTerminationDate(currentDate);
+                }
+            } else if (appType.getTransactionTypeCode().equals(TransactionType.RECTIFY)) {
+                // Do retification
+                List<PropertyStatusChanger> propsToRectify = propService.getPropertyStatusChangersFromApp(app.getId());
+
+                if (propsToRectify == null || propsToRectify.size() < 1) {
+                    throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
+                }
+                if (propsToRectify.size() != 1) {
+                    throw new TrustException(MessagesKeys.ERR_APP_ONE_CCRO_ALLOWED);
+                }
+                if (parcels != null && parcels.size() > 1) {
+                    throw new TrustException(MessagesKeys.ERR_APP_ONE_PARCEL_ALLOWED);
+                }
+
+                PropertyStatusChanger propToRectify = propsToRectify.get(0);
+
+                if (!propToRectify.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
+                    throw new TrustException(MessagesKeys.ERR_PROP_MUST_BE_REGISTERED);
+                }
+                ParcelStatusChanger propParcel = propService.getParcelStatusChangerById(propToRectify.getParcelId());
+
+                if (propParcel == null) {
+                    throw new TrustException(MessagesKeys.ERR_PROP_NO_PARCEL);
+                }
+                if (!propParcel.getStatusCode().equals(StatusCodeConstants.ACTIVE)) {
+                    throw new TrustException(MessagesKeys.ERR_PROP_PARCEL_MUST_BE_REGISTERED, new Object[]{propParcel.getUka()});
+                }
+                if (parcels != null && parcels.size() > 0) {
+                    if (!parcels.get(0).getUka().equals(propParcel.getUka())) {
+                        throw new TrustException(MessagesKeys.ERR_PROP_OLD_NEW_UKA_NOT_MATCHING);
+                    }
+                    // Change parcel id on the property
+                    propToRectify.setParcelId(parcels.get(0).getId());
+
+                    // Make old parcel historic
+                    propParcel.setStatusCode(StatusCodeConstants.HISTORIC);
+                    propParcel.setEndApplicationId(app.getId());
+                    // Force merge to make the parcel historic, before pending will become active
+                    getEM().merge(propParcel);
                 }
             }
 
-            // Approve rights
-            if (rrrs != null && rrrs.size() > 0) {
-                for (RrrStatusChanger rrr : rrrs) {
-                    if (rrr.getStatusCode().equals(StatusCodeConstants.PENDING)) {
-                        rrr.setStatusCode(StatusCodeConstants.CURRENT);
-                        rrr.setRegDate(currentDate);
+            if (!appType.getTransactionTypeCode().equals(TransactionType.SURRENDER) && !appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
+                // Do other transactions approve
 
-                        // If has parent right, make it historic
-                        if (!StringUtility.isEmpty(rrr.getParentId())) {
-                            RrrStatusChanger parentRrr = propService.getRrrStatusChangerById(rrr.getParentId());
-                            if (parentRrr != null && parentRrr.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
-                                parentRrr.setTerminationApplicationId(null);
-                                parentRrr.setEndApplicationId(app.getId());
-                                parentRrr.setTerminationDate(currentDate);
-                                parentRrr.setStatusCode(StatusCodeConstants.HISTORIC);
+                // Approve parcels
+                if (parcels != null && parcels.size() > 0) {
+                    for (ParcelStatusChanger parcel : parcels) {
+                        if (parcel.getStatusCode().equals(StatusCodeConstants.PENDING)) {
+                            parcel.setStatusCode(StatusCodeConstants.ACTIVE);
+                        }
+                    }
+                }
+
+                // Approve properties
+                if (props != null && props.size() > 0) {
+                    for (PropertyStatusChanger prop : props) {
+                        if (prop.getStatusCode().equals(StatusCodeConstants.PENDING)) {
+                            prop.setRegDate(currentDate);
+                            prop.setStatusCode(StatusCodeConstants.CURRENT);
+                        }
+                    }
+                }
+
+                // Approve rights
+                if (rrrs != null && rrrs.size() > 0) {
+                    for (RrrStatusChanger rrr : rrrs) {
+                        if (rrr.getStatusCode().equals(StatusCodeConstants.PENDING)) {
+                            rrr.setStatusCode(StatusCodeConstants.CURRENT);
+                            rrr.setRegDate(currentDate);
+
+                            // If has parent right, make it historic
+                            if (!StringUtility.isEmpty(rrr.getParentId())) {
+                                RrrStatusChanger parentRrr = propService.getRrrStatusChangerById(rrr.getParentId());
+                                if (parentRrr != null && parentRrr.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
+                                    parentRrr.setTerminationApplicationId(null);
+                                    parentRrr.setEndApplicationId(app.getId());
+                                    parentRrr.setTerminationDate(currentDate);
+                                    parentRrr.setStatusCode(StatusCodeConstants.HISTORIC);
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // Terminate rights
-            if (rrrsForTermination != null && rrrsForTermination.size() > 0) {
-                for (RrrStatusChanger rrr : rrrsForTermination) {
-                    if (rrr.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
-                        rrr.setTerminationApplicationId(null);
-                        rrr.setEndApplicationId(app.getId());
-                        rrr.setTerminationDate(currentDate);
-                        rrr.setStatusCode(StatusCodeConstants.HISTORIC);
+                // Terminate rights
+                if (rrrsForTermination != null && rrrsForTermination.size() > 0) {
+                    for (RrrStatusChanger rrr : rrrsForTermination) {
+                        if (rrr.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
+                            rrr.setTerminationApplicationId(null);
+                            rrr.setEndApplicationId(app.getId());
+                            rrr.setTerminationDate(currentDate);
+                            rrr.setStatusCode(StatusCodeConstants.HISTORIC);
+                        }
                     }
                 }
             }
 
             // Finally approve application
             app.setApproveRejectDate(currentDate);
+
             app.setStatusCode(StatusCodeConstants.APPROVED);
 
             // Commit changes
@@ -564,9 +692,10 @@ public class ApplicationService extends AbstractService {
             throw e;
         }
     }
-    
+
     /**
      * Rejects application
+     *
      * @param appId Application id
      * @param reason Rejection reason
      * @returns
@@ -574,9 +703,10 @@ public class ApplicationService extends AbstractService {
     public void rejectApplication(String appId, String reason) {
         rejectWithdrawApplication(appId, reason, true);
     }
-    
+
     /**
      * Withdraws application
+     *
      * @param appId Application id
      * @param reason Withdrawal reason
      * @returns
@@ -628,7 +758,7 @@ public class ApplicationService extends AbstractService {
                     }
                 }
             }
-            
+
             // Delete properties created by application
             List<PropertyStatusChanger> props = propService.getPropertyStatusChangersByApp(app.getId());
             if (props != null && props.size() > 0) {
@@ -637,7 +767,7 @@ public class ApplicationService extends AbstractService {
                         getEM().remove(prop);
                     }
                 }
-            }          
+            }
 
             // Remove parcels created by application
             List<ParcelStatusChanger> parcels = propService.getParcelStatusChangersByApp(app.getId());

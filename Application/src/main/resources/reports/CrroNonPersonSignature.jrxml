@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="527" pageHeight="202" columnWidth="527" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="dc562860-2ef6-4acc-a296-cdc354f76d1d">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="202" splitType="Stretch">
+			<frame>
+				<reportElement positionType="Float" x="0" y="0" width="527" height="171" uuid="88af1a0e-14ec-4248-88b6-8a46470131be"/>
+				<staticText>
+					<reportElement positionType="Float" x="369" y="0" width="150" height="20" uuid="f36f85f6-c9e6-4f77-bd5f-8b273cae7034"/>
+					<box leftPadding="10" rightPadding="10"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[LAKIRI]]></text>
+				</staticText>
+				<rectangle>
+					<reportElement positionType="Float" x="369" y="20" width="150" height="150" uuid="af73d798-6d07-4865-842e-f1531c2e45e3"/>
+				</rectangle>
+				<staticText>
+					<reportElement x="0" y="0" width="19" height="20" uuid="9bf7f406-3e7f-41bf-9919-fda2128e7774"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[i.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="0" y="91" width="19" height="20" uuid="02f9a103-2775-40ce-b1a6-ce0aa847937a"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[ii.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="0" width="337" height="20" uuid="6a89962f-528c-45df-b1f2-b4060beb4ca2"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Jina: ………………………………………………………………………]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="20" width="337" height="20" uuid="bc07d182-6847-465c-a198-1a237d41df2d"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Saini:………………………………………………………………………]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="40" width="337" height="20" uuid="f62202b7-8687-4091-b251-f610c00e7995"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Anuani: ……………………………………………………………………]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="60" width="337" height="20" uuid="1428ca8e-96e7-4b47-bb3a-a85e7453558f"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Cheo :  ……………………………………………………………………]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="111" width="337" height="20" uuid="48d68f12-8cd9-4c10-b4db-c2ac04b47040"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Saini:………………………………………………………………………]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="91" width="337" height="20" uuid="beefced9-2762-4faa-b653-fdd44715c468"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Jina: ………………………………………………………………………]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="131" width="337" height="20" uuid="cdfcb7f0-dede-4e32-bfd4-abe0f093c015"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Anuani: ……………………………………………………………………]]></text>
+				</staticText>
+				<staticText>
+					<reportElement positionType="FixRelativeToBottom" x="19" y="151" width="337" height="20" uuid="a5c340ac-688f-4bd1-828a-d856efcaaa19"/>
+					<box leftPadding="0"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Cheo :  ……………………………………………………………………]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</title>
+</jasperReport>

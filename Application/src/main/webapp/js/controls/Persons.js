@@ -86,10 +86,10 @@ Controls.Persons = function (controlId, targetElementId, options) {
                     "render": function (data, type, row, meta) {
                         if (editable) {
                             return String.format(DataTablesUtility.getDeleteLink(), controlVarId + ".deletePerson($(this).parents('tr'));return false;") +
-                                    String.format(DataTablesUtility.getEditLink(), controlVarId + ".showPersonDialog($(this).parents('tr'));return false;") +
+                                    String.format(DataTablesUtility.getEditLink(), controlVarId + ".showPersonDialog($(this).parents('tr'), true);return false;") +
                                     " " + data;
                         } else {
-                            return String.format(DataTablesUtility.getViewLink(), controlVarId + ".showPersonDialog($(this).parents('tr'));return false;", data);
+                            return String.format(DataTablesUtility.getViewLink(), controlVarId + ".showPersonDialog($(this).parents('tr'), false);return false;", data);
                         }
                     }
                 },
@@ -142,7 +142,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
             copyFromApp = "&nbsp;&nbsp;" + String.format(DataTablesUtility.getCopyFromAppLink(), controlVarId + ".copyFromApp();return false;");
         }
         $("#" + controlVarId + "_wrapper div.tableToolbar").html(
-                String.format(DataTablesUtility.getAddLink(), controlVarId + ".showPersonDialog(null);return false;")
+                String.format(DataTablesUtility.getAddLink(), controlVarId + ".showPersonDialog(null, true);return false;")
                 + "&nbsp;&nbsp;" +
                 String.format(DataTablesUtility.getSearchLink(), controlVarId + ".showSearchDialog();return false;") +
                 copyFromApp
@@ -216,7 +216,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
         }
     };
 
-    this.showPersonDialog = function (rowSelector) {
+    this.showPersonDialog = function (rowSelector, forEdit) {
         $("#" + controlVarId + "_Dialog").modal('show');
         if (isNull(rowSelector)) {
             selectedRow = null;
@@ -226,7 +226,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
 
         var person = isNull(selectedRow) ? null : selectedRow.data();
 
-        if (isOwnership || ((isNull(person) || person.editable) && editable)) {
+        if (forEdit && (person === null || person.editable || isOwnership)) {
             $("#" + controlVarId + "_personview").hide();
             $("#" + controlVarId + "_person").show();
             if (isNull(personControl)) {
@@ -236,7 +236,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
                 personControl.setPerson(person);
             }
             $("#" + controlVarId + "_btnSavePerson").show();
-        } else if (!person.editable || !editable) {
+        } else {
             $("#" + controlVarId + "_personview").show();
             $("#" + controlVarId + "_person").hide();
             if (isNull(personViewControl)) {

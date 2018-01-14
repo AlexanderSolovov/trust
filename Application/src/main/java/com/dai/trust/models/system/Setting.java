@@ -15,6 +15,7 @@ public class Setting extends AbstractIdEntity {
     public final static String SETTING_MEDIA_PATH = "media-path";
     public final static String SETTING_MAX_FILE_SIZE = "max-file-size";
     public final static String SETTING_FILE_EXTENSIONS = "file-extensions";
+    public final static String SETTING_DISTRICT_OFFICER = "district-officer";
     
     @Column
     private String val;

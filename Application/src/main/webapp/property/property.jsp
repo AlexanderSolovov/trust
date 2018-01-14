@@ -180,15 +180,6 @@
 
                             <div class="subSectionHeader" data-i18n="prop-historic-rights" style="margin-bottom: 0px;"></div>
                             <table id="tableHistoricRights" class="table table-striped table-bordered table-hover white" style="width:100%"></table>
-
-                            <a href="#" onclick="RemoveRight()"><i class="glyphicon glyphicon-trash"></i> <span data-i18n="right-remove"></span></a>
-                            <br>
-                            <a href="#" onclick="CancelRemoveRight()"><i class="icon-undo"></i> <span data-i18n="right-cancel-remove"></span></a>
-                            <br>
-                            <a href="#" onclick="EditRight()"><i class="glyphicon glyphicon-edit"></i> <span data-i18n="gen-vary"></span></a>
-                            <br>
-                            <a href="#" onclick="EditRight()"><i class="glyphicon glyphicon-edit"></i> <span data-i18n="gen-rectify"></span></a>
-                            <br>
                         </div>
                     </div>
                 </div>
@@ -304,17 +295,42 @@
                                     </div>
                                     <span id="lblStartDate"></span>
                                 </div>
+                                <div class="col-md-3" id="divEndDate">
+                                    <label data-i18n="right-end-date"></label>
+                                    <br>
+                                    <div class="input-group">
+                                        <span class="input-group-addon">
+                                            <i class="glyphicon glyphicon-calendar"></i>
+                                        </span>
+                                        <input id="txtEndDate" class="form-control DateField" maxlength="10" autocomplete="off">
+                                    </div>
+                                    <span id="lblEndDate"></span>
+                                </div>
                                 <div class="col-md-3" id="divDuration">
-                                    <label data-i18n="right-duration"></label><br>
+                                    <label data-i18n="right-duration"></label>
+                                    <i class="glyphicon glyphicon-required" id="reqDuration"></i>
+                                    <br>
                                     <input id="txtDuration" class="form-control" maxlength="5" autocomplete="off" 
                                            onkeypress="return restrictInputDouble(event);" ondrop="return false;" onpaste="return false;">
                                     <span id="lblDuration"></span>
                                 </div>
                                 <div class="col-md-3" id="divAnnualFee">
                                     <label data-i18n="right-rental-fee"></label><br>
-                                    <input id="txtAnnualFee" class="form-control" maxlength="5" autocomplete="off" 
+                                    <input id="txtAnnualFee" class="form-control" maxlength="20" autocomplete="off" 
                                            onkeypress="return restrictInputDouble(event);" ondrop="return false;" onpaste="return false;">
                                     <span id="lblAnnualFee"></span>
+                                </div>
+                                <div class="col-md-3" id="divInteresetRate">
+                                    <label data-i18n="right-interest-rate"></label><br>
+                                    <input id="txtInteresetRate" class="form-control" maxlength="5" autocomplete="off" 
+                                           onkeypress="return restrictInputDouble(event);" ondrop="return false;" onpaste="return false;">
+                                    <span id="lblInteresetRate"></span>
+                                </div>
+                                <div class="col-md-3" id="divDealAmount">
+                                    <label data-i18n="right-amount"></label><br>
+                                    <input id="txtDealAmount" class="form-control" maxlength="20" autocomplete="off" 
+                                           onkeypress="return restrictInputDouble(event);" ondrop="return false;" onpaste="return false;">
+                                    <span id="lblDealAmount"></span>
                                 </div>
                             </div>
 
@@ -411,6 +427,7 @@
                                 <div class="LineSpace"></div>
 
                                 <div class="subSectionHeader" data-i18n="person-persons" style="margin-bottom: 0px;"></div>
+                                <div class="LineSpace"></div>
                                 <div id="divRightholderPerson"></div>
                             </div>
 
@@ -418,6 +435,7 @@
                                 <div class="LineSpace"></div>
 
                                 <div class="subSectionHeader" data-i18n="le-legalentity" style="margin-bottom: 0px;"></div>
+                                <div class="LineSpace"></div>
                                 <div id="divRightholderLegalEntity"></div>
                             </div>
 

@@ -153,7 +153,7 @@
                             <div class="subSectionHeader" data-i18n="app-ccros"></div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <div id="divCcros"></div>
+                                    <span id="spanCcros"></span>
                                     &nbsp;
                                     <a href="#" id="lnkSearchCcro" onclick="ApplicationCtrl.showPropSearchDialog();return false;" class="BlueLink"><i class="glyphicon glyphicon-search"></i> <span data-i18n="gen-search"></span></a>
 
@@ -218,7 +218,7 @@
                         <h4 class="modal-title" data-i18n="gen-search"></h4>
                     </div>
                     <div id="propSearchBody" class="modal-body" style="padding: 0px 5px 0px 5px;">
-                        <div class="content" style="min-height: 500px;">
+                        <div class="content" style="min-height: 580px;">
                             <div id="propSearch"></div>
                         </div>
                     </div>

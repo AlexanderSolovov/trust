@@ -150,7 +150,7 @@ Controls.Map = function (controlId, targetElementId, options) {
                     });
                 }
 
-                PropertyDao.getParcelsByApplication(app.id, function (parcelsList) {
+                PropertyDao.getCreateParcelsByApplication(app.id, function (parcelsList) {
                     if (!isNull(parcelsList)) {
                         parcels = parcelsList;
                     }
@@ -338,7 +338,7 @@ Controls.Map = function (controlId, targetElementId, options) {
             text: $.i18n("map-control-zoom-to-extent"),
             tooltip: $.i18n("map-control-zoom-to-extent"),
             handler: function () {
-                map.zoomToExtent(that.maxExtentBounds);
+                map.zoomToExtent(maxExtentBounds);
             }
         });
         mapToolbarItems.push(new GeoExt.Action({
@@ -1395,7 +1395,7 @@ Controls.Map = function (controlId, targetElementId, options) {
                         var claimLayer = map.getLayer(Controls.Map.LAYER_IDS.CURRENT_CLAIM);
                         if (claimLayer) {
                             for (var i = 0; i < claimLayer.features.length; i++) {
-                                if (claimLayer.features[i].attributes.uka === response.uka) {
+                                if (claimLayer.features[i].attributes.id === response.id) {
                                     featureExists = true;
                                     break;
                                 }

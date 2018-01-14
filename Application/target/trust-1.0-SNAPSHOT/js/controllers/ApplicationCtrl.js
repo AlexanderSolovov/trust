@@ -88,7 +88,7 @@ ApplicationCtrl.postLoad = function (app) {
         } else if (isNullOrEmpty(app.approveRejectDate)) {
             $("#lblStatusDate").text(dateFormat(app.approveRejectDate, dateFormat.masks.dateTime));
         }
-        
+
         ApplicationCtrl.setTile(ApplicationCtrl.AppType.val, app.appNumber);
 
         // User name and date
@@ -105,7 +105,7 @@ ApplicationCtrl.postLoad = function (app) {
         } else {
             $("#lblAssignmentDate").text(dateFormat(app.assignedOn, dateFormat.masks.dateTime));
         }
-        
+
         if (!isNullOrEmpty(app.completeDate)) {
             $("#lblCompletionDate").text(dateFormat(app.completeDate, dateFormat.masks.dateTime));
         }
@@ -118,6 +118,8 @@ ApplicationCtrl.postLoad = function (app) {
             // Show CCRO pane
             $("#pnlCcros").show();
         }
+
+        ApplicationCtrl.fillProperties();
 
         // Comments
         if (ApplicationCtrl.view) {
@@ -216,7 +218,6 @@ ApplicationCtrl.postLoad = function (app) {
                         }
                     }
                 });
-                ApplicationCtrl.fillProperties();
             }
             loadingProcesses -= 1;
             showApp();
@@ -366,21 +367,37 @@ ApplicationCtrl.save = function () {
 };
 
 ApplicationCtrl.fillProperties = function () {
-    $("#divCcros").html("");
+    $("#spanCcros").html("");
 
     if (!isNull(ApplicationCtrl.Application) && !isNull(ApplicationCtrl.Application.properties)) {
+        var ccroLink = DataTablesUtility.getViewLinkNewWindow();
+        if (ApplicationCtrl.view) {
+            ccroLink = DataTablesUtility.getViewLinkCurrentWindow();
+        }
+
         for (var i = 0; i < ApplicationCtrl.Application.properties.length; i++) {
             var deleteButton = "";
+            var separator = "";
+
             if (!ApplicationCtrl.view) {
                 deleteButton = String.format(DataTablesUtility.getDeleteLink(), "ApplicationCtrl.deleteProp('" + ApplicationCtrl.Application.properties[i].propId + "')") + " ";
             }
-            $("#divCcros").append($("<span />").html(deleteButton +
-                    String.format(DataTablesUtility.getViewLinkNewWindow(),
-                            String.format(URLS.VIEW_PROPERTY, ApplicationCtrl.Application.properties[i].propId), ApplicationCtrl.Application.properties[i].propNumber)));
+
+            if (i > 0) {
+                separator = ",&nbsp;&nbsp;";
+            }
+
+            $("#spanCcros").append($("<span />").html(separator + deleteButton +
+                    String.format(ccroLink, String.format(URLS.VIEW_PROPERTY,
+                            ApplicationCtrl.Application.properties[i].propId),
+                            ApplicationCtrl.Application.properties[i].propNumber)));
         }
 
         // Show/hide search button
-        if (!ApplicationCtrl.view && ApplicationCtrl.Application.properties.length < 1) {
+        if (!ApplicationCtrl.view &&
+                (ApplicationCtrl.Application.properties.length < 1
+                        || ApplicationCtrl.AppType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Surrender
+                        || ApplicationCtrl.AppType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Termination)) {
             $("#lnkSearchCcro").show();
         } else {
             $("#lnkSearchCcro").hide();
@@ -416,7 +433,7 @@ ApplicationCtrl.showPropSearchDialog = function () {
             $("#propSearchDialog").modal('hide');
         };
 
-        ApplicationCtrl.rightSearchControl = new Controls.RightSearch("ctrlRightSearch", "propSearch", {onSelect: selectPropFunc, height: 450});
+        ApplicationCtrl.rightSearchControl = new Controls.RightSearch("ctrlRightSearch", "propSearch", {onSelect: selectPropFunc, height: 330});
         ApplicationCtrl.rightSearchControl.init();
         $("#propSearchDialog").on('shown.bs.modal', function () {
             $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();

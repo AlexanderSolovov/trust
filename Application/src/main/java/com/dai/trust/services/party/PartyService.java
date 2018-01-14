@@ -35,9 +35,10 @@ public class PartyService extends AbstractService {
      *
      * @param person Person to validate
      * @param langCode Language code
+     * @param strict Boolean value indicating whether to check for person to be involved in registered rights and/or approved applications 
      * @return
      */
-    public boolean validatePerson(Party person, String langCode) {
+    public boolean validatePerson(Party person, String langCode, boolean strict) {
         if (person == null) {
             return true;
         }
@@ -71,7 +72,7 @@ public class PartyService extends AbstractService {
             MessageProvider msgProvider = new MessageProvider(langCode);
             try {
                 for (PartyDocument pDoc : person.getDocuments()) {
-                    docService.validateDocument(pDoc.getDocument());
+                    docService.validateDocument(pDoc.getDocument(), strict);
                 }
             } catch (TrustException e) {
                 throw new TrustException(MessagesKeys.ERR_PERSON_DOC_ERROR,
@@ -81,7 +82,7 @@ public class PartyService extends AbstractService {
 
         // Get person from db
         Party dbPerson = null;
-        if (!StringUtility.isEmpty(person.getId())) {
+        if (strict && !StringUtility.isEmpty(person.getId())) {
             dbPerson = getById(Party.class, person.getId(), false);
         }
 
@@ -115,9 +116,10 @@ public class PartyService extends AbstractService {
      *
      * @param legalEntity Legal entity to validate
      * @param langCode Language code
+     * @param strict Boolean value indicating whether to check for person to be involved in registered rights and/or approved applications 
      * @return
      */
-    public boolean validateLegalEntity(Party legalEntity, String langCode) {
+    public boolean validateLegalEntity(Party legalEntity, String langCode, boolean strict) {
         if (legalEntity == null) {
             return true;
         }
@@ -136,7 +138,7 @@ public class PartyService extends AbstractService {
             MessageProvider msgProvider = new MessageProvider(langCode);
             try {
                 for (PartyDocument pDoc : legalEntity.getDocuments()) {
-                    docService.validateDocument(pDoc.getDocument());
+                    docService.validateDocument(pDoc.getDocument(), strict);
                 }
             } catch (TrustException e) {
                 throw new TrustException(MessagesKeys.ERR_LE_DOC_ERROR,
@@ -146,7 +148,7 @@ public class PartyService extends AbstractService {
 
         // Get legal entity from db
         Party dbLegalEntity = null;
-        if (!StringUtility.isEmpty(legalEntity.getId())) {
+        if (strict && !StringUtility.isEmpty(legalEntity.getId())) {
             dbLegalEntity = getById(Party.class, legalEntity.getId(), false);
         }
 
