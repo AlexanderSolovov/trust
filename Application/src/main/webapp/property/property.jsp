@@ -188,7 +188,7 @@
             <div id="rightDiv" style="display: none;">
                 <div id="rightToolbar">
                     <div class="btn-group" role="group">
-                        <button type="button" id="btnBackToProp" class="btn btn-default" onclick="PropertyCtrl.showPropPanel(true)">
+                        <button type="button" id="btnBackToProp" class="btn btn-default" onclick="PropertyCtrl.backToProp()">
                             <i class="glyphicon glyphicon-arrow-left"></i> <span data-i18n="prop-prop"></span>
                         </button>
                         <button type="button" id="btnSaveRight" class="btn btn-default" onclick="PropertyCtrl.saveRight()">

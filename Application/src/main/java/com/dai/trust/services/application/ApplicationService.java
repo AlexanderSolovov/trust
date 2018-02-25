@@ -125,6 +125,8 @@ public class ApplicationService extends AbstractService {
                 tx = getEM().getTransaction();
                 tx.begin();
 
+                Date currentDate = Calendar.getInstance().getTime();
+
                 for (String id : ids) {
                     ApplicationBasic app = getById(ApplicationBasic.class, id, false);
                     if (app != null) {
@@ -142,6 +144,7 @@ public class ApplicationService extends AbstractService {
                         }
                         // Assign user
                         app.setAssignee(userName);
+                        app.setAssignedOn(currentDate);
                     }
                 }
 
@@ -498,11 +501,31 @@ public class ApplicationService extends AbstractService {
         List<PropertyStatusChanger> props = null;
         List<RrrStatusChanger> rrrs = null;
         List<RrrStatusChanger> rrrsForTermination = null;
+        List<PropertyStatusChanger> propsToRectify = null;
+        ParcelStatusChanger propParcel = null;
 
         if (appType.getTransactionTypeCode().equals(TransactionType.SURRENDER) || appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
             props = propService.getPropertyStatusChangersFromApp(app.getId());
         } else if (appType.getTransactionTypeCode().equals(TransactionType.RECTIFY)) {
+            propsToRectify = propService.getPropertyStatusChangersFromApp(app.getId());
+
+            if (propsToRectify == null || propsToRectify.size() < 1) {
+                throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
+            }
+            if (propsToRectify.size() != 1) {
+                throw new TrustException(MessagesKeys.ERR_APP_ONE_CCRO_ALLOWED);
+            }
+
+            PropertyStatusChanger propToRectify = propsToRectify.get(0);
+
+            if (!propToRectify.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
+                throw new TrustException(MessagesKeys.ERR_PROP_MUST_BE_REGISTERED);
+            }
+            propParcel = propService.getParcelStatusChangerById(propToRectify.getParcelId());
+
+            // Get pending parcels after fetching existing prop parcel to make sure updates are don in order.
             parcels = propService.getParcelStatusChangersByApp(app.getId());
+
             rrrs = propService.getRrrStatusChangersByApp(app.getId());
         } else {
             parcels = propService.getParcelStatusChangersByApp(app.getId());
@@ -513,6 +536,13 @@ public class ApplicationService extends AbstractService {
 
         if ((parcels == null || parcels.size() < 1) && (props == null || props.size() < 1) && (rrrs == null || rrrs.size() < 1) && (rrrsForTermination == null || rrrsForTermination.size() < 1)) {
             throw new TrustException(MessagesKeys.ERR_APP_NO_CHANGES_IN_THE_SYSTEM);
+        }
+
+        // Check for new ccro reg
+        if (appType.getTransactionTypeCode().equals(TransactionType.FIRST_REGISTRATION)) {
+            if (parcels == null || parcels.size() < 1 || props == null || props.size() < 1 || rrrs == null || rrrs.size() < 1) {
+                throw new TrustException(MessagesKeys.ERR_APP_APPROVE_CCRO_NO_OBJECTS);
+            }
         }
 
         // Approve
@@ -579,37 +609,23 @@ public class ApplicationService extends AbstractService {
                 }
             } else if (appType.getTransactionTypeCode().equals(TransactionType.RECTIFY)) {
                 // Do retification
-                List<PropertyStatusChanger> propsToRectify = propService.getPropertyStatusChangersFromApp(app.getId());
-
-                if (propsToRectify == null || propsToRectify.size() < 1) {
-                    throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
-                }
-                if (propsToRectify.size() != 1) {
-                    throw new TrustException(MessagesKeys.ERR_APP_ONE_CCRO_ALLOWED);
-                }
-                if (parcels != null && parcels.size() > 1) {
-                    throw new TrustException(MessagesKeys.ERR_APP_ONE_PARCEL_ALLOWED);
-                }
-
-                PropertyStatusChanger propToRectify = propsToRectify.get(0);
-
-                if (!propToRectify.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
-                    throw new TrustException(MessagesKeys.ERR_PROP_MUST_BE_REGISTERED);
-                }
-                ParcelStatusChanger propParcel = propService.getParcelStatusChangerById(propToRectify.getParcelId());
-
                 if (propParcel == null) {
                     throw new TrustException(MessagesKeys.ERR_PROP_NO_PARCEL);
                 }
                 if (!propParcel.getStatusCode().equals(StatusCodeConstants.ACTIVE)) {
                     throw new TrustException(MessagesKeys.ERR_PROP_PARCEL_MUST_BE_REGISTERED, new Object[]{propParcel.getUka()});
                 }
+
+                if (parcels != null && parcels.size() > 1) {
+                    throw new TrustException(MessagesKeys.ERR_APP_ONE_PARCEL_ALLOWED);
+                }
+
                 if (parcels != null && parcels.size() > 0) {
                     if (!parcels.get(0).getUka().equals(propParcel.getUka())) {
                         throw new TrustException(MessagesKeys.ERR_PROP_OLD_NEW_UKA_NOT_MATCHING);
                     }
                     // Change parcel id on the property
-                    propToRectify.setParcelId(parcels.get(0).getId());
+                    propsToRectify.get(0).setParcelId(parcels.get(0).getId());
 
                     // Make old parcel historic
                     propParcel.setStatusCode(StatusCodeConstants.HISTORIC);

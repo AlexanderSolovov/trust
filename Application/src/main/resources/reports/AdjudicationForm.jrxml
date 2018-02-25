@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Adjudication form" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d5fa54e7-4d24-4da4-b2c2-d5928061255e">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="8"/>
+	<property name="ireport.y" value="0"/>
 	<style name="table">
 		<box>
 			<pen lineWidth="1.0" lineColor="#000000"/>
@@ -497,9 +497,6 @@
 	<field name="persons" class="java.util.List">
 		<fieldDescription><![CDATA[persons]]></fieldDescription>
 	</field>
-	<field name="personsForSignature" class="java.util.List">
-		<fieldDescription><![CDATA[personsForSignature]]></fieldDescription>
-	</field>
 	<field name="pois" class="java.util.List">
 		<fieldDescription><![CDATA[pois]]></fieldDescription>
 	</field>
@@ -547,6 +544,9 @@
 	</field>
 	<field name="witness2" class="java.lang.String">
 		<fieldDescription><![CDATA[witness2]]></fieldDescription>
+	</field>
+	<field name="personsForSignature" class="java.util.List">
+		<fieldDescription><![CDATA[personsForSignature]]></fieldDescription>
 	</field>
 	<background>
 		<band splitType="Stretch"/>
@@ -1855,7 +1855,7 @@
 					<printWhenExpression><![CDATA[$F{persons} != null && $F{persons}.size() > 0]]></printWhenExpression>
 				</reportElement>
 				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
-					<datasetRun subDataset="OwnersForSignature" uuid="dc95cf33-8d88-42a9-9e06-84f78d169602">
+					<datasetRun subDataset="OwnersForSignature" uuid="bc7e507a-443b-437a-8785-08a1ed41d040">
 						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{personsForSignature})]]></dataSourceExpression>
 					</datasetRun>
 					<jr:column width="126" uuid="b8bb3efa-ba0b-4b6e-8059-ce1855f3cc2e">
@@ -1934,7 +1934,7 @@
 								<textElement verticalAlignment="Middle">
 									<font size="8" isBold="true"/>
 								</textElement>
-								<textFieldExpression><![CDATA[($F{representative} == null ? "" : $F{representative}.getName())]]></textFieldExpression>
+								<textFieldExpression><![CDATA[($F{name})]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>

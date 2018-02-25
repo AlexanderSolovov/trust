@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Ccro" pageWidth="595" pageHeight="842" columnWidth="527" leftMargin="34" rightMargin="34" topMargin="28" bottomMargin="10" uuid="34e83ee4-79a7-4e09-8eed-721ca4bfad0c">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="128"/>
 	<subDataset name="OwnersForSignature" uuid="751763e3-9b88-4600-a4f6-1ae67bbfbd07">
 		<queryString>
 			<![CDATA[]]>
@@ -325,7 +325,7 @@ $F{acres}.toString() +
 "</b>. Hii ni kuthibitisha kwamba Halmashauri ya Kijiji cha <b>" + $F{villageAddress} + "</b> " +
 "imetoa kwa " + $F{ownerNames} + " hakimiliki ya kimila (itaitwa “hakimiliki”) juu ya " + 
 "ardhi iliyofafanuliwa katika Jedwali (humu ndani itaitwa “ardhi”) " + 
-($F{hasNonResident} ? "kwa kipindi cha miaka ............... " : "kwa <b>kipindi kisicho na Kikomo</b> ") +
+($F{hasNonResident} ? ($F{duration} == null || $F{duration} <= 0D ? "kwa kipindi cha miaka ............... " : "kwa kipindi cha miaka <b>" + $F{duration}.intValue()) + "</b> " : "kwa <b>kipindi kisicho na Kikomo</b> ") +
 "tangu tarehe <b>" +
 ($F{startDate} == null ? "..............." : Integer.toString($F{startDate}.getDate())) + 
 "</b> mwezi <b>" +
@@ -351,14 +351,6 @@ $F{acres}.toString() +
 					<font fontName="SansSerif" size="11" isItalic="false"/>
 				</textElement>
 				<text><![CDATA[ii)]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="Float" x="40" y="292" width="484" height="30" uuid="44295739-90b0-4a63-9ec4-cd765a318186"/>
-				<box leftPadding="0" rightPadding="15"/>
-				<textElement verticalAlignment="Middle">
-					<font fontName="SansSerif" size="11" isItalic="false"/>
-				</textElement>
-				<text><![CDATA[Mkazi atalipa kodi ya mwaka ya Shs ........... kabla ya tarehe ........... ya mwezi ........... kila mwaka (kama inahusika).]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement positionType="Float" x="40" y="322" width="484" height="18" uuid="46c9f3bb-f211-4d59-baf0-8ec6ee2e941b"/>
@@ -459,6 +451,20 @@ $F{acres}.toString() +
 				</textElement>
 				<text><![CDATA[(Na. 5 ya 1999)]]></text>
 			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="40" y="292" width="484" height="30" uuid="73c2afc5-ae8b-4bc7-9048-4ecdc3c743d5"/>
+				<box topPadding="2" leftPadding="0" bottomPadding="0" rightPadding="15"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+					<font size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Mkazi atalipa kodi ya mwaka ya Shs " + 
+($F{annualFee} == null || $F{annualFee} <= 0D ? "..........." : "<b>" + java.text.NumberFormat.getNumberInstance(java.util.Locale.US).format($F{annualFee}.intValue()) + "</b>") + 
+" kabla ya tarehe " +
+($F{annualFee} == null || $F{annualFee} <= 0D ? "..........." : "<b>31</b>") +
+" ya mwezi " +
+($F{annualFee} == null || $F{annualFee} <= 0D ? "..........." : "<b>12</b>") +
+" kila mwaka (kama inahusika)."]]></textFieldExpression>
+			</textField>
 		</band>
 		<band height="579" splitType="Prevent">
 			<subreport>

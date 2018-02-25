@@ -194,8 +194,13 @@ Controls.Map = function (controlId, targetElementId, options) {
                 for (var i = 0; i < parcels.length; i++) {
                     var parcel = wkt.read(parcels[i].geom);
                     parcel.geometry.transform(sourceCrs, destCrs);
-                    parcel.attributes = parcels[i];
+                    parcel.attributes = $.extend(true, {}, parcels[i]);
                     layerSelectedParcels.addFeatures(parcel);
+
+                    // Update parcels to make sure it has same precision of coordinates
+                    var clone = parcel.clone();
+                    clone.geometry.transform(destCrs, sourceCrs);
+                    parcels[i].geom = wkt.write(clone);
                 }
                 initialZoomBounds = layerSelectedParcels.getDataExtent();
             }
@@ -844,13 +849,19 @@ Controls.Map = function (controlId, targetElementId, options) {
             PropertyDao.saveParcels(that.getParcels(), function (list) {
                 // Update features
                 layerSelectedParcels.removeAllFeatures();
+                parcels = list;
 
                 if (list.length > 0) {
                     for (var i = 0; i < list.length; i++) {
                         var parcel = wkt.read(list[i].geom);
                         parcel.geometry.transform(sourceCrs, destCrs);
-                        parcel.attributes = list[i];
+                        parcel.attributes = $.extend(true, {}, list[i]);
                         layerSelectedParcels.addFeatures(parcel);
+
+                        // Update parcels to make sure it has same precision of coordinates
+                        var clone = parcel.clone();
+                        clone.geometry.transform(destCrs, sourceCrs);
+                        parcels[i].geom = wkt.write(clone);
                     }
                     layerSelectedParcels.redraw();
                     map.zoomToExtent(layerSelectedParcels.getDataExtent());
@@ -860,6 +871,22 @@ Controls.Map = function (controlId, targetElementId, options) {
                 }
             });
         }
+    };
+
+    this.hasChanges = function () {
+        var mapParcels = that.getParcels();
+        if (isNull(parcels)) {
+            parcels = [];
+        }
+        if (parcels.length !== mapParcels.length) {
+            return true;
+        }
+        for (var i = 0; i < parcels.length; i++) {
+            if (JSON.stringify(parcels[i]) !== JSON.stringify(mapParcels[i])) {
+                return true;
+            }
+        }
+        return false;
     };
 
     this.validateParcels = function (showErrors) {
@@ -1385,7 +1412,7 @@ Controls.Map = function (controlId, targetElementId, options) {
                                 featuresToRemove.push(layerSnappingFeatures.features[i]);
                             }
                         }
-                        if(featuresToRemove.length > 0){
+                        if (featuresToRemove.length > 0) {
                             layerSnappingFeatures.removeFeatures(featuresToRemove);
                         }
                     }

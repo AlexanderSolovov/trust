@@ -76,4 +76,8 @@ Controls.LegalEntityView = function (controlId, targetElementId, le) {
     this.isLoaded = function () {
         return loaded;
     };
+    
+    this.selectMainTab = function () {
+        $("a[href='#" + controlVarId + "_main']").tab('show');
+    };
 };

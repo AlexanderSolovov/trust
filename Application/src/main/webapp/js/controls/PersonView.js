@@ -171,4 +171,8 @@ Controls.PersonView = function (controlId, targetElementId, options) {
     this.isLoaded = function () {
         return loaded;
     };
+    
+    this.selectMainTab = function () {
+        $("a[href='#" + controlVarId + "_main']").tab('show');
+    };
 };

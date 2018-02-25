@@ -1,6 +1,6 @@
 <script type="text/javascript">var {{id}};</script>
 
-<ul class="nav nav-tabs" role="tablist">
+<ul class="nav nav-tabs" role="tablist" id="{{id}}_personTabs">
     <li role="presentation" class="active">
         <a href="#{{id}}_main" aria-controls="{{id}}_main" role="tab" data-toggle="tab">
             <i class="icon-file"></i> <span data-i18n="gen-main"></span>
@@ -48,6 +48,7 @@
                 </div>
                 <div class="col-md-4">
                     <label data-i18n="person-middle-name"></label>
+                    <i class="glyphicon glyphicon-required"></i>
                     <input id="{{id}}_txtMiddleName" class="form-control" maxlength="250" autocomplete="off">
                 </div>
                 <div class="col-md-4">

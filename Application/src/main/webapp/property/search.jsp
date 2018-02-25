@@ -6,7 +6,7 @@
 
 <t:BasePage>
     <jsp:attribute name="title">
-        <fmt:message key="SEARCH_RIGHT_SEARCH" />
+        <fmt:message key="MENU_RIGHTS_SEARCH" />
     </jsp:attribute>
     <jsp:attribute name="head">
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/dao/RefDataDao.js"></script>
@@ -17,7 +17,7 @@
     <jsp:body>
         <h1>
             <i class=" glyphicon glyphicon-search"></i>
-            <fmt:message key="SEARCH_RIGHT_SEARCH" />
+            <fmt:message key="MENU_RIGHTS_SEARCH" />
         </h1>
         
         <div id="pnlRightSearch"></div>

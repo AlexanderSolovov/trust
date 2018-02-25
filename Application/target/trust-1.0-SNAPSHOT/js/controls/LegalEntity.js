@@ -114,24 +114,13 @@ Controls.LegalEntity = function (controlId, targetElementId, le) {
             result.statusCode = legalEntity.statusCode;
             result.editable = legalEntity.editable;
         }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtLeName").val())) {
-            result.name1 = $("#" + controlVarId + "_txtLeName").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_cbxLeTypes").val())) {
-            result.entityTypeCode = $("#" + controlVarId + "_cbxLeTypes").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtLeRegNumber").val())) {
-            result.idNumber = $("#" + controlVarId + "_txtLeRegNumber").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtLeMobileNumber").val())) {
-            result.mobileNumber = $("#" + controlVarId + "_txtLeMobileNumber").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtLeAddress").val())) {
-            result.address = $("#" + controlVarId + "_txtLeAddress").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtLeRegDate").val())) {
-            result.establishmentDate = dateFormat($("#" + controlVarId + "_txtLeRegDate").datepicker("getDate"), dateFormat.masks.isoDateTime);
-        }
+        
+        setStringObjectProperty(legalEntity, result, "name1", controlVarId + "_txtLeName");
+        setStringObjectProperty(legalEntity, result, "entityTypeCode", controlVarId + "_cbxLeTypes");
+        setStringObjectProperty(legalEntity, result, "idNumber", controlVarId + "_txtLeRegNumber");
+        setStringObjectProperty(legalEntity, result, "mobileNumber", controlVarId + "_txtLeMobileNumber");
+        setStringObjectProperty(legalEntity, result, "address", controlVarId + "_txtLeAddress");
+        setDateObjectProperty(legalEntity, result, "establishmentDate", controlVarId + "_txtLeRegDate");
         
         // Set documents
         if (!isNull(docsControl)) {
@@ -144,5 +133,9 @@ Controls.LegalEntity = function (controlId, targetElementId, le) {
     
     this.isLoaded = function () {
         return loaded;
+    };
+    
+    this.selectMainTab = function () {
+        $("a[href='#" + controlVarId + "_main']").tab('show');
     };
 };

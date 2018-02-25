@@ -43,6 +43,7 @@ LANGUAGES.en = {
     "gen-confirm-delete": "Are you sure you want to delete this record?",
     "gen-delete-success": "Record has been deleted",
     "gen-save-success": "Record has been saved",
+    "gen-unsaved-changes": "Do you want to save changes?",
     
     "dt-sEmptyTable": "No records",
     "dt-sInfo": "Showing _START_ to _END_ of _TOTAL_ entries",
@@ -212,7 +213,7 @@ LANGUAGES.en = {
     
     "parcel-uka": "UKA",
     "parcel-plot": "Plot",
-    "parcel-survey-date": "Survey Date",
+    "parcel-survey-date": "Adjudication Date",
     "parcel-land-type": "Land Type",
     "parcel-saved": "Plot has been sucessfully saved",
     "parcel-location": "Location",
@@ -245,9 +246,9 @@ LANGUAGES.en = {
     "right-adjudicator1": "Adjudicator #1",
     "right-adjudicator2": "Adjudicator #2",
     "right-allocation-date": "Allocation Date",
-    "right-start-date": "Start Date",
+    "right-start-date": "Commencement Date",
     "right-end-date": "End Date",
-    "right-interest-rate": "Iterest Rate",
+    "right-interest-rate": "Interest Rate",
     "right-duration": "Duration (years)",
     "right-rental-fee": "Rental Fee",
     "right-neighbor-north": "Neighbor (north)",
@@ -298,6 +299,7 @@ LANGUAGES.en = {
     "err-comp-loading": "Component is still loading. Please, wait.",
     "err-person-firstname-empty": "First name is empty",
     "err-person-lastname-empty": "Last name is empty",
+    "err-person-middle-empty": "Middle name is empty",
     "err-person-idtype-empty": "ID type is empty",
     "err-person-idnumber-empty": "ID number is empty",
     "err-person-dob-empty": "Date of birth is empty",
@@ -328,7 +330,7 @@ LANGUAGES.en = {
     "err-prop-status-not-found": "CCRO status was not found",
     "err-right-allocation-date-empty": "Allocation Date is empty",
     "err-right-allocation-date-in-future": "Allocation Date can't be in future",
-    "err-right-start-date-empty": "Start Date is empty",
+    "err-right-start-date-empty": "Commencement Date is empty",
     "err-right-no-duraion": "Duration is not provided",
     "err-right-declared-landuse-empty": "Declared Land Use is not selected",
     "err-right-approved-landuse-empty": "Approved Land Use is not selected",
@@ -342,6 +344,7 @@ LANGUAGES.en = {
     "err-right-dp-first-name-empty": "Deceased person first name is empty",
     "err-right-dp-last-name-empty": "Deceased person last name is empty",
     "err-right-no-le": "Legal Entity is not provided",
+    "err-right-no-rightholders": "No Rightholders were provided",
     "err-right-one-le": "Only one Legal Entity is allowed",
     "err-right-share-empty": "Share size must be provided for {0}",
     "err-right-young-owner": "{0} must be older than 18",
@@ -351,5 +354,5 @@ LANGUAGES.en = {
     "err-right-many-owners": "At least two owners must be provided. Make sure owner role is assigned to the persons. No guardians or administrators allowed.",
     "err-right-wrong-guardianship": "At least one minor and one guardian must be provided. Make sure owner and guardian roles are assigned to the persons. No administrators allowed.",
     "err-right-no-rights": "No rights were created.",
-    "err-right-enddate-less-startdate": "End Date can not be greater than Start Date"
+    "err-right-enddate-less-startdate": "End Date can not be greater than Commencement Date"
 };

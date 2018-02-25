@@ -50,6 +50,9 @@ public class PartyService extends AbstractService {
         if (StringUtility.isEmpty(person.getName2())) {
             throw new TrustException(MessagesKeys.ERR_PERSON_LAST_NAME_EMPTY);
         }
+        if (StringUtility.isEmpty(person.getName3())) {
+            throw new TrustException(MessagesKeys.ERR_PERSON_MIDDLE_NAME_EMPTY);
+        }
         if (StringUtility.isEmpty(person.getIdTypeCode())) {
             throw new TrustException(MessagesKeys.ERR_PERSON_ID_TYPE_EMPTY);
         }

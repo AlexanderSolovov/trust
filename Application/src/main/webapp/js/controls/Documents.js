@@ -94,7 +94,7 @@ Controls.Documents = function (controlId, targetElementId, options) {
                             return "";
                         } else {
                             if (type === "display") {
-                                return dateFormat(data, dateFormat.masks.dateTime);
+                                return dateFormat(data, dateFormat.masks.default);
                             }
                             return data;
                         }
@@ -262,32 +262,23 @@ Controls.Documents = function (controlId, targetElementId, options) {
         }
 
         var doc = new DocumentDao.Document();
-
+        var originalDoc = null;
+        
         // Prepare JSON
         if (selectedRow !== null) {
-            doc.id = selectedRow.data().id;
-            doc.version = selectedRow.data().version;
-            doc.fileId = selectedRow.data().fileId;
+            originalDoc = selectedRow.data();
+            doc.id = originalDoc.id;
+            doc.version = originalDoc.version;
+            doc.fileId = originalDoc.fileId;
         }
-        if (!isNullOrEmpty($("#" + controlVarId + "_cbxDocTypes").val())) {
-            doc.typeCode = $("#" + controlVarId + "_cbxDocTypes").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtRefNumber").val())) {
-            doc.refNumber = $("#" + controlVarId + "_txtRefNumber").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtDocDate").val())) {
-            doc.docDate = dateFormat($("#" + controlVarId + "_txtDocDate").datepicker("getDate"), dateFormat.masks.isoDateTime);
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtExpiryDate").val())) {
-            doc.expiryDate = dateFormat($("#" + controlVarId + "_txtExpiryDate").datepicker("getDate"), dateFormat.masks.isoDateTime);
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtAuthority").val())) {
-            doc.authority = $("#" + controlVarId + "_txtAuthority").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtDescription").val())) {
-            doc.description = $("#" + controlVarId + "_txtDescription").val();
-        }
-
+        
+        setStringObjectProperty(originalDoc, doc, "typeCode", controlVarId + "_cbxDocTypes");
+        setStringObjectProperty(originalDoc, doc, "refNumber", controlVarId + "_txtRefNumber");
+        setDateObjectProperty(originalDoc, doc, "docDate", controlVarId + "_txtDocDate");
+        setDateObjectProperty(originalDoc, doc, "expiryDate", controlVarId + "_txtExpiryDate");
+        setStringObjectProperty(originalDoc, doc, "authority", controlVarId + "_txtAuthority");
+        setStringObjectProperty(originalDoc, doc, "description", controlVarId + "_txtDescription");
+               
         var addDoc = function () {
             // Close dialog
             $("#" + controlVarId + "_Dialog").modal('hide');

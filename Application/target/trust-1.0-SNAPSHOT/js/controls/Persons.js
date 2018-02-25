@@ -225,7 +225,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
         }
 
         var person = isNull(selectedRow) ? null : selectedRow.data();
-
+        
         if (forEdit && (person === null || person.editable || isOwnership)) {
             $("#" + controlVarId + "_personview").hide();
             $("#" + controlVarId + "_person").show();
@@ -236,6 +236,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
                 personControl.setPerson(person);
             }
             $("#" + controlVarId + "_btnSavePerson").show();
+            personControl.selectMainTab();
         } else {
             $("#" + controlVarId + "_personview").show();
             $("#" + controlVarId + "_person").hide();
@@ -246,6 +247,7 @@ Controls.Persons = function (controlId, targetElementId, options) {
                 personViewControl.setPerson(person);
             }
             $("#" + controlVarId + "_btnSavePerson").hide();
+            personViewControl.selectMainTab();
         }
     };
 

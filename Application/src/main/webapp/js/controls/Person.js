@@ -184,6 +184,9 @@ Controls.Person = function (controlId, targetElementId, options) {
         if (isNullOrEmpty($("#" + controlVarId + "_txtLastName").val())) {
             errors.push($.i18n("err-person-lastname-empty"));
         }
+        if (isNullOrEmpty($("#" + controlVarId + "_txtMiddleName").val())) {
+            errors.push($.i18n("err-person-middle-empty"));
+        }
         if (isNullOrEmpty($("#" + controlVarId + "_cbxIdTypes").val())) {
             errors.push($.i18n("err-person-idtype-empty"));
         }
@@ -230,46 +233,21 @@ Controls.Person = function (controlId, targetElementId, options) {
             result.statusCode = localPerson.statusCode;
             result.editable = localPerson.editable;
         }
-        if (!isNullOrEmpty($("#" + controlVarId + "_cbxGenders").val())) {
-            result.genderCode = $("#" + controlVarId + "_cbxGenders").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_cbxIdTypes").val())) {
-            result.idTypeCode = $("#" + controlVarId + "_cbxIdTypes").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_cbxCitezenships").val())) {
-            result.citizenshipCode = $("#" + controlVarId + "_cbxCitezenships").val();
-        }
-        if (isOwnership && !isNullOrEmpty($("#" + controlVarId + "_cbxOwnerRoles").val())) {
-            result.ownerTypeCode = $("#" + controlVarId + "_cbxOwnerRoles").val();
-        }
-        if (isOwnership && !isNullOrEmpty($("#" + controlVarId + "_txtShareSize").val())) {
-            result.shareSize = $("#" + controlVarId + "_txtShareSize").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_cbxMaritalStatuses").val())) {
-            result.maritalStatusCode = $("#" + controlVarId + "_cbxMaritalStatuses").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtDob").val())) {
-            result.dob = dateFormat($("#" + controlVarId + "_txtDob").datepicker("getDate"), dateFormat.masks.isoDateTime);
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtFirstName").val())) {
-            result.name1 = $("#" + controlVarId + "_txtFirstName").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtMiddleName").val())) {
-            result.name3 = $("#" + controlVarId + "_txtMiddleName").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtLastName").val())) {
-            result.name2 = $("#" + controlVarId + "_txtLastName").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtIdNumber").val())) {
-            result.idNumber = $("#" + controlVarId + "_txtIdNumber").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtPersonMobileNumber").val())) {
-            result.mobileNumber = $("#" + controlVarId + "_txtPersonMobileNumber").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtPersonAddress").val())) {
-            result.address = $("#" + controlVarId + "_txtPersonAddress").val();
-        }
-        result.isResident = $("#" + controlVarId + "_chbxResident").prop("checked");
+        setStringObjectProperty(localPerson, result, "genderCode", controlVarId + "_cbxGenders");
+        setStringObjectProperty(localPerson, result, "idTypeCode", controlVarId + "_cbxIdTypes");
+        setStringObjectProperty(localPerson, result, "citizenshipCode", controlVarId + "_cbxCitezenships");
+        setStringObjectProperty(localPerson, result, "ownerTypeCode", controlVarId + "_cbxOwnerRoles");
+        setStringObjectProperty(localPerson, result, "shareSize", controlVarId + "_txtShareSize");
+        setStringObjectProperty(localPerson, result, "maritalStatusCode", controlVarId + "_cbxMaritalStatuses");
+        setDateObjectProperty(localPerson, result, "dob", controlVarId + "_txtDob");
+        setStringObjectProperty(localPerson, result, "name1", controlVarId + "_txtFirstName");
+        setStringObjectProperty(localPerson, result, "name3", controlVarId + "_txtMiddleName");
+        setStringObjectProperty(localPerson, result, "name2", controlVarId + "_txtLastName");
+        setStringObjectProperty(localPerson, result, "idNumber", controlVarId + "_txtIdNumber");
+        setStringObjectProperty(localPerson, result, "mobileNumber", controlVarId + "_txtPersonMobileNumber");
+        setStringObjectProperty(localPerson, result, "address", controlVarId + "_txtPersonAddress");
+        setBooleanObjectProperty(localPerson, result, "isResident", controlVarId + "_chbxResident");
+
         updateFullName(result);
 
         // Set documents
@@ -330,5 +308,9 @@ Controls.Person = function (controlId, targetElementId, options) {
 
     this.isLoaded = function () {
         return loaded;
+    };
+    
+    this.selectMainTab = function () {
+        $("a[href='#" + controlVarId + "_main']").tab('show');
     };
 };

@@ -23,7 +23,7 @@ $(document).ready(function () {
 
     var appId = getUrlParam("app");
     MapCtrl.parcelId = getUrlParam("parcelId");
-    
+
     // Hide toolbar by default
     $("#mapToolbar").hide();
 
@@ -73,12 +73,20 @@ MapCtrl.postLoad = function () {
 };
 
 MapCtrl.back = function () {
-    window.location.replace(String.format(URLS.VIEW_APPLICATION, MapCtrl.application.id));
+    if (MapCtrl.mapControl.hasChanges()) {
+        alertConfirm($.i18n("gen-unsaved-changes"), function () {
+            MapCtrl.save();
+        }, function () {
+            window.location.replace(String.format(URLS.VIEW_APPLICATION, MapCtrl.application.id));
+        });
+    } else {
+        window.location.replace(String.format(URLS.VIEW_APPLICATION, MapCtrl.application.id));
+    }
 };
 
 MapCtrl.save = function () {
     if (MapCtrl.mapControl !== null) {
-        MapCtrl.mapControl.saveParcels(function (){
+        MapCtrl.mapControl.saveParcels(function () {
             showNotification($.i18n("parcel-saved"));
         });
     }

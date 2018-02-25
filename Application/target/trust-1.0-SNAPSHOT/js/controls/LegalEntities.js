@@ -208,6 +208,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
                 leControl.setLegalEntity(legalEntity);
             }
             $("#" + controlVarId + "_btnSaveLe").show();
+            leControl.selectMainTab();
         } else if (!legalEntity.editable || !editable) {
             $("#" + controlVarId + "_leview").show();
             $("#" + controlVarId + "_le").hide();
@@ -218,6 +219,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
                 leViewControl.setLegalEntity(legalEntity);
             }
             $("#" + controlVarId + "_btnSaveLe").hide();
+            leViewControl.selectMainTab();
         }
     };
 

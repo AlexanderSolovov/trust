@@ -937,8 +937,7 @@ COMMENT ON COLUMN media.file.media_type IS 'Media type of the file, for transmis
 COMMENT ON COLUMN media.file.file_size IS 'File size in bytes.';
 COMMENT ON COLUMN media.file.created_by IS 'User name, who created the record.';
 COMMENT ON COLUMN media.file.creation_time IS 'Date and time, when the file was inserted.';
-COMMENT ON TABLE public.document
-  IS 'Contains information on the files, attached to the documents or persons.';
+COMMENT ON TABLE media.file IS 'Contains information on the files, attached to the documents or persons.';
 
 -- Documents
 
@@ -3633,8 +3632,9 @@ INSERT INTO public.ref_transaction_type(code, val) VALUES ('change_name', 'Chang
 -- Application types
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_new', 'New CCRO', 'ccro', 'first_registration');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_trans', 'Transfer of CCRO', 'ccro', 'transfer');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_surrender', 'Surrender of CCRO', 'ccro', 'surrender');
-INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_terminate', 'Termination of CCRO', 'ccro', 'terminate');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_transmit', 'Transmission of CCRO', 'ccro', 'transfer');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_surrender', 'Surrender of CCRO', 'ccro', 'terminate');
+--INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_terminate', 'Termination of CCRO', 'ccro', 'terminate');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_vary', 'Variation of CCRO', 'ccro', 'vary');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_rectify', 'Rectification of CCRO', 'ccro', 'rectify');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_reg', 'Registration of Mortgage', 'restrictions', 'registration');
@@ -3655,8 +3655,9 @@ INSERT INTO public.ref_right_type(code, val, right_type_group_code, allow_multip
 -- Application type to right type
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_new', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_trans', 'ccro');
+INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_transmit', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_surrender', 'ccro');
-INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_terminate', 'ccro');
+--INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_terminate', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_vary', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_rectify', 'ccro');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('mortgage_reg', 'mortgage');

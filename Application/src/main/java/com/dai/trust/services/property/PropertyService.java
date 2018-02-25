@@ -268,7 +268,7 @@ public class PropertyService extends AbstractService {
             }
             throw e;
         }
-
+        getEM().clear();
         return getParcelsByApplicationId(appId);
     }
 
@@ -524,9 +524,7 @@ public class PropertyService extends AbstractService {
 
                         if (right.getStartDate() == null) {
                             throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
-                        } else if (right.getStartDate().before(right.getAllocationDate())) {
-                            throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_GREATER_ALLOCATION);
-                        }
+                        } 
 
                         if (StringUtility.isEmpty(right.getDeclaredLanduseCode())) {
                             throw new TrustException(MessagesKeys.ERR_PROP_DECLARED_LANDUSE_EMPTY);
@@ -705,8 +703,8 @@ public class PropertyService extends AbstractService {
                         }
                     }
 
-                    if (transactionType.equals(TransactionType.VARY)) {
-                        // Make sure same rightholders provided on the right for variation
+                    if (transactionType.equals(TransactionType.VARY) && !right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_MORTGAGE)) {
+                        // Make sure same rightholders provided on the right for variation (except mortgage)
                         if (dbProp != null && dbProp.getRights() != null) {
                             for (Rrr r : dbProp.getRights()) {
                                 if (r.getId().equalsIgnoreCase(right.getParentId())) {

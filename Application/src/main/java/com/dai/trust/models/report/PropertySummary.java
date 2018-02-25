@@ -58,7 +58,7 @@ public class PropertySummary implements Serializable {
 
     @Column(name = "district_name")
     private String districtName;
-    
+
     @Column
     private Double acres;
 
@@ -88,10 +88,10 @@ public class PropertySummary implements Serializable {
 
     @Column
     private String witness1;
-    
+
     @Column
     private String witness2;
-    
+
     @Column
     private String adjudicator1;
 
@@ -142,7 +142,7 @@ public class PropertySummary implements Serializable {
 
     @Transient
     private List<DeceasedOwnerSummary> deceasedPersons;
-    
+
     public static final String PARAM_PROP_ID = "propId";
 
     private static final String SEARCH_SELECT = "SELECT "
@@ -520,7 +520,7 @@ public class PropertySummary implements Serializable {
 
     public List<PoiSummary> getPois() {
         return pois;
-        
+
     }
 
     public void setPois(List<PoiSummary> pois) {
@@ -539,10 +539,9 @@ public class PropertySummary implements Serializable {
         if (getPersons() == null || getPersons().size() < 1) {
             return new ArrayList<>();
         }
-
-        ArrayList<PersonWithRightSummary> guardians = new ArrayList<>();
-
+        
         if (getOccupancyTypeCode().equals(OccupancyType.TYPE_GUARDIAN)) {
+            ArrayList<PersonWithRightSummary> guardians = new ArrayList<>();
             for (PersonWithRightSummary p : getPersons()) {
                 if (p.getOwnerTypeCode() != null && p.getOwnerTypeCode().equals(OwnerType.TYPE_GUARDIAN)) {
                     guardians.add(p);
@@ -575,7 +574,7 @@ public class PropertySummary implements Serializable {
                 if (person.getOwnerTypeCode().equals(OwnerType.TYPE_OWNER)) {
                     String owner = "";
                     String share = StringUtility.empty(person.getShare());
-                    
+
                     if (!share.endsWith("%")) {
                         share = share + "%";
                     }
@@ -609,7 +608,7 @@ public class PropertySummary implements Serializable {
                     }
                 }
             }
-        } else if (getLegalEntities()!= null && getLegalEntities().size() > 0) {
+        } else if (getLegalEntities() != null && getLegalEntities().size() > 0) {
             for (LegalEntitySummary nonPerson : getLegalEntities()) {
                 if (owners.length() > 0) {
                     owners = owners + ", <b>" + StringUtility.empty(nonPerson.getName()) + "</b>";
@@ -660,6 +659,6 @@ public class PropertySummary implements Serializable {
                 }
             }
         }
-        return false;
+        return true;
     }
 }

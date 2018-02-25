@@ -142,6 +142,7 @@ public class ReportsService extends AbstractService {
             HashMap params = new HashMap();
             params.put("MAP_IMAGE", map);
 
+            List<PersonWithRightSummary> l = prop.getPersonsForSignature();
             PropertySummary[] beans = new PropertySummary[]{prop};
             JRDataSource jds = new JRBeanArrayDataSource(beans);
 

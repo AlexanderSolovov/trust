@@ -186,6 +186,10 @@ public class MessagesKeys {
      */
     public static final String ERR_PERSON_LAST_NAME_EMPTY = "ERR_PERSON_LAST_NAME_EMPTY";
     /**
+     * Middle name is empty
+     */
+    public static final String ERR_PERSON_MIDDLE_NAME_EMPTY = "ERR_PERSON_MIDDLE_NAME_EMPTY";
+    /**
      * ID type is empty
      */
     public static final String ERR_PERSON_ID_TYPE_EMPTY = "ERR_PERSON_ID_TYPE_EMPTY";
@@ -379,6 +383,9 @@ public class MessagesKeys {
      */
     public static final String ERR_APP_NO_CHANGES_IN_THE_SYSTEM = "ERR_APP_NO_CHANGES_IN_THE_SYSTEM";
 
+    /** This application must create a plot and CCRO right. */
+    public static final String ERR_APP_APPROVE_CCRO_NO_OBJECTS = "ERR_APP_APPROVE_CCRO_NO_OBJECTS";
+    
     /**
      * Only 1 plot is required for this transaction.
      */
@@ -467,16 +474,16 @@ public class MessagesKeys {
     /** Allocation Date can't be in future */
     public static final String ERR_PROP_ALLOCATION_DATE_IN_FUTURE = "ERR_PROP_ALLOCATION_DATE_IN_FUTURE";
     
-    /** Start Date is empty */
+    /** Commencement Date is empty */
     public static final String ERR_PROP_START_DATE_EMPTY = "ERR_PROP_START_DATE_EMPTY";
     
     /** Duration is empty or 0 */
     public static final String ERR_PROP_DURATION_EMPTY = "ERR_PROP_DURATION_EMPTY";
             
-    /** Start Date can't be greater than Allocation Date */
+    /** Commencement Date can't be greater than Allocation Date */
     public static final String ERR_PROP_START_DATE_GREATER_ALLOCATION = "ERR_PROP_START_DATE_GREATER_ALLOCATION";
     
-    /** End Date can't be greater than Start Date */
+    /** End Date can't be greater than Commencement Date */
     public static final String ERR_PROP_END_DATE_GREATER_START_DATE = "ERR_PROP_END_DATE_GREATER_START_DATE";
     
     /** Declared Land Use is not selected */

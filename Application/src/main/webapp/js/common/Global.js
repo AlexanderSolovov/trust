@@ -199,7 +199,7 @@ function alertWarningMessage(msg, action) {
     });
 }
 
-function alertConfirm(msg, action) {
+function alertConfirm(msg, okAction, cancelAction) {
     $.alert({
         title: $.i18n("gen-confirm"),
         content: msg,
@@ -210,14 +210,17 @@ function alertConfirm(msg, action) {
                 text: $.i18n("gen-ok"),
                 btnClass: 'btn-green',
                 action: function () {
-                    if (action !== null && typeof action === "function") {
-                        action();
+                    if (okAction !== null && typeof okAction === "function") {
+                        okAction();
                     }
                 }
             },
             cancel: {
                 text: $.i18n("gen-cancel"),
                 action: function () {
+                    if (cancelAction !== null && typeof cancelAction === "function") {
+                        cancelAction();
+                    }
                 }
             }
         }
@@ -652,7 +655,7 @@ function populateSelectList(valuesList, controlId, addDummy) {
         $.each(valuesList, function (i, item) {
             $("#" + controlId).append($("<option />").val(item.code).text(item.val));
         });
-        if(addDummy){
+        if (addDummy) {
             $("#" + controlId).prepend($("<option />").val("").text(" "));
         }
         $("#" + controlId).prop("selectedIndex", -1);
@@ -721,6 +724,93 @@ function replaceNewLineWithBr(val) {
         return val.replace(/(?:\r\n|\r|\n)/g, '<br />');
     }
     return "";
+}
+
+/**
+ * Checks if HTML filed is enabled and visible (editable)
+ * @param fieldId Field id
+ * @return 
+ */
+function isFieldEditable(fieldId) {
+    return !$("#" + fieldId).prop("disabled");
+}
+
+/** 
+ * Assigns string property value to the object from the text or dropdown list
+ * @param originalObj Original object, which will be used to copy value if the field is not editable
+ * @param targetObj Target object for assigning the value
+ * @param propName Property name of the target object which will be assigned the value
+ * @param fieldId Field id, sourcing the value
+ * @returns
+ */
+function setStringObjectProperty(originalObj, targetObj, propName, fieldId) {
+    if (isFieldEditable(fieldId)) {
+        if (!isNullOrEmpty($("#" + fieldId).val())) {
+            targetObj[propName] = $("#" + fieldId).val();
+        }
+    } else {
+        if (originalObj !== null) {
+            targetObj[propName] = originalObj[propName];
+        }
+    }
+}
+
+/** 
+ * Assigns date property value to the object from the text or dropdown list
+ * @param originalObj Original object, which will be used to copy value if the field is not editable
+ * @param targetObj Target object for assigning the value
+ * @param propName Property name of the target object which will be assigned the value
+ * @param fieldId Field id, sourcing the value
+ * @returns
+ */
+function setDateObjectProperty(originalObj, targetObj, propName, fieldId) {
+    if (isFieldEditable(fieldId)) {
+        if (!isNullOrEmpty($("#" + fieldId).val())) {
+            targetObj[propName] = dateFormat($("#" + fieldId).datepicker("getDate"), dateFormat.masks.isoDateTime);
+        }
+    } else {
+        if (originalObj !== null) {
+            targetObj[propName] = originalObj[propName];
+        }
+    }
+}
+
+/** 
+ * Assigns float property value to the object from the text or dropdown list
+ * @param originalObj Original object, which will be used to copy value if the field is not editable
+ * @param targetObj Target object for assigning the value
+ * @param propName Property name of the target object which will be assigned the value
+ * @param fieldId Field id, sourcing the value
+ * @returns
+ */
+function setFloatObjectProperty(originalObj, targetObj, propName, fieldId) {
+    if (isFieldEditable(fieldId)) {
+        if (!isNullOrEmpty($("#" + fieldId).val())) {
+            targetObj[propName] = parseFloat($("#" + fieldId).val());
+        }
+    } else {
+        if (originalObj !== null) {
+            targetObj[propName] = originalObj[propName];
+        }
+    }
+}
+
+/** 
+ * Assigns boolean property value to the object from the text or dropdown list
+ * @param originalObj Original object, which will be used to copy value if the field is not editable
+ * @param targetObj Target object for assigning the value
+ * @param propName Property name of the target object which will be assigned the value
+ * @param fieldId Field id, sourcing the value
+ * @returns
+ */
+function setBooleanObjectProperty(originalObj, targetObj, propName, fieldId) {
+    if (isFieldEditable(fieldId)) {
+        targetObj[propName] = $("#" + fieldId).prop("checked");
+    } else {
+        if (originalObj !== null) {
+            targetObj[propName] = originalObj[propName];
+        }
+    }
 }
 
 // On page load

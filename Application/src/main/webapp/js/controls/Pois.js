@@ -207,22 +207,12 @@ Controls.Pois = function (controlId, targetElementId, options) {
             result.id = poi.id;
             result.version = poi.version;
         }
-
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtDob").val())) {
-            result.dob = dateFormat($("#" + controlVarId + "_txtDob").datepicker("getDate"), dateFormat.masks.isoDateTime);
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtFirstName").val())) {
-            result.firstName = $("#" + controlVarId + "_txtFirstName").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtMiddleName").val())) {
-            result.middleName = $("#" + controlVarId + "_txtMiddleName").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtLastName").val())) {
-            result.lastName = $("#" + controlVarId + "_txtLastName").val();
-        }
-        if (!isNullOrEmpty($("#" + controlVarId + "_txtDescription").val())) {
-            result.description = $("#" + controlVarId + "_txtDescription").val();
-        }
+        
+        setDateObjectProperty(poi, result, "dob", controlVarId + "_txtDob");
+        setStringObjectProperty(poi, result, "firstName", controlVarId + "_txtFirstName");
+        setStringObjectProperty(poi, result, "middleName", controlVarId + "_txtMiddleName");
+        setStringObjectProperty(poi, result, "lastName", controlVarId + "_txtLastName");
+        setStringObjectProperty(poi, result, "description", controlVarId + "_txtDescription");
 
         $("#" + controlVarId + "_Dialog").modal('hide');
         var currentRow;

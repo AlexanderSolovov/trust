@@ -83,9 +83,9 @@ ApplicationCtrl.postLoad = function (app) {
 
         $("#appStatus").text(appStatus.val);
         $("#lblStatusDate").text("");
-        if (isNullOrEmpty(app.withdrawDate)) {
+        if (!isNullOrEmpty(app.withdrawDate)) {
             $("#lblStatusDate").text(dateFormat(app.withdrawDate, dateFormat.masks.dateTime));
-        } else if (isNullOrEmpty(app.approveRejectDate)) {
+        } else if (!isNullOrEmpty(app.approveRejectDate)) {
             $("#lblStatusDate").text(dateFormat(app.approveRejectDate, dateFormat.masks.dateTime));
         }
 

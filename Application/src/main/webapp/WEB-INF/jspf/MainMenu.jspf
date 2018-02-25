@@ -57,7 +57,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="${pageContext.request.contextPath}/property/search.jsp">
-                                    <i class="glyphicon glyphicon-search"></i> <fmt:message key="MENU_SEARCH" />
+                                    <i class="glyphicon glyphicon-search"></i> <fmt:message key="MENU_RIGHTS_SEARCH" />
                                 </a>
                             </li>
                         </ul>
