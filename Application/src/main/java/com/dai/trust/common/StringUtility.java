@@ -33,35 +33,61 @@ public class StringUtility {
     }
 
     /**
-     * Calculates MD5 for provided string and returns result as string
-     * @param input Input string to which MD5 should be calculated
+     * Checks string fro being integer
+     * @param s String to test
      * @return 
      */
+    public static boolean isInteger(String s) {
+        if (s.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (i == 0 && s.charAt(i) == '-') {
+                if (s.length() == 1) {
+                    return false;
+                } else {
+                    continue;
+                }
+            }
+            if (Character.digit(s.charAt(i), 10) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Calculates MD5 for provided string and returns result as string
+     *
+     * @param input Input string to which MD5 should be calculated
+     * @return
+     */
     public static String getMD5(String input) {
-        if(StringUtility.isEmpty(input)){
+        if (StringUtility.isEmpty(input)) {
             return null;
         }
         return getMD5(input.getBytes());
     }
-    
+
     /**
      * Calculates MD5 for provided bytes array and returns result as string
+     *
      * @param bytes Bytes array to which MD5 should be calculated
-     * @return 
+     * @return
      */
     public static String getMD5(byte[] bytes) {
         try {
-            if(bytes == null || bytes.length < 1){
+            if (bytes == null || bytes.length < 1) {
                 return null;
             }
-            
+
             MessageDigest m = MessageDigest.getInstance("MD5");
             m.reset();
             m.update(bytes);
             byte[] digest = m.digest();
             BigInteger bigInt = new BigInteger(1, digest);
             String hashtext = bigInt.toString(16);
-            
+
             while (hashtext.length() < 32) {
                 hashtext = "0" + hashtext;
             }

@@ -140,6 +140,22 @@
             <transport-guarantee>NONE</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
+    <security-constraint>
+        <display-name>Reports</display-name>
+        <web-resource-collection>
+            <web-resource-name>protected reports</web-resource-name>
+            <description/>
+            <url-pattern>/report/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <description/>
+            <role-name>ViewReports</role-name>
+        </auth-constraint>
+        <user-data-constraint>
+            <description/>
+            <transport-guarantee>NONE</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
     <login-config>
         <auth-method>FORM</auth-method>
         <realm-name>TrustRealm</realm-name>

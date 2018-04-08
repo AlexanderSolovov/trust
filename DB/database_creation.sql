@@ -3502,9 +3502,7 @@ CREATE TABLE history.map_layer_option
    action_code character(1),
    action_user character varying(50),
    action_time timestamp without time zone,
-   recording_time timestamp without time zone NOT NULL DEFAULT now(),
-   CONSTRAINT map_layer_option_pk PRIMARY KEY (id), 
-   CONSTRAINT map_layer_option_map_layer_fk FOREIGN KEY (layer_id) REFERENCES public.map_layer (id) ON UPDATE CASCADE ON DELETE CASCADE
+   recording_time timestamp without time zone NOT NULL DEFAULT now()
 ) 
 WITH (
   OIDS = FALSE
@@ -3512,6 +3510,42 @@ WITH (
 ALTER TABLE history.map_layer_option OWNER TO postgres;
 
 -- Add initial data
+
+-- Create trust_view_users role who can access TRUST DB for viewing parcels
+DO
+$body$
+BEGIN
+   IF NOT EXISTS (
+      SELECT 1
+      FROM   pg_catalog.pg_roles
+      WHERE  rolname='trust_view_users') THEN
+        CREATE ROLE trust_view_users;
+   END IF;
+END
+$body$;
+
+GRANT USAGE ON SCHEMA public TO trust_view_users;
+GRANT SELECT ON public.parcel TO trust_view_users;
+GRANT SELECT ON public.geometry_columns TO trust_view_users;
+GRANT SELECT ON public.spatial_ref_sys TO trust_view_users;
+GRANT SELECT ON public.ref_hamlet TO trust_view_users;
+GRANT SELECT ON public.ref_land_type TO trust_view_users;
+
+-- Greates trust_viewer user and assign trust_view_users role
+DO
+$body$
+BEGIN
+   IF NOT EXISTS (
+      SELECT 1
+      FROM   pg_catalog.pg_user
+      WHERE  usename='trust_viewer') THEN
+        CREATE ROLE trust_viewer WITH LOGIN PASSWORD 'Welcome1';
+   END IF;
+END
+$body$;
+
+GRANT trust_view_users TO trust_viewer;
+
 
 -- Roles
 INSERT INTO public.approle(code, role_name, description) VALUES ('Admin', 'Administration', 'Used for managing users, groups and system settings.');
@@ -3598,10 +3632,11 @@ INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('off
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('file-number-prefix', 'IRD/HW/', 't', 'f', 'File number prefix, used for generation of the file (case) number in archive.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('district-officer', 'GEOFREY REUBEN KALUWA', 't', 'f', 'District officer name. This officer is responsible for signing certificates.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-district', '119IR', 't', 'f', 'District code, where the office operates.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-name', 'Iringa DLO', 't', 'f', 'District land office name.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('media-path', '../trust_files', 't', 't', 'Folder path where all files related to applications, parties and rights will be stored. If relative path is provided, then web-application root folder will be used as starting point.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('max-file-size', '20480', 't', 'f', 'Maximum file size in KB that can be uploaded into the system.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('file-extensions', 'pdf,doc,docx,xls,xlsx,txt,jpg,jpeg,png,tif,tiff,csv', 't', 'f', 'Allowed file extensions for uploading into the system.');
-INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('srs', 'EPSG:32736', 't', 'f', 'Spatial reference system to be used on the map and printings.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('srs', '32736', 't', 'f', 'Spatial reference system to be used on the map and printings. It has to be integer SRID, existing in public.spatial_ref_sys table');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('map-extent', 'Polygon ((35.674 -7.759, 35.713 -7.759, 35.713 -7.786, 35.674 -7.786, 35.674 -7.759))', 't', 'f', 'Default map extent in WKT format to zoom in when openning the map.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('offline-mode', '0', 't', 'f', 'Indicates map mode. 1 - offline, 0 - online. If online, Google Maps layers will be added.');
 
@@ -3637,6 +3672,8 @@ INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type
 --INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_terminate', 'Termination of CCRO', 'ccro', 'terminate');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_vary', 'Variation of CCRO', 'ccro', 'vary');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('ccro_rectify', 'Rectification of CCRO', 'ccro', 'rectify');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('assign_reg', 'Registration of CCRO Assignment', 'restrictions', 'registration');
+INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('assign_remove', 'Removal of CCRO Assignment', 'restrictions', 'remove');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_reg', 'Registration of Mortgage', 'restrictions', 'registration');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_remove', 'Discharge of Mortgage', 'restrictions', 'remove');
 INSERT INTO public.ref_app_type(code, val, app_type_group_code, transaction_type_code) VALUES ('mortgage_vary', 'Variation of Mortgage', 'restrictions', 'vary');
@@ -3651,6 +3688,7 @@ INSERT INTO public.ref_right_type_group(code, val) VALUES ('restriction', 'Restr
 INSERT INTO public.ref_right_type(code, val, right_type_group_code, allow_multiple) VALUES ('ccro', 'CCRO', 'ownership', 'f');
 INSERT INTO public.ref_right_type(code, val, right_type_group_code, allow_multiple) VALUES ('mortgage', 'Mortgage', 'restriction', 't');
 INSERT INTO public.ref_right_type(code, val, right_type_group_code, allow_multiple) VALUES ('caveat', 'Caveat', 'restriction', 't');
+INSERT INTO public.ref_right_type(code, val, right_type_group_code, allow_multiple) VALUES ('assign', 'CCRO Assignment', 'restriction', 'f');
 
 -- Application type to right type
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('ccro_new', 'ccro');
@@ -3665,6 +3703,8 @@ INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUE
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('mortgage_vary', 'mortgage');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('caveat_reg', 'caveat');
 INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('caveat_remove', 'caveat');
+INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('assign_reg', 'assign');
+INSERT INTO public.ref_app_type_right_type(app_type_code, right_type_code) VALUES ('assign_remove', 'assign');
 
 -- Application status
 INSERT INTO public.ref_app_status(code, val) VALUES ('pending', 'Pending');

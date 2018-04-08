@@ -132,6 +132,11 @@ div.olControlMousePosition{
 .zoomToExtentIcon {
     background-image: url(images/zoom_extend.png) !important;
 }
+
+.importPointsIcon {
+    background-image: url(images/import_points.png) !important;
+}
+
 .zoomInIcon {
     background-image: url(images/zoom_in.png) !important;
 }

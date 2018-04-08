@@ -618,6 +618,15 @@ function restrictInputDouble(e) {
 }
 
 /** 
+ * Retricts input for numbers. Restriction pattern is [0-9\.] 
+ * @param e Event object from input field 
+ */
+function restrictInputInteger(e) {
+    var pattern = /[0-9]/g;
+    return restrictInput(e, pattern);
+}
+
+/** 
  * Retricts input for input fields.
  * @param e Event object from input field 
  * @param pattern Regular expression pattern to use for restriction.

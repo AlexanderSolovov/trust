@@ -560,4 +560,22 @@ public class MessagesKeys {
     
     /** Rightholders must be same as on the parent right. */
     public static final String ERR_PROP_RIGHTHOLDERS_MUST_BE_SAME = "ERR_PROP_RIGHTHOLDERS_MUST_BE_SAME";
+    
+    /** Name is empty. */
+    public static final String ERR_MAP_LAYER_NAME_EMPTY = "ERR_MAP_LAYER_NAME_EMPTY";
+    
+    /** Option name is empty. */
+    public static final String ERR_MAP_LAYER_OPTION_NAME_EMPTY = "ERR_MAP_LAYER_OPTION_NAME_EMPTY";
+            
+    /** Option value is empty. */
+    public static final String ERR_MAP_LAYER_VALUE_EMPTY = "ERR_MAP_LAYER_VALUE_EMPTY";
+
+    /** Title is empty. */
+    public static final String ERR_MAP_LAYER_TITLE_EMPTY = "ERR_MAP_LAYER_TITLE_EMPTY";
+
+    /** Select layer type. */
+    public static final String ERR_MAP_LAYER_TYPE_EMPTY = "ERR_MAP_LAYER_TYPE_EMPTY";
+
+    /** URL is empty. */
+    public static final String ERR_MAP_LAYER_URL_EMPTY = "ERR_MAP_LAYER_URL_EMPTY";
 }

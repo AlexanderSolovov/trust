@@ -174,6 +174,8 @@ public class RefDataService extends AbstractService {
             return ", t.right_type_group_code, t.allow_multiple";
         } else if (AppType.class.isAssignableFrom(clazz)) {
             return ", t.app_type_group_code, t.transaction_type_code, art.*";
+        } else if (District.class.isAssignableFrom(clazz)) {
+            return ", t.region_code";
         }
         return "";
     }

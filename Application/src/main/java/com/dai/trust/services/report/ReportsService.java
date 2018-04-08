@@ -2,12 +2,16 @@ package com.dai.trust.services.report;
 
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.models.document.FileInfo;
+import com.dai.trust.models.report.ApplicationStatistic;
+import com.dai.trust.models.report.CcroByAgeAndGender;
+import com.dai.trust.models.report.CcroByOccupancy;
 import com.dai.trust.models.report.DeceasedOwnerSummary;
 import com.dai.trust.models.report.LegalEntitySummary;
 import com.dai.trust.models.report.PersonWithRightSummary;
 import com.dai.trust.models.report.PoiSummary;
 import com.dai.trust.models.report.PropertySummary;
 import com.dai.trust.models.report.RegistryBookRecord;
+import com.dai.trust.models.report.RightsStatistics;
 import com.dai.trust.models.search.PersonSearchResult;
 import com.dai.trust.models.system.Setting;
 import com.dai.trust.services.AbstractService;
@@ -18,6 +22,8 @@ import com.dai.trust.services.system.SettingsService;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -212,7 +218,7 @@ public class ReportsService extends AbstractService {
             return null;
         }
     }
-    
+
     /**
      * Returns transaction sheet report
      *
@@ -227,7 +233,7 @@ public class ReportsService extends AbstractService {
             if (records == null) {
                 return null;
             }
-            
+
             // Add dummy record to make empty table rows
             int ownersCount = 0;
             int size = records.size();
@@ -237,7 +243,7 @@ public class ReportsService extends AbstractService {
             for (int i = 0; i < size; i++) {
                 RegistryBookRecord rb = records.get(i + addedRows);
                 ownersCount += 1;
-                
+
                 if (i == size - 1 || !rb.getPropId().equals(records.get(i + addedRows + 1).getPropId())) {
                     if (totalRows > ownersCount) {
                         for (int j = 0; j < totalRows - ownersCount; j++) {
@@ -250,16 +256,163 @@ public class ReportsService extends AbstractService {
                         }
                     }
                     ownersCount = 0;
-                } 
+                }
             }
 
             HashMap params = new HashMap();
-           
+
             RegistryBookRecord[] beans = records.toArray(new RegistryBookRecord[records.size()]);
             JRDataSource jds = new JRBeanArrayDataSource(beans);
 
             return JasperFillManager.fillReport(
                     ReportsService.class.getResourceAsStream("/reports/TransactionSheet.jasper"),
+                    params, jds);
+        } catch (Exception ex) {
+            logger.error(ex);
+            return null;
+        }
+    }
+
+    /**
+     * Returns Applications statistics report
+     *
+     * @param langCode Language code for localization
+     * @param dateFrom Date from
+     * @param dateTo Date to
+     * @return
+     */
+    public JasperPrint getApplicationsStatistic(String langCode, Date dateFrom, Date dateTo) {
+        try {
+            if (StringUtility.isEmpty(langCode)) {
+                langCode = "en";
+            }
+
+            Calendar calTo = Calendar.getInstance();
+            calTo.setTime(dateTo);
+            calTo.set(Calendar.HOUR, 23);
+            calTo.set(Calendar.MINUTE, 59);
+            calTo.set(Calendar.SECOND, 59);
+            
+            Query q = getEM().createNativeQuery(ApplicationStatistic.QUERY, ApplicationStatistic.class);
+            q.setParameter("langCode", langCode);
+            q.setParameter("fromDate", dateFrom);
+            q.setParameter("toDate", dateTo);
+            List<ApplicationStatistic> records = q.getResultList();
+
+            SettingsService settingService = new SettingsService();
+            Setting officeName = settingService.getSetting(Setting.SETTING_OFFICE_NAME);
+
+            HashMap params = new HashMap();
+            params.put("OFFICE_NAME", officeName.getVal());
+            params.put("DATE_FROM", dateFrom);
+            params.put("DATE_TO", calTo.getTime());
+
+            ApplicationStatistic[] beans = records.toArray(new ApplicationStatistic[records.size()]);
+            JRDataSource jds = new JRBeanArrayDataSource(beans);
+
+            return JasperFillManager.fillReport(
+                    ReportsService.class.getResourceAsStream("/reports/ApplicationStatistics.jasper"),
+                    params, jds);
+        } catch (Exception ex) {
+            logger.error(ex);
+            return null;
+        }
+    }
+    
+    /**
+     * Returns Rights statistics report
+     *
+     * @param langCode Language code for localization
+     * @return
+     */
+    public JasperPrint getRightsStatistic(String langCode) {
+        try {
+            if (StringUtility.isEmpty(langCode)) {
+                langCode = "en";
+            }
+
+            Query q = getEM().createNativeQuery(RightsStatistics.QUERY, RightsStatistics.class);
+            q.setParameter("langCode", langCode);
+            List<RightsStatistics> records = q.getResultList();
+
+            SettingsService settingService = new SettingsService();
+            Setting officeName = settingService.getSetting(Setting.SETTING_OFFICE_NAME);
+
+            HashMap params = new HashMap();
+            params.put("OFFICE_NAME", officeName.getVal());
+
+            RightsStatistics[] beans = records.toArray(new RightsStatistics[records.size()]);
+            JRDataSource jds = new JRBeanArrayDataSource(beans);
+
+            return JasperFillManager.fillReport(
+                    ReportsService.class.getResourceAsStream("/reports/RightsStatistics.jasper"),
+                    params, jds);
+        } catch (Exception ex) {
+            logger.error(ex);
+            return null;
+        }
+    }
+    
+    /**
+     * Returns CCRO statistics report by occupancy types
+     *
+     * @param langCode Language code for localization
+     * @return
+     */
+    public JasperPrint getCcroByOccupancy(String langCode) {
+        try {
+            if (StringUtility.isEmpty(langCode)) {
+                langCode = "en";
+            }
+
+            Query q = getEM().createNativeQuery(CcroByOccupancy.QUERY, CcroByOccupancy.class);
+            q.setParameter("langCode", langCode);
+            List<CcroByOccupancy> records = q.getResultList();
+
+            SettingsService settingService = new SettingsService();
+            Setting officeName = settingService.getSetting(Setting.SETTING_OFFICE_NAME);
+
+            HashMap params = new HashMap();
+            params.put("OFFICE_NAME", officeName.getVal());
+
+            CcroByOccupancy[] beans = records.toArray(new CcroByOccupancy[records.size()]);
+            JRDataSource jds = new JRBeanArrayDataSource(beans);
+
+            return JasperFillManager.fillReport(
+                    ReportsService.class.getResourceAsStream("/reports/CcroByOccupancy.jasper"),
+                    params, jds);
+        } catch (Exception ex) {
+            logger.error(ex);
+            return null;
+        }
+    }
+    
+    /**
+     * Returns CCRO statistics report by age and gender
+     *
+     * @param langCode Language code for localization
+     * @return
+     */
+    public JasperPrint getCcroByAgeAndGender(String langCode) {
+        try {
+            if (StringUtility.isEmpty(langCode)) {
+                langCode = "en";
+            }
+
+            Query q = getEM().createNativeQuery(CcroByAgeAndGender.QUERY, CcroByAgeAndGender.class);
+            List<CcroByAgeAndGender> records = q.getResultList();
+
+            SettingsService settingService = new SettingsService();
+            Setting officeName = settingService.getSetting(Setting.SETTING_OFFICE_NAME);
+
+            HashMap params = new HashMap();
+            params.put("OFFICE_NAME", officeName.getVal());
+
+            CcroByAgeAndGender[] beans = records.toArray(new CcroByAgeAndGender[records.size()]);
+            JRDataSource jds = new JRBeanArrayDataSource(beans);
+
+            return JasperFillManager.fillReport(
+                    ReportsService.class.getResourceAsStream("/reports/CcroByAgeAndGender.jasper"),
                     params, jds);
         } catch (Exception ex) {
             logger.error(ex);

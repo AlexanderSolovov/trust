@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Ccro" pageWidth="595" pageHeight="842" columnWidth="527" leftMargin="34" rightMargin="34" topMargin="28" bottomMargin="10" uuid="34e83ee4-79a7-4e09-8eed-721ca4bfad0c">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="128"/>
+	<property name="ireport.y" value="1248"/>
 	<subDataset name="OwnersForSignature" uuid="751763e3-9b88-4600-a4f6-1ae67bbfbd07">
 		<queryString>
 			<![CDATA[]]>
@@ -145,6 +145,9 @@
 	</field>
 	<field name="proposedUse" class="java.lang.String">
 		<fieldDescription><![CDATA[proposedUse]]></fieldDescription>
+	</field>
+	<field name="regionName" class="java.lang.String">
+		<fieldDescription><![CDATA[regionName]]></fieldDescription>
 	</field>
 	<detail>
 		<band height="760" splitType="Stretch">
@@ -695,7 +698,7 @@ YA KIJIJI]]></text>
 						<font size="11" isBold="false"/>
 					</textElement>
 					<textFieldExpression><![CDATA["Imegongwa Lakiri ya Halmashauri ya<br>" +
-"Wilaya ya Iringa na kusainiwa leo<br>" +
+"Wilaya ya " + $F{regionName} + " na kusainiwa leo<br>" +
 "Tarehe <b>" +
 ($F{regDate} == null ? "" : Integer.toString($F{regDate}.getDate())) + 
 "</b> Mwezi <b>" +

@@ -96,7 +96,7 @@ public class ParcelMapService {
             String сrsString = "EPSG:4326";
 
             if (settingCrs != null) {
-                сrsString = settingCrs.getVal();
+                сrsString = "EPSG:" + settingCrs.getVal();
                 crs = CRS.decode(сrsString);
             } else {
                 crs = CRS.decode(сrsString);

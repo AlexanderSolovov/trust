@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" whenNoDataType="BlankPage" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isFloatColumnFooter="true" uuid="950c64bf-e7f8-4c5e-a050-6f24fc5d1d47">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="OFFICE_NAME" class="java.lang.String"/>
+	<parameter name="DATE_FROM" class="java.util.Date"/>
+	<parameter name="DATE_TO" class="java.util.Date"/>
+	<field name="appType" class="java.lang.String"/>
+	<field name="lodged" class="java.lang.Long"/>
+	<field name="pending" class="java.lang.Long"/>
+	<field name="approved" class="java.lang.Long"/>
+	<field name="withdrawn" class="java.lang.Long"/>
+	<field name="rejected" class="java.lang.Long"/>
+	<variable name="lodged_total" class="java.lang.Long" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{lodged}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="approved_total" class="java.lang.Long" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{approved}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="rejected_total" class="java.lang.Long" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{rejected}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="pending_total" class="java.lang.Long" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{pending}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="withdrawn_total" class="java.lang.Long" resetType="Column" calculation="Sum">
+		<variableExpression><![CDATA[$F{withdrawn}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="103" splitType="Stretch">
+			<textField>
+				<reportElement x="10" y="60" width="332" height="22" uuid="7c630b6f-0018-4a7c-8cab-53c159ed90a3"/>
+				<textElement verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{OFFICE_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="0" width="545" height="46" uuid="2d1e4942-1ab3-4285-9eea-73b5af926afc"/>
+				<textElement verticalAlignment="Middle">
+					<font size="26" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Applications Statistics]]></text>
+			</staticText>
+			<line>
+				<reportElement x="10" y="46" width="545" height="1" uuid="b50669a9-6bb8-4e50-b4e7-bb4c03e13546"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Double"/>
+				</graphicElement>
+			</line>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="380" y="60" width="68" height="22" uuid="db4c9db2-d85d-4ccc-9b9f-50ec0525385c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DATE_FROM}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="477" y="60" width="68" height="22" uuid="d30dd458-579d-414e-90df-2c1e670f2831"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DATE_TO}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="342" y="60" width="38" height="22" uuid="c2c33328-c315-4ec4-bf0a-f487dbd01ece"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[From:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="456" y="60" width="21" height="22" uuid="53829fa3-4c24-4723-8103-93ac10ee47db"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12"/>
+				</textElement>
+				<text><![CDATA[to:]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="50">
+			<staticText>
+				<reportElement x="10" y="28" width="228" height="20" uuid="fe5fed14-486b-4807-9f91-982eefb54009"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Application Type]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="238" y="28" width="60" height="20" uuid="b869b7f2-9c33-4174-a470-b355516bc10e"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Lodged]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="298" y="28" width="60" height="20" uuid="1d221cc5-d365-4c4f-af0d-47c773737efe"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Approved]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="424" y="28" width="60" height="20" uuid="17d5c946-6c90-490b-adba-1f39e6d7cf0f"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Pending]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="361" y="28" width="60" height="20" uuid="91891d84-bdad-4834-a405-93a28168c1a2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Rejected]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="484" y="28" width="71" height="20" uuid="cefd011e-a149-4c79-b5f1-db43638d7061"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Withdrawn]]></text>
+			</staticText>
+			<line>
+				<reportElement x="10" y="49" width="545" height="1" uuid="a4c57f3b-56a1-4a13-aa9d-119b0c7aa030"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<textField>
+				<reportElement x="10" y="0" width="228" height="25" uuid="613e6302-5fbe-4f3e-b79a-19a25f2fef8f"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isItalic="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{appType}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="238" y="0" width="60" height="25" uuid="b8f1c9c7-1f26-4c90-be54-37882b5ec4e9"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{lodged}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="298" y="0" width="60" height="25" uuid="dbf0325b-6d04-4ce9-bebc-fc79ca25cc3e"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{approved}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="361" y="0" width="60" height="25" uuid="2bac94f1-f266-4bb2-bbbb-70a7dba5da80"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{rejected}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="424" y="0" width="60" height="25" uuid="ce85aa99-d6ac-4016-8cdb-eb6fb0ed2108"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{pending}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="485" y="0" width="70" height="25" uuid="2464f571-1764-4187-ab87-9a3cafb17213"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{withdrawn}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="30">
+			<staticText>
+				<reportElement mode="Transparent" x="10" y="8" width="228" height="22" backcolor="#FFFFFF" uuid="709c78e7-ec4a-464e-92a2-5a621875963c"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true" isItalic="true"/>
+					<paragraph leftIndent="3"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="238" y="8" width="60" height="22" uuid="c443a1c1-7aea-483b-8c45-47e564f06474"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{lodged_total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="298" y="8" width="60" height="22" uuid="a7bfe03f-78be-496d-b276-35bee0f527de"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{approved}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="361" y="8" width="60" height="22" uuid="6f559e30-b5e0-4d41-87b1-1876893faf1d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{rejected_total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="424" y="8" width="60" height="22" uuid="7f66b194-e39a-48b2-a2c5-a539eeb3efa1"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{pending_total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="485" y="8" width="70" height="22" uuid="5f297d00-a92e-4804-8a1d-fea6531edf87"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{withdrawn_total}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="10" y="5" width="545" height="1" uuid="2e6a7639-88de-4926-9607-9cdd00bbe509"/>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="42">
+			<staticText>
+				<reportElement x="377" y="12" width="71" height="20" uuid="de16af82-f38b-453b-a2f4-ca79075ec391"/>
+				<textElement verticalAlignment="Middle">
+					<font isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Generated on:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy HH:mm">
+				<reportElement x="448" y="12" width="107" height="20" uuid="cf2aa7a0-ca91-44b2-99ca-5a40878b6475"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

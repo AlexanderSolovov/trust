@@ -375,6 +375,8 @@ PropertyCtrl.fillForm = function () {
                                     var removeLink = "";
                                     if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
                                         removeLink = DataTablesUtility.getDischargeLink();
+                                    } else if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment) {
+                                        removeLink = DataTablesUtility.getRemoveLink();
                                     } else {
                                         removeLink = DataTablesUtility.getWithdrawLink();
                                     }
@@ -391,6 +393,8 @@ PropertyCtrl.fillForm = function () {
                                     var cancelRemoveLink = "";
                                     if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
                                         cancelRemoveLink = DataTablesUtility.getCancelDischargeLink();
+                                    } else if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment) {
+                                        cancelRemoveLink = DataTablesUtility.getCancelRemoveLink();
                                     } else {
                                         cancelRemoveLink = DataTablesUtility.getCancelWithdrawLink();
                                     }
@@ -652,7 +656,7 @@ PropertyCtrl.backToApplication = function () {
     } else {
         // Check rights
         for (var i = 0; i < existingRights.length; i++) {
-            if (JSON.stringify(existingRights[i]) !== JSON.stringify(rights[i])){
+            if (JSON.stringify(existingRights[i]) !== JSON.stringify(rights[i])) {
                 hasChanges = true;
                 break;
             }
@@ -1111,6 +1115,7 @@ PropertyCtrl.openRight = function (right, forEdit) {
     $("#divWitness2").hide();
     $("#divEndDate").hide();
     $("#divDuration").hide();
+    $("#lDurationTitle").text($.i18n("right-duration"));
 
     showRight = function () {
         if (loadingRight > 0) {
@@ -1183,6 +1188,14 @@ PropertyCtrl.openRight = function (right, forEdit) {
             $("#divPerson").hide();
         } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Caveat) {
             $("#divEndDate").show();
+            $("#divLegalEntity").show();
+            $("#divPerson").show();
+        } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment) {
+            $("#lDurationTitle").text($.i18n("right-duration-months"));
+            $("#divDuration").show();
+            if (forEdit) {
+                $("#reqDuration").show();
+            }
             $("#divLegalEntity").show();
             $("#divPerson").show();
         }
@@ -1524,7 +1537,8 @@ PropertyCtrl.validateRight = function (right, showErrors) {
             }
         }
     } else {
-        if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
+        if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage ||
+                right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment) {
             if (isNullOrEmpty($("#txtStartDate").val())) {
                 errors.push($.i18n("err-right-start-date-empty"));
             }

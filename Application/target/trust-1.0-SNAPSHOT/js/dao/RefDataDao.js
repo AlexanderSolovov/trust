@@ -24,7 +24,8 @@ RefDataDao.REF_DATA_TYPES = {
     RightType: {type: "RightType", labelSingle: "ref-right-type", labelPlural: "ref-right-types"},
     OwnerType: {type: "OwnerType", labelSingle: "ref-owner-type", labelPlural: "ref-owner-types"},
     OccupancyType: {type: "OccupancyType", labelSingle: "ref-occupancy-type", labelPlural: "ref-occupancy-types"},
-    LandUse: {type: "LandUse", labelSingle: "ref-landuse-type", labelPlural: "ref-landuse-types"}
+    LandUse: {type: "LandUse", labelSingle: "ref-landuse-type", labelPlural: "ref-landuse-types"},
+    LayerType: {type: "LayerType", labelSingle: "ref-layer-type", labelPlural: "ref-layer-types"}
 };
 
 $(function () {
@@ -66,7 +67,8 @@ RefDataDao.RIGHT_TYPE_GROUP_CODES = {
 RefDataDao.RIGHT_TYPE_CODES = {
     Ccro: "ccro",
     Caveat: "caveat",
-    Mortgage: "mortgage"
+    Mortgage: "mortgage",
+    Assignment: "assign"
 };
 
 RefDataDao.OWNER_TYPE_CODES = {
@@ -86,6 +88,18 @@ RefDataDao.OCCUPANCY_TYPE_CODES = {
 
 RefDataDao.RefData = function () {
     return {code: "", val: "", active: true, version: 0};
+};
+
+RefDataDao.District = function () {
+    return {code: "", val: "", regionCode: null, active: true, version: 0};
+};
+
+RefDataDao.Village = function () {
+    return {code: "", val: "", districtCode: null, address: null, chairman: null, executiveOfficer: null, active: true, version: 0};
+};
+
+RefDataDao.Hamlet = function () {
+    return {code: "", val: "", districtCode: null, abbr: null, leader: null, active: true, version: 0};
 };
 
 RefDataDao.Language = function () {

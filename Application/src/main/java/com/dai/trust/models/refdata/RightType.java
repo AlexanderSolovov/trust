@@ -17,6 +17,7 @@ public class RightType extends AbstractRefDataEntity {
     public static final String TYPE_CCRO = "ccro";
     public static final String TYPE_CAVEAT = "caveat";
     public static final String TYPE_MORTGAGE = "mortgage";
+    public static final String TYPE_ASSIGNMENT = "assign";
 
     public RightType(){
         super();

@@ -19,6 +19,8 @@ $(function () {
     SystemDao.URL_GET_ACTIVE_MAP_LAYERS = baseUrl + "getactivemaplayers";
     SystemDao.URL_GET_ALL_MAP_LAYERS = baseUrl + "getallmaplayers";
     SystemDao.URL_GET_MAP_SETTINGS = baseUrl + "getmapsettings";
+    SystemDao.URL_SAVE_MAP_LAYER = baseUrl + "savemaplayer";
+    SystemDao.URL_DELETE_MAP_LAYER = baseUrl + "deletemaplayer/{0}";
 });
 
 SystemDao.Setting = function () {
@@ -33,6 +35,16 @@ SystemDao.User = function () {
     return {id: null, userName: null, passwd: null, firstName: null,
         lastName: null, email: null, mobileNumber: null, active: true,
         description: null, groupCodes: [], fullName: null, version: 0};
+};
+
+SystemDao.MapLayer = function () {
+    return {id: null, name: null, title: null, typeCode: null, active: true, 
+        order: 0, url: null, versionNum: null, imageFormat: null, 
+        userName: null, passwd: null, version: 0, options:null};
+};
+
+SystemDao.LayerOption = function () {
+    return {id: null, name: null, val: null, forServer: true, version: 0};
 };
 
 SystemDao.getSettings = function (successAction, failAction, alwaysAction, showErrorAlert) {
@@ -81,4 +93,12 @@ SystemDao.getAllMapLayers = function (successAction, failAction, alwaysAction, s
 
 SystemDao.getMapSettings = function (successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(SystemDao.URL_GET_MAP_SETTINGS, successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SystemDao.saveMapLayer = function (data, successAction, failAction, alwaysAction, showErrorAlert) {
+    postAjaxData(SystemDao.URL_SAVE_MAP_LAYER, data, successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+SystemDao.deleteMapLayer = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
+    deleteAjaxData(String.format(SystemDao.URL_DELETE_MAP_LAYER, id), successAction, failAction, alwaysAction, showErrorAlert);
 };

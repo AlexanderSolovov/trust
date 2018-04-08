@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class MapSettings implements Serializable {
     private String printingSrs;
+    private String printingSrsProj4;
     private String mapExtent;
     private boolean offlineMode;
     private List<MapLayer> layers;
@@ -45,5 +46,13 @@ public class MapSettings implements Serializable {
 
     public void setLayers(List<MapLayer> layers) {
         this.layers = layers;
+    }
+
+    public String getPrintingSrsProj4() {
+        return printingSrsProj4;
+    }
+
+    public void setPrintingSrsProj4(String printingSrsProj4) {
+        this.printingSrsProj4 = printingSrsProj4;
     }
 }

@@ -59,6 +59,9 @@ public class PropertySummary implements Serializable {
     @Column(name = "district_name")
     private String districtName;
 
+    @Column(name = "region_name")
+    private String regionName;
+    
     @Column
     private Double acres;
 
@@ -157,7 +160,8 @@ public class PropertySummary implements Serializable {
             + "v.chairman AS village_chairman, "
             + "v.executive_officer AS village_executive_officer, "
             + "v.address AS village_address, "
-            + "get_translation(d.val, null) AS district_name, "
+            + "get_translation(region.val, :langCode) AS region_name, "
+            + "get_translation(d.val, :langCode) AS district_name, "
             + "get_translation(v.val, :langCode) AS village_name, "
             + "round(cast(st_area(st_transform(pl.geom, 32736)) * cast(0.000247105 as double precision) as numeric), 3) AS acres, "
             + "get_translation(h.val, :langCode) AS hamlet_name, "
@@ -195,6 +199,7 @@ public class PropertySummary implements Serializable {
             + " LEFT JOIN public.ref_hamlet h ON pl.hamlet_code = h.code "
             + " LEFT JOIN public.ref_village v ON h.village_code = v.code "
             + " LEFT JOIN public.ref_district d ON v.district_code = d.code "
+            + " LEFT JOIN public.ref_region region ON d.region_code = region.code "
             + " LEFT JOIN public.ref_land_type lt ON pl.land_type_code = lt.code ";
 
     public static final String QUERY_SEARCH = SEARCH_SELECT
@@ -316,6 +321,14 @@ public class PropertySummary implements Serializable {
 
     public void setDistrictName(String districtName) {
         this.districtName = districtName;
+    }
+
+    public String getRegionName() {
+        return regionName;
+    }
+
+    public void setRegionName(String regionName) {
+        this.regionName = regionName;
     }
 
     public Double getAcres() {

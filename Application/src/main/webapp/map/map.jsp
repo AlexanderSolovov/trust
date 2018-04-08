@@ -18,6 +18,7 @@
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/dao/PropertyDao.js"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/dao/RefDataDao.js"></script>
         <script src="${pageContext.request.contextPath}/js/libs/ol/OpenLayers.js"></script>
+        <script src="${pageContext.request.contextPath}/js/libs/ol/proj4.min.js"></script>
         <script src="${pageContext.request.contextPath}/js/libs/ol/ScaleBar.js"></script>
         <script src="https://maps.google.com/maps/api/js?v=3&amp;key=AIzaSyCReLc9rPj9kPKg1YseVhDKeGt_9z7ZwKk"></script>
         <script type="text/javascript" src="${pageContext.request.contextPath}/js/libs/ext/ext-base.js"></script>

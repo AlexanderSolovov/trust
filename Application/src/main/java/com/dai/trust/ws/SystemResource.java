@@ -3,6 +3,7 @@ package com.dai.trust.ws;
 import com.dai.trust.common.RolesConstants;
 import com.dai.trust.exceptions.ExceptionFactory;
 import com.dai.trust.models.system.AppGroup;
+import com.dai.trust.models.system.MapLayer;
 import com.dai.trust.models.system.Setting;
 import com.dai.trust.models.system.User;
 import com.dai.trust.services.system.AppGroupService;
@@ -309,6 +310,55 @@ public class SystemResource extends AbstractResource {
         try {
             MapService service = new MapService();
             return getMapper().writeValueAsString(service.getMapSettings());
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Deletes map layer
+     *
+     * @param langCode Language code for localization
+     * @param id Layer id
+     * @return
+     */
+    @DELETE
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:deletemaplayer|deleteMapLayer}/{id}")
+    @Authorized(roles = RolesConstants.ADMIN)
+    public String deleteMapLayer(@PathParam(value = LANG_CODE) String langCode, @PathParam(value = "id") String id) {
+        try {
+            MapService service = new MapService();
+            service.deleteById(id, MapLayer.class);
+            return ResponseFactory.buildOk();
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
+    /**
+     * Saves map layer
+     *
+     * @param langCode Language code for localization
+     * @param json Map layer in JSON format
+     * @return
+     */
+    @POST
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:savemaplayer|saveMapLayer}")
+    @Authorized(roles = RolesConstants.ADMIN)
+    public String saveMapLayer(@PathParam(value = LANG_CODE) String langCode, String json) {
+        MapLayer mapLayer = null;
+        try {
+            mapLayer = getMapper().readValue(json, MapLayer.class);
+        } catch (Exception e) {
+            logger.error("Failed to convert Setting JSON", e);
+            throw ExceptionFactory.buildBadJson(langCode, "Setting");
+        }
+
+        try {
+            MapService service = new MapService();
+            return getMapper().writeValueAsString(service.saveMapLayer(mapLayer));
         } catch (Exception e) {
             throw processException(e, langCode);
         }

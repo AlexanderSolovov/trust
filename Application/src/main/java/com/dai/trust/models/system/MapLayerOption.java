@@ -23,7 +23,7 @@ public class MapLayerOption extends AbstractIdEntity {
     private boolean forServer;
     
     @JsonIgnore
-    @Column(name = "layer_id", insertable = false, updatable = false)
+    @Column(name = "layer_id")
     private String layerId;
     
     @JsonIgnore

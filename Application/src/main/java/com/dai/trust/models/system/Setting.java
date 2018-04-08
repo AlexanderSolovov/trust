@@ -16,6 +16,7 @@ public class Setting extends AbstractIdEntity {
     public final static String SETTING_MAX_FILE_SIZE = "max-file-size";
     public final static String SETTING_FILE_EXTENSIONS = "file-extensions";
     public final static String SETTING_DISTRICT_OFFICER = "district-officer";
+    public final static String SETTING_OFFICE_NAME = "office-name";
     
     @Column
     private String val;

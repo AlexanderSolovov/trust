@@ -682,6 +682,23 @@ public class PropertyService extends AbstractService {
                             throw new TrustException(MessagesKeys.ERR_PROP_END_DATE_GREATER_START_DATE);
                         }
                     }
+                    
+                    // Validate assignment
+                    if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_ASSIGNMENT)) {
+                        // Set fields not allowed for mortgage to null
+                        clearOwnershipFields(right);
+                        right.setInteresetRate(null);
+                        right.setDealAmount(null);
+                        right.setEndDate(null);
+
+                        if (right.getStartDate() == null) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
+                        }
+                        
+                        if (right.getDuration()== null || right.getDuration() <= 0) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_DURATION_EMPTY);
+                        }
+                    }
 
                     boolean strict = true;
                     if (transactionType.equals(TransactionType.RECTIFY)) {

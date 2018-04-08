@@ -85,6 +85,14 @@
                             <li class="divider"></li>
 
                             <li>
+                                <a href="${pageContext.request.contextPath}/admin/MapLayers.jsp">
+                                    <i class="glyphicon glyphicon-map-marker"></i> <fmt:message key="MENU_MAP_LAYERS" />
+                                </a> 
+                            </li>
+
+                            <li class="divider"></li>
+
+                            <li>
                                 <a href="#"><i class="glyphicon glyphicon-eye-open"></i> <fmt:message key="MENU_SECURITY" /> <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
                                     <li>
@@ -111,9 +119,86 @@
                                                 <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_DOC_TYPES" />
                                             </a> 
                                         </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=Citizenship">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_CITIZENSHIP" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=LegalEntityType">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_LEGAL_ENTITY_TYPES" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=IdType">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_ID_TYPES" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=LandType">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_LAND_TYPES" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=LandUse">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_LAND_USES" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=MaritalStatus">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_MARITAL_STATUSES" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/RefData.jsp?type=Region">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_REGIONS" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/Districts.jsp">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_DISTRICTS" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/Villages.jsp">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_VILLAGES" />
+                                            </a> 
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/admin/ref/Hamlets.jsp">
+                                                <i class="glyphicon glyphicon-book"></i> <fmt:message key="MENU_REF_HAMLETS" />
+                                            </a> 
+                                        </li>
                                     </ul>
                                 </li>
                             </c:if>
+                        </ul>
+                    </li>
+                </c:if>
+                <c:if test="${pageContext.request.isUserInRole(roles.ADMIN)}">
+                    <li class='${menu.getItemClassByPath(pageContext.request, "/report/")}'>
+                        <a href="#"><i class="icon-bar-chart"></i> <fmt:message key="MENU_REPORTS" /> <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="${pageContext.request.contextPath}/report/ApplicationsStatistics.jsp">
+                                    <i class="glyphicon glyphicon-stats"></i> <fmt:message key="MENU_REPORTS_APP_STAT" />
+                                </a> 
+                            </li>
+                            <li>
+                                <a href="${pageContext.request.contextPath}/report/RightsStatistics.jsp">
+                                    <i class="glyphicon glyphicon-stats"></i> <fmt:message key="MENU_REPORTS_RIGHT_STAT" />
+                                </a> 
+                            </li>
+                            <li>
+                                <a href="${pageContext.request.contextPath}/report/CcroByOccupancy.jsp">
+                                    <i class="glyphicon glyphicon-stats"></i> <fmt:message key="MENU_REPORTS_OCCUPANCY_STAT" />
+                                </a> 
+                            </li>
+                            <li>
+                                <a href="${pageContext.request.contextPath}/report/CcroByAgeAndGender.jsp">
+                                    <i class="glyphicon glyphicon-stats"></i> <fmt:message key="MENU_REPORTS_AGE_STAT" />
+                                </a> 
+                            </li>
                         </ul>
                     </li>
                 </c:if>

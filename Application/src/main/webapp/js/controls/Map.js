@@ -64,9 +64,14 @@ Controls.Map = function (controlId, targetElementId, options) {
 
     // Default feature source CRS
     var sourceCrs = "EPSG:4326";
+    Proj4js.defs["EPSG:4326"] = "+proj=longlat +datum=WGS84 +no_defs";
 
     // Default destination CRS
     var destCrs = "EPSG:3857";
+    Proj4js.defs["EPSG:3857"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs";
+
+    // CSR cutomized for printing parcel map
+    var printCrs = null;
 
     var mapPanel;
 
@@ -109,6 +114,11 @@ Controls.Map = function (controlId, targetElementId, options) {
         // Get map settings
         SystemDao.getMapSettings(function (mapSettings) {
             isOffline = mapSettings.offlineMode;
+            if (!isNullOrEmpty(mapSettings.printingSrs)) {
+                printCrs = "EPSG:" + mapSettings.printingSrs;
+                Proj4js.defs[printCrs] = mapSettings.printingSrsProj4;
+            }
+
             if (!isNull(mapSettings.mapExtent)) {
                 maxExtentBounds = wkt.read(mapSettings.mapExtent);
             } else {
@@ -211,7 +221,7 @@ Controls.Map = function (controlId, targetElementId, options) {
             div: controlId + "_map",
             allOverlays: false,
             projection: destCrs,
-            displayProjection: sourceCrs,
+            displayProjection: isNullOrEmpty(printCrs) ? sourceCrs : printCrs,
             maxExtentBounds: maxExtentBounds,
             initialZoomBounds: initialZoomBounds,
             units: 'm',
@@ -433,6 +443,14 @@ Controls.Map = function (controlId, targetElementId, options) {
             });
 
             mapToolbarItems.push("-");
+
+            mapToolbarItems.push({
+                id: Controls.Map.TOOLBAR_BUTTON_IDS.IMPORT_POINTS,
+                iconCls: 'importPointsIcon',
+                text: $.i18n("map-control-create-from-coords"),
+                tooltip: $.i18n("map-control-create-from-coords"),
+                handler: onImportPointsClick
+            });
 
             mapToolbarItems.push(new GeoExt.Action({
                 id: Controls.Map.TOOLBAR_BUTTON_IDS.DRAW_POLYGON,
@@ -1122,6 +1140,114 @@ Controls.Map = function (controlId, targetElementId, options) {
         customizeMapToolbar();
     }
 
+    function onImportPointsClick() {
+        if ($("#" + controlVarId + "_ImportPointsDialog").length === 0) {
+            var html = '<div class="modal fade" id="' + controlVarId + '_ImportPointsDialog" tabindex="-1" role="dialog" aria-hidden="true"> \
+                        <div class="modal-dialog" style="width:500px;"> \
+                            <div class="modal-content"> \
+                                <div class="modal-header"> \
+                                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only" data-i18n="gen-close"></span></button> \
+                                    <h4 class="modal-title" data-i18n="gen-import"></h4> \
+                                </div> \
+                                <div class="modal-body" style="padding: 0px 5px 0px 5px;"> \
+                                    <div class="content"> \
+                                        <div class="row"> \
+                                            <div class="col-md-6"> \
+                                                <label data-i18n="map-control-points-type"></label> \
+                                                <select id="' + controlVarId + '_cbxPointsType" class="form-control"></select> \
+                                            </div> \
+                                            <div class="col-md-4"> \
+                                                <label data-i18n="map-control-crs"></label> \
+                                                <select id="' + controlVarId + '_cbxCrs" class="form-control"></select> \
+                                            </div> \
+                                        </div> \
+                                        <div class="LineSpace"></div> \
+                                        <label data-i18n="map-control-points"></label> \
+                                        <textarea id="' + controlVarId + '_txtPoints" rows="5" class="form-control"></textarea> \
+                                    </div> \
+                                </div> \
+                                <div class="modal-footer" style="margin-top: 0px;padding: 15px 20px 15px 20px;"> \
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="gen-close"></button> \
+                                    <button type="button" id="' + controlVarId + '_btnImportPoints" class="btn btn-primary" onclick="' + controlVarId + '.importPoints()" data-i18n="gen-import"></button> \
+                                </div> \
+                            </div> \
+                        </div> \
+                    </div>';
+
+            $('#' + targetElementId).append(html);
+            // Localize
+            $('#' + targetElementId).i18n();
+            // Populate lists
+            $("#" + controlVarId + "_cbxPointsType").append($("<option />").val("wkt").text($.i18n("map-control-wkt")));
+            $("#" + controlVarId + "_cbxPointsType").append($("<option />").val(",").text($.i18n("map-control-comma")));
+            $("#" + controlVarId + "_cbxPointsType").append($("<option />").val(";").text($.i18n("map-control-semicolon")));
+
+            $("#" + controlVarId + "_cbxCrs").append($("<option />").val(sourceCrs).text(sourceCrs));
+            if (!isNullOrEmpty(printCrs) && printCrs !== sourceCrs) {
+                $("#" + controlVarId + "_cbxCrs").append($("<option />").val(printCrs).text(printCrs));
+            }
+        }
+
+        $("#" + controlVarId + "_ImportPointsDialog").modal('show');
+    }
+
+    this.importPoints = function () {
+        var coords = $("#" + controlVarId + "_txtPoints").val().trim();
+        var pointsType = $("#" + controlVarId + "_cbxPointsType").val();
+        var crsCode = $("#" + controlVarId + "_cbxCrs").val();
+
+        if (isNullOrEmpty(coords)) {
+            alertErrorMessage($.i18n("err-parcel-no-coords"));
+            return;
+        }
+
+        try {
+            var parcel;
+            if (pointsType === "wkt") {
+                if (coords.toLowerCase().indexOf("polygon") < 0) {
+                    alertErrorMessage($.i18n("err-parcel-not-polygon"));
+                    return;
+                }
+            } else {
+                // Check number of oordinates and complete polygon if needed
+                var arrayCoords = coords.split(pointsType);
+
+                if (arrayCoords.length > 2) {
+                    if (arrayCoords[0].replace(/ /g, "") !== arrayCoords[arrayCoords.length - 1].replace(/ /g, "")) {
+                        // Add last point to complete polygon
+                        arrayCoords.push(arrayCoords[0].trim());
+                        arrayCoords = arrayCoords + pointsType + " " + arrayCoords[0].trim();
+                    }
+                }
+
+                if (arrayCoords.length < 4) {
+                    alertErrorMessage($.i18n("err-parcel-3points-min"));
+                    return;
+                }
+
+                if (pointsType === ",") {
+                    coords = "Polygon((" + coords + "))";
+                } else {
+                    coords = "Polygon((" + coords.replace(/;/g, ",") + "))";
+                }
+            }
+
+            parcel = wkt.read(coords);
+            parcel.geometry.transform(crsCode, destCrs);
+            layerSelectedParcels.addFeatures(parcel);
+
+            // Zoom to boundary
+            map.zoomToExtent(parcel.geometry.getBounds(), closest=true);
+
+            // Show attributes popup
+            $("#" + controlVarId + "_ImportPointsDialog").modal('hide');
+            editParcelAttributes(parcel);
+
+        } catch (ex) {
+            alertErrorMessage(ex);
+        }
+    };
+
     // Layer property change handler
     function handleLayerChange(evt) {
         if (evt.property === 'visibility') {
@@ -1477,7 +1603,8 @@ Controls.Map.TOOLBAR_BUTTON_IDS = {
     EDIT_FEATURE: "btnEditFeature",
     SNAP: "btnSnapping",
     SNAP_SELECT: "btnSelectForSnapping",
-    MAXIMIZE_MAP: "btnMaximizeMap"
+    MAXIMIZE_MAP: "btnMaximizeMap",
+    IMPORT_POINTS: "btnImportPoints"
 };
 
 // Map layers ids

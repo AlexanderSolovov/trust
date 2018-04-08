@@ -307,7 +307,7 @@
                                     <span id="lblEndDate"></span>
                                 </div>
                                 <div class="col-md-3" id="divDuration">
-                                    <label data-i18n="right-duration"></label>
+                                    <label id="lDurationTitle"></label>
                                     <i class="glyphicon glyphicon-required" id="reqDuration"></i>
                                     <br>
                                     <input id="txtDuration" class="form-control" maxlength="5" autocomplete="off" 
