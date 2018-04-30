@@ -29,7 +29,8 @@ PropertyDao.Parcel = function () {
         applicationId: null,
         endApplicationId: null,
         statusCode: null,
-        version: 0
+        version: 0,
+        logs: null
     };
 };
 
@@ -45,7 +46,8 @@ PropertyDao.Property = function () {
         endApplicationId: null,
         statusCode: null,
         rights: null,
-        version: 0
+        version: 0,
+        logs: null
     };
 };
 
@@ -86,7 +88,8 @@ PropertyDao.Right = function () {
         terminationApplicationId: null,
         terminationDate: null,
         statusCode: null,
-        version: 0
+        version: 0,
+        logs: null
     };
 };
 

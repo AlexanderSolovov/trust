@@ -1,5 +1,6 @@
 package com.dai.trust.models.search;
 
+import com.dai.trust.models.property.ParcelLog;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -62,6 +63,9 @@ public class ParcelSearchResult implements Serializable {
     
     @Transient
     private List<PropertyCodeSearchResult> propCodes;
+    
+    @Transient
+    private List<ParcelLog> logs;
     
     public ParcelSearchResult(){
         super();
@@ -193,6 +197,14 @@ public class ParcelSearchResult implements Serializable {
 
     public void setPropCodes(List<PropertyCodeSearchResult> propCodes) {
         this.propCodes = propCodes;
+    }
+
+    public List<ParcelLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<ParcelLog> logs) {
+        this.logs = logs;
     }
 
     public String getGeom() {

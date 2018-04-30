@@ -153,6 +153,22 @@ Controls.Person = function (controlId, targetElementId, options) {
             docsControl.setDocuments(makeObjectsList(p.documents, "document"));
             docsControl.setEditable(localPerson.editable);
         }
+        
+        // Logs
+        $("#" + controlVarId + "_listLogs").empty();
+        if (p.logs !== null && p.logs.length > 0) {
+            $.each(p.logs, function (i, item) {
+                var action;
+                if(i === 0){
+                    action = $.i18n("log-created");
+                } else {
+                    action = $.i18n("log-edited");
+                }
+                
+                action = String.format(action, "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
+                $("#" + controlVarId + "_listLogs").append($("<li />").html(action));
+            });
+        }
     };
 
     var showHidePhotoPanel = function (fileId) {

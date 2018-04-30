@@ -6,8 +6,8 @@
 var SearchDao = SearchDao || {};
 $(function () {
     var baseUrl = Global.APP_ROOT + "/ws/" + Global.LANG + "/search/";
-    SearchDao.URL_PERSON_SEARCH = baseUrl + "person?name={0}&idnumber={1}";
-    SearchDao.URL_LEGAL_ENTITY_SEARCH = baseUrl + "legalentity?name={0}&regnumber={1}";
+    SearchDao.URL_PERSON_SEARCH = baseUrl + "person?name={0}&idnumber={1}&ccro={2}";
+    SearchDao.URL_LEGAL_ENTITY_SEARCH = baseUrl + "legalentity?name={0}&regnumber={1}&ccro={2}";
     SearchDao.URL_FULL_USER_NAME_SEARCH = baseUrl + "userfullname/{0}";
     SearchDao.URL_SEARCH_MY_APPS = baseUrl + "myapplications";
     SearchDao.URL_SEARCH_PENDING_APPS = baseUrl + "pendingapplications";
@@ -93,13 +93,13 @@ SearchDao.searchApplications = function (data, successAction, failAction, always
     postAjaxData(SearchDao.URL_SEARCH_APPS, data, successAction, failAction, alwaysAction, showErrorAlert);
 };
 
-SearchDao.searchPerson = function (name, idNumber, successAction, failAction, alwaysAction, showErrorAlert) {
-    getAjaxData(String.format(SearchDao.URL_PERSON_SEARCH, String.empty(name), String.empty(idNumber)),
+SearchDao.searchPerson = function (name, idNumber, ccro, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_PERSON_SEARCH, String.empty(name), String.empty(idNumber), String.empty(ccro)),
             successAction, failAction, alwaysAction, showErrorAlert);
 };
 
-SearchDao.searchLegalEntity = function (name, regNumber, successAction, failAction, alwaysAction, showErrorAlert) {
-    getAjaxData(String.format(SearchDao.URL_LEGAL_ENTITY_SEARCH, String.empty(name), String.empty(regNumber)),
+SearchDao.searchLegalEntity = function (name, regNumber, ccro, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(SearchDao.URL_LEGAL_ENTITY_SEARCH, String.empty(name), String.empty(regNumber), String.empty(ccro)),
             successAction, failAction, alwaysAction, showErrorAlert);
 };
 

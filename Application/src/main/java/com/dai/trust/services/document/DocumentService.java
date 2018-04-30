@@ -7,7 +7,10 @@ import com.dai.trust.common.SharedData;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.MultipleTrustException;
 import com.dai.trust.exceptions.TrustException;
+import com.dai.trust.models.application.Application;
+import com.dai.trust.models.application.ApplicationLog;
 import com.dai.trust.models.document.Document;
+import com.dai.trust.models.document.DocumentLog;
 import com.dai.trust.models.document.FileInfo;
 import com.dai.trust.models.system.Setting;
 import com.dai.trust.services.AbstractService;
@@ -15,9 +18,13 @@ import com.dai.trust.services.system.SettingsService;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -63,10 +70,34 @@ public class DocumentService extends AbstractService {
     }
 
     /**
+     * Extracts log records for document
+     *
+     * @param docId Document id
+     * @return 
+     */
+    public List<DocumentLog> getDocumentLogs(String docId) {
+        if (docId == null || docId.equals("")) {
+            return null;
+        }
+
+        Query q = getEM().createNativeQuery(
+                "select (row_number() OVER ())  || '_' || :docId as id, l.*, (case when au.username is null then l.action_user else au.first_name || ' ' || au.last_name end) as action_user_name\n"
+                + "from (\n"
+                + "select action_time, action_user from public.document where id=:docId \n"
+                + "union\n"
+                + "select action_time, action_user from history.document where id=:docId \n"
+                + ") l left join appuser au on l.action_user = au.username \n"
+                + "order by l.action_time", DocumentLog.class);
+        q.setParameter("docId", docId);
+        return q.getResultList();
+    }
+
+    /**
      * Validates document
      *
      * @param doc Document to validate
-     * @param strict Boolean value indicating whether to check for person to be involved in registered rights and/or approved applications
+     * @param strict Boolean value indicating whether to check for person to be
+     * involved in registered rights and/or approved applications
      * @return
      */
     public boolean validateDocument(Document doc, boolean strict) {
@@ -83,7 +114,7 @@ public class DocumentService extends AbstractService {
         if (StringUtility.isEmpty(doc.getFileId())) {
             throw new TrustException(MessagesKeys.ERR_DOC_EMPTY_FILE);
         }
-        
+
         // Get document from db
         Document dbDoc = null;
         if (strict && !StringUtility.isEmpty(doc.getId())) {
@@ -195,7 +226,7 @@ public class DocumentService extends AbstractService {
             if (!(e instanceof TrustException)) {
                 throw new TrustException(MessagesKeys.ERR_FILE_FAILED_SAVING, new Object[]{originalFileName});
             }
-            throw (TrustException)e;
+            throw (TrustException) e;
         }
 
         // Save to db

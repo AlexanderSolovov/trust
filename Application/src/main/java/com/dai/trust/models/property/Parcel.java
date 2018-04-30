@@ -2,10 +2,12 @@ package com.dai.trust.models.property;
 
 import com.dai.trust.models.AbstractIdEntity;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import org.hibernate.annotations.ColumnTransformer;
 
 @Entity
@@ -43,7 +45,10 @@ public class Parcel extends AbstractIdEntity {
 
     @Column(name = "status_code", insertable = false, updatable = false)
     private String statusCode;
-        
+    
+    @Transient
+    private List<ParcelLog> logs;
+    
     public Parcel() {
         super();
     }
@@ -126,5 +131,13 @@ public class Parcel extends AbstractIdEntity {
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
+    }
+
+    public List<ParcelLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<ParcelLog> logs) {
+        this.logs = logs;
     }
 }

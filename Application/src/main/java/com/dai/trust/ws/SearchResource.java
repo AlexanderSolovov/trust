@@ -35,6 +35,7 @@ public class SearchResource extends AbstractResource {
      * @param langCode Language code for localization
      * @param name Person name
      * @param idNumber Person ID number
+     * @param ccro CCRO number
      * @return
      */
     @GET
@@ -43,10 +44,11 @@ public class SearchResource extends AbstractResource {
     @Authorized(roles = RolesConstants.SEARCH)
     public String searchPerson(@PathParam(value = LANG_CODE) String langCode,
             @QueryParam(value = "name") String name,
-            @QueryParam(value = "idnumber") String idNumber) {
+            @QueryParam(value = "idnumber") String idNumber,
+            @QueryParam(value = "ccro") String ccro) {
         try {
             SearchService service = new SearchService();
-            return getMapper().writeValueAsString(service.searchPerson(langCode, name, idNumber));
+            return getMapper().writeValueAsString(service.searchPerson(langCode, name, idNumber, ccro));
         } catch (Exception e) {
             throw processException(e, langCode);
         }
@@ -58,6 +60,7 @@ public class SearchResource extends AbstractResource {
      * @param langCode Language code for localization
      * @param name Legal entity name
      * @param regNumber Legal entity registration number
+     * @param ccro CCRO number
      * @return
      */
     @GET
@@ -66,10 +69,11 @@ public class SearchResource extends AbstractResource {
     @Authorized(roles = RolesConstants.SEARCH)
     public String searchLegalEntity(@PathParam(value = LANG_CODE) String langCode,
             @QueryParam(value = "name") String name,
-            @QueryParam(value = "regnumber") String regNumber) {
+            @QueryParam(value = "regnumber") String regNumber,
+            @QueryParam(value = "ccro") String ccro) {
         try {
             SearchService service = new SearchService();
-            return getMapper().writeValueAsString(service.searchLegalEntity(langCode, name, regNumber));
+            return getMapper().writeValueAsString(service.searchLegalEntity(langCode, name, regNumber, ccro));
         } catch (Exception e) {
             throw processException(e, langCode);
         }

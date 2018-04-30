@@ -69,6 +69,9 @@ public class Application extends AbstractIdEntity {
     @Transient
     private ApplicationPermissions permissions;
 
+    @Transient
+    private List<ApplicationLog> logs;
+    
     public Application() {
         super();
     }
@@ -199,5 +202,13 @@ public class Application extends AbstractIdEntity {
 
     public void setPermissions(ApplicationPermissions permissions) {
         this.permissions = permissions;
+    }
+
+    public List<ApplicationLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<ApplicationLog> logs) {
+        this.logs = logs;
     }
 }

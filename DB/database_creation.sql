@@ -717,7 +717,6 @@ CREATE TABLE public.ref_village
   action_user character varying(50),
   action_time timestamp without time zone NOT NULL DEFAULT now(),
   CONSTRAINT ref_village_pkey PRIMARY KEY (code),
-  CONSTRAINT ref_village_val_unique UNIQUE (district_code, val),
   CONSTRAINT ref_village_ref_district_fk FOREIGN KEY (district_code)
       REFERENCES public.ref_district (code) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
@@ -786,7 +785,6 @@ CREATE TABLE public.ref_hamlet
   action_user character varying(50),
   action_time timestamp without time zone NOT NULL DEFAULT now(),
   CONSTRAINT ref_hamlet_pkey PRIMARY KEY (code),
-  CONSTRAINT ref_hamlet_val_unique UNIQUE (village_code, val),
   CONSTRAINT ref_hamlet_abbr_unique UNIQUE (village_code, abbr),
   CONSTRAINT ref_hamlet_ref_village_fk FOREIGN KEY (village_code)
       REFERENCES public.ref_village (code) MATCH SIMPLE
@@ -3631,7 +3629,7 @@ INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('ver
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-code', 'IRD', 't', 'f', 'Office code, which will be used for generating various numbers, e.g. application number');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('file-number-prefix', 'IRD/HW/', 't', 'f', 'File number prefix, used for generation of the file (case) number in archive.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('district-officer', 'GEOFREY REUBEN KALUWA', 't', 'f', 'District officer name. This officer is responsible for signing certificates.');
-INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-district', '119IR', 't', 'f', 'District code, where the office operates.');
+INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-district', 'IRA', 't', 'f', 'District code, where the office operates.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('office-name', 'Iringa DLO', 't', 'f', 'District land office name.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('media-path', '../trust_files', 't', 't', 'Folder path where all files related to applications, parties and rights will be stored. If relative path is provided, then web-application root folder will be used as starting point.');
 INSERT INTO public.setting(id, val, active, read_only, description) VALUES ('max-file-size', '20480', 't', 'f', 'Maximum file size in KB that can be uploaded into the system.');

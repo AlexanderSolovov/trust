@@ -142,6 +142,47 @@ ApplicationCtrl.postLoad = function (app) {
             $("#lblWithdrawalReason").text(app.withdrawReason);
         }
 
+        // Log
+        if (app.logs !== null && app.logs.length > 0) {
+            var statusCode = "";
+            var assignee = "";
+            $.each(app.logs, function (i, item) {
+                var action = $.i18n("log-edited");
+                if(i === 0){
+                    action = $.i18n("log-created");
+                } else {
+                    if(!isNullOrEmpty(item.statusCode) && statusCode !== item.statusCode){
+                        // Check for status change
+                        if(item.statusCode === Global.STATUS.approved){
+                            action = $.i18n("log-approved");
+                        } else if(item.statusCode === Global.STATUS.rejected){
+                            action = $.i18n("log-rejected");
+                        } else if(item.statusCode === Global.STATUS.withdrawn){
+                            action = $.i18n("log-withdrawn");
+                        } else if(item.statusCode === Global.STATUS.completed){
+                            action = $.i18n("log-completed");
+                        }
+                    } else {
+                        // Check for assignment
+                        if(!isNullOrEmpty(item.assigneeName) && assignee !== item.assigneeName){
+                            action = String.format($.i18n("log-assigned"), "<b>" + item.assigneeName + "</b>", "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
+                        }
+                    }
+                }
+                
+                action = String.format(action, "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
+                
+                if(!isNullOrEmpty(item.statusCode)){
+                    statusCode = item.statusCode;
+                }
+                if(!isNullOrEmpty(item.assigneeName)){
+                    assignee = item.assigneeName;
+                }
+                
+                $("#listLogs").append($("<li />").html(action));
+            });
+        }
+
         // Customize toolbar
         $("#btnSave").hide();
         $("#btnBack").hide();

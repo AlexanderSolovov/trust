@@ -5,10 +5,12 @@ import com.dai.trust.models.JsonDateOnlyDeserializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "document")
@@ -40,6 +42,9 @@ public class Document extends AbstractIdEntity {
 
     @Column
     private String description;
+    
+    @Transient
+    private List<DocumentLog> logs;
     
     public Document() {
         super();
@@ -99,5 +104,13 @@ public class Document extends AbstractIdEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<DocumentLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<DocumentLog> logs) {
+        this.logs = logs;
     }
 }

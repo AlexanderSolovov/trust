@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "rrr")
@@ -135,6 +136,9 @@ public class Rrr extends AbstractIdEntity {
     @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RrrDocument> documents;
 
+    @Transient
+    private List<RrrLog> logs;
+    
     public Rrr() {
         super();
     }
@@ -439,5 +443,13 @@ public class Rrr extends AbstractIdEntity {
 
     public void setDocuments(List<RrrDocument> documents) {
         this.documents = documents;
+    }
+
+    public List<RrrLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<RrrLog> logs) {
+        this.logs = logs;
     }
 }

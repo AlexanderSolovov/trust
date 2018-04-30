@@ -23,14 +23,19 @@ public class PersonSearchResult implements Serializable {
     @Column(name = "id_number")
     private String idNumber;
     @Column
+    private String ccros;
+    @Column
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date dob;
     @Column(name = "status_code")
     private String statusCode;
 
     public static final String QUERY_SELECT
-            = "select p.id, get_translation(idt.val, :langCode) as id_type, (name1 || ' ' || coalesce(name3, '') || ' ' || coalesce(name2, '')) as name, p.id_number, p.dob, p.mobile_number, p.address, p.status_code\n "
-            + "from party p inner join ref_id_type idt on p.id_type_code = idt.code\n ";
+            = "select p.id, get_translation(idt.val, :langCode) as id_type, (name1 || ' ' || coalesce(name3, '') || ' ' || coalesce(name2, '')) as name, p.id_number, p.dob, p.mobile_number, p.address, p.status_code,\n"
+            + "party_ccros.ccros \n"
+            + "from party p left join ref_id_type idt on p.id_type_code = idt.code left join (\n"
+            + "  select rh.party_id, string_agg(distinct(p.prop_number), ', ') as ccros from public.rightholder rh inner join rrr on rh.rrr_id = rrr.id inner join public.property p on rrr.property_id = p.id group by rh.party_id\n"
+            + ") party_ccros on p.id = party_ccros.party_id \n";
 
     public PersonSearchResult() {
         super();
@@ -90,6 +95,14 @@ public class PersonSearchResult implements Serializable {
 
     public void setDob(Date dob) {
         this.dob = dob;
+    }
+
+    public String getCcros() {
+        return ccros;
+    }
+
+    public void setCcros(String ccros) {
+        this.ccros = ccros;
     }
 
     public String getStatusCode() {

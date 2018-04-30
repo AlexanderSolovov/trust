@@ -16,7 +16,8 @@ Global.STATUS = {
     current: "current",
     pending: "pending",
     historic: "historic",
-    withdrawn: "withdrawn"
+    withdrawn: "withdrawn",
+    completed: "completed"
 };
 Global.USER_PERMISSIONS = {
     canAdmin: false,

@@ -36,6 +36,7 @@ Controls.LegalEntitySearch = function (controlId, targetElementId, options) {
             "info": false,
             "sort": false,
             "searching": false,
+            "scrollY": (height > 0 ? height + "px" : null),
             "dom": '<"tableToolbar">frtip',
             language: DataTablesUtility.getLanguage(),
             columns: [
@@ -44,7 +45,8 @@ Controls.LegalEntitySearch = function (controlId, targetElementId, options) {
                 {data: "regNumber", title: $.i18n("le-reg-num")},
                 {data: "establishmentDate", title: $.i18n("le-reg-date")},
                 {data: "mobileNumber", title: $.i18n("person-mobile-num")},
-                {data: "address", title: $.i18n("gen-address")}
+                //{data: "address", title: $.i18n("gen-address")}
+                {data: "ccros", title: $.i18n("app-ccros")}
             ],
             columnDefs: [
                 {
@@ -73,14 +75,17 @@ Controls.LegalEntitySearch = function (controlId, targetElementId, options) {
     };
 
     this.search = function () {
-        SearchDao.searchLegalEntity($("#" + controlVarId + "_name").val(), $("#" + controlVarId + "_regNumber").val(), function (list) {
-            table.clear();
-            if (isNull(list)) {
-                list = [];
-            }
-            table.rows.add(list);
-            table.draw();
-        });
+        SearchDao.searchLegalEntity($("#" + controlVarId + "_name").val(),
+                $("#" + controlVarId + "_regNumber").val(),
+                $("#" + controlVarId + "_ccro").val(),
+                function (list) {
+                    table.clear();
+                    if (isNull(list)) {
+                        list = [];
+                    }
+                    table.rows.add(list);
+                    table.draw();
+                });
     };
 
     this.selectLegalEntity = function (rowSelector) {

@@ -8,16 +8,18 @@ import com.dai.trust.common.StatusCodeConstants;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.application.Application;
-import com.dai.trust.models.application.ApplicationProperty;
 import com.dai.trust.models.party.PartyDocument;
 import com.dai.trust.models.property.Parcel;
+import com.dai.trust.models.property.ParcelLog;
 import com.dai.trust.models.property.ParcelStatusChanger;
 import com.dai.trust.models.property.Poi;
 import com.dai.trust.models.property.Property;
+import com.dai.trust.models.property.PropertyLog;
 import com.dai.trust.models.property.PropertyStatusChanger;
 import com.dai.trust.models.property.Rightholder;
 import com.dai.trust.models.property.Rrr;
 import com.dai.trust.models.property.RrrDocument;
+import com.dai.trust.models.property.RrrLog;
 import com.dai.trust.models.property.RrrStatusChanger;
 import com.dai.trust.models.refdata.AppType;
 import com.dai.trust.models.refdata.AppTypeRightType;
@@ -35,6 +37,7 @@ import com.dai.trust.services.refdata.RefDataService;
 import com.dai.trust.services.search.SearchService;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -57,7 +60,9 @@ public class PropertyService extends AbstractService {
      * @return
      */
     public Property getProperty(String id) {
-        return getById(Property.class, id, false);
+        Property prop = getById(Property.class, id, false);
+        setPropertyLogs(prop);
+        return prop;
     }
 
     /**
@@ -68,7 +73,13 @@ public class PropertyService extends AbstractService {
      */
     public List<Property> getPropertiesByApplicationId(String id) {
         Query q = getEM().createQuery("Select p From Property p Where p.applicationId = :appId", Property.class);
-        return q.setParameter("appId", id).getResultList();
+        List<Property> props = q.setParameter("appId", id).getResultList();
+        if (props != null) {
+            for (Property prop : props) {
+                setPropertyLogs(prop);
+            }
+        }
+        return props;
     }
 
     /**
@@ -79,7 +90,124 @@ public class PropertyService extends AbstractService {
      */
     public Property getPropertyByRightId(String id) {
         Query q = getEM().createQuery("Select p From Property p join p.rights r Where r.id = :id", Property.class);
-        return (Property) q.setParameter("id", id).setMaxResults(1).getSingleResult();
+        Property prop = (Property) q.setParameter("id", id).setMaxResults(1).getSingleResult();
+        setPropertyLogs(prop);
+        return prop;
+    }
+
+    private void setPropertyLogs(Property prop) {
+        if (prop == null) {
+            return;
+        }
+
+        Query q = getEM().createNativeQuery(
+                "select (row_number() OVER ())  || '_' || :propId as id, l.*, (case when au.username is null then l.action_user else au.first_name || ' ' || au.last_name end) as action_user_name\n"
+                + "from (\n"
+                + "select action_time, action_user, status_code from public.property where id = :propId \n"
+                + "union\n"
+                + "select action_time, action_user, status_code from history.property where id = :propId \n"
+                + "union\n"
+                + "select action_time, action_user, null as status_code from public.rrr where property_id = :propId and action_code in ('i','d')\n"
+                + "union\n"
+                + "select action_time, action_user, null as status_code from history.rrr where property_id = :propId and action_code in ('i','d')\n"
+                + ") l left join appuser au on l.action_user = au.username \n"
+                + "order by l.action_time", PropertyLog.class);
+        q.setParameter("propId", prop.getId());
+        List<PropertyLog> logs = q.getResultList();
+
+        // Process logs to remove events in the same transaction (with diffrence of 1 second)
+        if (logs != null && logs.size() > 0) {
+            Iterator<PropertyLog> iter = logs.iterator();
+            Date actionTime = null;
+            while (iter.hasNext()) {
+                PropertyLog log = iter.next();
+                if (actionTime != null && (log.getActionTime().getTime() - actionTime.getTime()) / 1000 <= 1) {
+                    actionTime = log.getActionTime();
+                    // Delete action
+                    iter.remove();
+                } else {
+                    actionTime = log.getActionTime();
+                }
+            }
+        }
+
+        prop.setLogs(logs);
+
+        if (prop.getRights() != null) {
+            PartyService partyService = new PartyService();
+            // Set rights and rightholder logs
+            for (Rrr rrr : prop.getRights()) {
+                // Set right logs
+                q = getEM().createNativeQuery(
+                        "select (row_number() OVER ())  || '_' || :rrrId as id, l.*, (case when au.username is null then l.action_user else au.first_name || ' ' || au.last_name end) as action_user_name \n"
+                        + "from (\n"
+                        + "select action_time, action_user, status_code from public.rrr where id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, status_code from history.rrr where id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from public.rightholder where rrr_id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from history.rightholder where rrr_id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from public.rrr_document where rrr_id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from history.rrr_document where rrr_id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from public.poi where rrr_id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from history.poi where rrr_id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from public.deceased_owner where rrr_id = :rrrId \n"
+                        + "union \n"
+                        + "select action_time, action_user, null as status_code from history.deceased_owner where rrr_id = :rrrId \n"
+                        + ") l left join appuser au on l.action_user = au.username \n"
+                        + "order by l.action_time", RrrLog.class);
+                q.setParameter("rrrId", rrr.getId());
+                List<RrrLog> rrrLogs = q.getResultList();
+
+                // Process logs to remove events in the same transaction (with diffrence of 1 second)
+                if (rrrLogs != null && rrrLogs.size() > 0) {
+                    Iterator<RrrLog> iter = rrrLogs.iterator();
+                    Date actionTime = null;
+                    while (iter.hasNext()) {
+                        RrrLog log = iter.next();
+                        if (actionTime != null && (log.getActionTime().getTime() - actionTime.getTime()) / 1000 <= 1) {
+                            actionTime = log.getActionTime();
+                            // Delete action
+                            iter.remove();
+                        } else {
+                            actionTime = log.getActionTime();
+                        }
+                    }
+                }
+
+                rrr.setLogs(rrrLogs);
+
+                // Set rightholder logs
+                if (rrr.getRightholders() != null) {
+                    for (Rightholder rh : rrr.getRightholders()) {
+                        rh.getParty().setLogs(partyService.getPartyLogs(rh.getPartyId()));
+                    }
+                }
+            }
+        }
+
+    }
+
+    public List<ParcelLog> getParcelLogs(String parcelId) {
+        if (parcelId == null) {
+            return null;
+        }
+
+        Query q = getEM().createNativeQuery(
+                "select (row_number() OVER ())  || '_' || :parcelId as id, l.*, (case when au.username is null then l.action_user else au.first_name || ' ' || au.last_name end) as action_user_name\n"
+                + "from (\n"
+                + "select action_time, action_user, status_code from public.parcel where id = :parcelId \n"
+                + "union\n"
+                + "select action_time, action_user, status_code from history.parcel where id = :parcelId \n"
+                + ") l left join appuser au on l.action_user = au.username \n"
+                + "order by l.action_time", ParcelLog.class);
+        return q.setParameter("parcelId", parcelId).getResultList();
     }
 
     /**
@@ -89,7 +217,11 @@ public class PropertyService extends AbstractService {
      * @return
      */
     public Parcel getParcel(String id) {
-        return getById(Parcel.class, id, false);
+        Parcel parcel = getById(Parcel.class, id, false);
+        if (parcel != null) {
+            parcel.setLogs(getParcelLogs(id));
+        }
+        return parcel;
     }
 
     /**
@@ -110,7 +242,13 @@ public class PropertyService extends AbstractService {
      */
     public List<Parcel> getParcelsByApplicationId(String id) {
         Query q = getEM().createQuery("Select p From Parcel p Where p.applicationId = :appId", Parcel.class);
-        return q.setParameter("appId", id).getResultList();
+        List<Parcel> parcels = q.setParameter("appId", id).getResultList();
+        if (parcels != null) {
+            for (Parcel parcel : parcels) {
+                parcel.setLogs(getParcelLogs(id));
+            }
+        }
+        return parcels;
     }
 
     /**
@@ -321,8 +459,7 @@ public class PropertyService extends AbstractService {
                 app = searchService.searchApplicationById(langCode, prop.getApplicationId());
             }
         } else // Search in the list of rights
-        {
-            if (prop.getRights() != null) {
+         if (prop.getRights() != null) {
                 for (Rrr right : prop.getRights()) {
                     if ((StringUtility.isEmpty(right.getStatusCode()) || right.getStatusCode().equalsIgnoreCase(StatusCodeConstants.PENDING))
                             && !StringUtility.isEmpty(right.getApplicationId())) {
@@ -334,7 +471,6 @@ public class PropertyService extends AbstractService {
                     }
                 }
             }
-        }
 
         // Validate application
         if (app == null) {
@@ -524,7 +660,7 @@ public class PropertyService extends AbstractService {
 
                         if (right.getStartDate() == null) {
                             throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
-                        } 
+                        }
 
                         if (StringUtility.isEmpty(right.getDeclaredLanduseCode())) {
                             throw new TrustException(MessagesKeys.ERR_PROP_DECLARED_LANDUSE_EMPTY);
@@ -682,7 +818,7 @@ public class PropertyService extends AbstractService {
                             throw new TrustException(MessagesKeys.ERR_PROP_END_DATE_GREATER_START_DATE);
                         }
                     }
-                    
+
                     // Validate assignment
                     if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_ASSIGNMENT)) {
                         // Set fields not allowed for mortgage to null
@@ -694,8 +830,8 @@ public class PropertyService extends AbstractService {
                         if (right.getStartDate() == null) {
                             throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
                         }
-                        
-                        if (right.getDuration()== null || right.getDuration() <= 0) {
+
+                        if (right.getDuration() == null || right.getDuration() <= 0) {
                             throw new TrustException(MessagesKeys.ERR_PROP_DURATION_EMPTY);
                         }
                     }

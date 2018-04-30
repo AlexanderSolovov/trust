@@ -15,6 +15,8 @@ public class LegalEntitySearchResult implements Serializable {
     private String name;
     @Column
     private String address;
+    @Column
+    private String ccros;
     @Column(name = "mobile_number")
     private String mobileNumber;
     @Column(name = "entity_type")
@@ -85,6 +87,14 @@ public class LegalEntitySearchResult implements Serializable {
 
     public void setEstablishmentDate(Date establishmentDate) {
         this.establishmentDate = establishmentDate;
+    }
+
+    public String getCcros() {
+        return ccros;
+    }
+
+    public void setCcros(String ccros) {
+        this.ccros = ccros;
     }
 
     public String getStatusCode() {

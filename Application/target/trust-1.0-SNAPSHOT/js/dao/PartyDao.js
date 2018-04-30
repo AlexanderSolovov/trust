@@ -37,7 +37,8 @@ PartyDao.Party = function () {
         editable: true,
         ownerTypeCode: null,
         shareSize: null,
-        version: 0
+        version: 0,
+        logs: null
     };
 };
 

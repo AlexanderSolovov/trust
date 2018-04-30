@@ -1,4 +1,5 @@
 com\dai\trust\models\report\PersonWithRightSummary.class
+com\dai\trust\models\report\RightsStatistics.class
 com\dai\trust\services\refdata\RefDataService.class
 com\dai\trust\models\system\AppRole.class
 com\dai\trust\models\application\ApplicationProperty.class
@@ -16,6 +17,7 @@ com\dai\trust\models\document\FileInfo.class
 com\dai\trust\models\report\PoiSummary.class
 com\dai\trust\models\refdata\TransactionType.class
 com\dai\trust\exceptions\ExceptionUtility.class
+com\dai\trust\models\report\ApplicationStatistic.class
 com\dai\trust\models\refdata\RightType.class
 com\dai\trust\ws\filters\AuthenticatedFilter.class
 com\dai\trust\models\system\User.class
@@ -49,6 +51,7 @@ com\dai\trust\models\application\ApplicationPropertyId.class
 com\dai\trust\models\refdata\LandUse.class
 com\dai\trust\services\application\ApplicationService.class
 com\dai\trust\services\refdata\LanguageService.class
+com\dai\trust\models\refdata\LayerType.class
 com\dai\trust\models\application\ApplicationDocumentId.class
 com\dai\trust\models\refdata\IdType.class
 com\dai\trust\common\MessagesKeys.class
@@ -83,8 +86,10 @@ com\dai\trust\services\party\PartyService.class
 com\dai\trust\exceptions\ExceptionFactory.class
 com\dai\trust\models\refdata\Language.class
 com\dai\trust\services\property\PropertyService.class
+com\dai\trust\models\report\CcroByOccupancy.class
 com\dai\trust\models\system\AppGroup.class
 com\dai\trust\models\refdata\AppTypeRightTypeId.class
+com\dai\trust\models\report\CcroByAgeAndGender.class
 com\dai\trust\services\system\MapService.class
 com\dai\trust\ws\SystemResource.class
 com\dai\trust\models\property\PropertyStatusChanger.class

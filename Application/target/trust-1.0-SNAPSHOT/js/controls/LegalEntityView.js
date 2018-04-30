@@ -71,6 +71,22 @@ Controls.LegalEntityView = function (controlId, targetElementId, le) {
         if (!isNull(docsControl)) {
             docsControl.setDocuments(makeObjectsList(l.documents, "document"));
         }
+        
+        // Logs
+        $("#" + controlVarId + "_listLogs").empty();
+        if (l.logs !== null && l.logs.length > 0) {
+            $.each(l.logs, function (i, item) {
+                var action;
+                if(i === 0){
+                    action = $.i18n("log-created");
+                } else {
+                    action = $.i18n("log-edited");
+                }
+                
+                action = String.format(action, "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
+                $("#" + controlVarId + "_listLogs").append($("<li />").html(action));
+            });
+        }
     };
 
     this.isLoaded = function () {

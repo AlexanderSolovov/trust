@@ -15,6 +15,7 @@ import com.dai.trust.models.search.RightSearchParams;
 import com.dai.trust.models.search.RightSearchResult;
 import com.dai.trust.models.search.UserSearchResult;
 import com.dai.trust.services.AbstractService;
+import com.dai.trust.services.property.PropertyService;
 import java.util.Calendar;
 import java.util.List;
 import javax.persistence.Query;
@@ -350,9 +351,10 @@ public class SearchService extends AbstractService {
      * @param langCode Language code for localization
      * @param name Person name
      * @param idNumber Person ID number
+     * @param ccro CCRO number
      * @return
      */
-    public List<PersonSearchResult> searchPerson(String langCode, String name, String idNumber) {
+    public List<PersonSearchResult> searchPerson(String langCode, String name, String idNumber, String ccro) {
         // Prepare params
         if (StringUtility.isEmpty(langCode)) {
             langCode = "en";
@@ -367,17 +369,25 @@ public class SearchService extends AbstractService {
         } else {
             idNumber = "%" + idNumber.toLowerCase().trim() + "%";
         }
+        if (StringUtility.isEmpty(ccro)) {
+            ccro = "%";
+        } else {
+            ccro = "%" + ccro.toLowerCase().trim() + "%";
+        }
 
         Query q = getEM().createNativeQuery(PersonSearchResult.QUERY_SELECT
                 + "where p.is_private = 't' and "
                 + "lower(name1 || ' ' || coalesce(name3, '') || ' ' || coalesce(name2, '')) like :name and "
-                + "lower(coalesce(p.id_number, '')) like :idNumber order by name1, name2 limit 1000", PersonSearchResult.class);
+                + "lower(coalesce(p.id_number, '')) like :idNumber and "
+                + "lower(coalesce(party_ccros.ccros, '')) like :ccro "
+                + "order by name1, name2 limit 1000", PersonSearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("name", name);
         q.setParameter("idNumber", idNumber);
+        q.setParameter("ccro", ccro);
         return q.getResultList();
     }
-    
+
     /**
      * Searches for persons, attached as applicants on the application.
      *
@@ -404,9 +414,10 @@ public class SearchService extends AbstractService {
      * @param langCode Language code for localization
      * @param name Legal entity name
      * @param regNumber Legal entity registration number
+     * @param ccro CCRO number
      * @return
      */
-    public List<LegalEntitySearchResult> searchLegalEntity(String langCode, String name, String regNumber) {
+    public List<LegalEntitySearchResult> searchLegalEntity(String langCode, String name, String regNumber, String ccro) {
         // Prepare params
         if (StringUtility.isEmpty(langCode)) {
             langCode = "en";
@@ -421,15 +432,26 @@ public class SearchService extends AbstractService {
         } else {
             regNumber = "%" + regNumber.toLowerCase().trim() + "%";
         }
+        if (StringUtility.isEmpty(ccro)) {
+            ccro = "%";
+        } else {
+            ccro = "%" + ccro.toLowerCase().trim() + "%";
+        }
 
-        Query q = getEM().createNativeQuery("select p.id, get_translation(et.val, :langCode) as entity_type, name1 as name, p.id_number as reg_number, p.dob as establishment_date, p.mobile_number, p.address, p.status_code\n "
-                + "from party p inner join ref_entity_type et on p.entity_type_code = et.code\n "
-                + "where p.is_private = 'f' and "
-                + "lower(name1) like :name and "
-                + "lower(coalesce(p.id_number, '')) like :regNumber order by name1 limit 1000", LegalEntitySearchResult.class);
+        Query q = getEM().createNativeQuery("select p.id, get_translation(et.val, :langCode) as entity_type, name1 as name, p.id_number as reg_number, p.dob as establishment_date, p.mobile_number, p.address, p.status_code, party_ccros.ccros \n"
+                + "from party p inner join ref_entity_type et on p.entity_type_code = et.code left join (\n"
+                + "  select rh.party_id, string_agg(distinct(p.prop_number), ', ') as ccros from public.rightholder rh inner join rrr on rh.rrr_id = rrr.id inner join public.property p on rrr.property_id = p.id group by rh.party_id \n"
+                + ") party_ccros on p.id = party_ccros.party_id \n"
+                + "where p.is_private = 'f' and \n"
+                + "lower(name1) like :name and \n"
+                + "lower(coalesce(p.id_number, '')) like :regNumber and \n"
+                + "lower(coalesce(party_ccros.ccros, '')) like :ccro \n"
+                + "order by name1 \n"
+                + "limit 1000", LegalEntitySearchResult.class);
         q.setParameter("langCode", langCode);
         q.setParameter("name", name);
         q.setParameter("regNumber", regNumber);
+        q.setParameter("ccro", ccro);
         return q.getResultList();
     }
 
@@ -507,6 +529,7 @@ public class SearchService extends AbstractService {
         if (results != null && results.size() > 0) {
             for (ParcelSearchResult parcel : results) {
                 parcel.setPropCodes(searchPropCodesByParcel(langCode, parcel.getId()));
+                setParcelLogs(parcel);
             }
         }
         return results;
@@ -540,6 +563,7 @@ public class SearchService extends AbstractService {
         if (results != null && results.size() > 0) {
             for (ParcelSearchResult parcel : results) {
                 parcel.setPropCodes(searchPropCodesByParcel(langCode, parcel.getId()));
+                setParcelLogs(parcel);
             }
         }
         return results;
@@ -569,8 +593,16 @@ public class SearchService extends AbstractService {
 
         if (result != null) {
             result.setPropCodes(searchPropCodesByParcel(langCode, result.getId()));
+            setParcelLogs(result);
         }
         return result;
+    }
+    
+    private void setParcelLogs(ParcelSearchResult result){
+        if (result != null) {
+            PropertyService propService = new PropertyService();
+            result.setLogs(propService.getParcelLogs(result.getId()));
+        }
     }
 
     /**

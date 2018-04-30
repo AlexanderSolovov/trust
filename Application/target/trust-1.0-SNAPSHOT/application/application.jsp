@@ -88,6 +88,11 @@
                         <i class="glyphicon glyphicon-link"></i> <span data-i18n="app-affected-objects"></span>
                     </a>
                 </li>
+                <li role="presentation">
+                    <a href="#log" aria-controls="log" role="tab" data-toggle="tab">
+                        <i class="glyphicon glyphicon-align-justify"></i> <span data-i18n="log-log"></span>
+                    </a>
+                </li>
             </ul>
 
             <div class="tab-content">
@@ -205,6 +210,12 @@
                             <ul id="listAffectedProperties" style="line-height: 30px;">
                             </ul>
                         </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="log">
+                    <div class="tabContainer">
+                        <ul id="listLogs" style="line-height: 30px;padding-left: 10px;">
+                        </ul>
                     </div>
                 </div>
             </div>

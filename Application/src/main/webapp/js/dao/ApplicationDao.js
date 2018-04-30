@@ -19,10 +19,10 @@ $(function () {
 
 ApplicationDao.Application = function () {
     return {
-        id: null, 
-        appTypeCode: null, 
-        appNumber: null, 
-        lodgementDate: new Date(), 
+        id: null,
+        appTypeCode: null,
+        appNumber: null,
+        lodgementDate: new Date(),
         approveRejectDate: null,
         withdrawDate: null,
         statusCode: Global.STATUS.pending,
@@ -37,14 +37,15 @@ ApplicationDao.Application = function () {
         legalEntityApplicants: null,
         properties: null,
         permissions: {canEdit: true, canApprove: false, canWithdraw: false, canComplete: false, canReject: false, canAssign: false, canReAssign: false, canDrawParcel: false, canRegisterRight: false},
+        logs: null,
         version: 0
     };
 };
 
 ApplicationDao.ApplicationProperty = function () {
     return {
-        propId: null, 
-        propNumber: null, 
+        propId: null,
+        propNumber: null,
         version: 0
     };
 };
@@ -55,8 +56,14 @@ ApplicationDao.getApplication = function (id, successAction, failAction, alwaysA
 };
 
 ApplicationDao.getApplicationNumber = function (id, successAction, failAction, alwaysAction, showErrorAlert) {
-    getAjaxData(String.format(ApplicationDao.URL_APPLICATION_NUMBER, String.empty(id)),
-            successAction, failAction, alwaysAction, showErrorAlert);
+    if (isNullOrEmpty(id)) {
+        if (successAction !== null && typeof successAction === "function") {
+            successAction("");
+        }
+    } else {
+        getAjaxData(String.format(ApplicationDao.URL_APPLICATION_NUMBER, String.empty(id)),
+                successAction, failAction, alwaysAction, showErrorAlert);
+    }
 };
 
 ApplicationDao.approveApplication = function (id, successAction, failAction, alwaysAction, showErrorAlert) {

@@ -190,7 +190,7 @@ public class PropertySummary implements Serializable {
             + "(CASE WHEN r.status_code = 'pending' THEN 1 ELSE 2 END) AS status_order "
             + "FROM public.property p  "
             + " INNER JOIN public.rrr r ON p.id = r.property_id "
-            + " INNER JOIN public.application a ON r.application_id = a.id "
+            + " LEFT JOIN public.application a ON r.application_id = a.id "
             + " INNER JOIN public.ref_right_type rt ON r.right_type_code = rt.code "
             + " LEFT JOIN public.ref_occupancy_type ot ON r.occupancy_type_code = ot.code "
             + " LEFT JOIN public.ref_landuse dlu ON r.declared_landuse_code = dlu.code "

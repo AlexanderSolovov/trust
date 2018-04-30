@@ -68,6 +68,11 @@
                             <i class="glyphicon glyphicon-briefcase"></i> <span data-i18n="prop-rights"></span>
                         </a>
                     </li>
+                    <li role="presentation">
+                        <a href="#log" aria-controls="log" role="tab" data-toggle="tab">
+                            <i class="glyphicon glyphicon-align-justify"></i> <span data-i18n="log-log"></span>
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="tab-content">
@@ -182,6 +187,20 @@
                             <table id="tableHistoricRights" class="table table-striped table-bordered table-hover white" style="width:100%"></table>
                         </div>
                     </div>
+
+                    <div role="tabpanel" class="tab-pane" id="log">
+                        <div class="tabContainer">
+                            <b><span data-i18n="parcel-plot"></span></b>
+                            <ul id="listParcelLogs" style="line-height: 30px;padding-left: 10px;">
+                            </ul>
+                            
+                            <p></p>
+                            
+                            <b><span data-i18n="prop-prop"></span></b>
+                            <ul id="listLogs" style="line-height: 30px;padding-left: 10px;">
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -218,6 +237,11 @@
                     <li role="presentation">
                         <a href="#tabRightDocuments" aria-controls="tabRightDocuments" role="tab" data-toggle="tab">
                             <i class="icon-copy"></i> <span data-i18n="doc-documents"></span>
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#rightLog" aria-controls="rightLog" role="tab" data-toggle="tab">
+                            <i class="glyphicon glyphicon-align-justify"></i> <span data-i18n="log-log"></span>
                         </a>
                     </li>
                 </ul>
@@ -482,6 +506,12 @@
                     <div role="tabpanel" class="tab-pane" id="tabRightDocuments">
                         <div class="tabContainer" style="max-width: 1000px;">
                             <div id="divRightDocs"></div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="rightLog">
+                        <div class="tabContainer">
+                            <ul id="listRightLog" style="line-height: 30px;padding-left: 10px;">
+                            </ul>
                         </div>
                     </div>
                 </div>

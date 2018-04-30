@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "property")
@@ -43,6 +44,9 @@ public class Property extends AbstractIdEntity {
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Rrr> rights;
 
+    @Transient
+    private List<PropertyLog> logs;
+    
     public Property() {
         super();
     }
@@ -117,5 +121,13 @@ public class Property extends AbstractIdEntity {
 
     public void setRights(List<Rrr> rights) {
         this.rights = rights;
+    }
+
+    public List<PropertyLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<PropertyLog> logs) {
+        this.logs = logs;
     }
 }

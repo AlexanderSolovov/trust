@@ -9,6 +9,7 @@ import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.application.Application;
 import com.dai.trust.models.application.ApplicationBasic;
 import com.dai.trust.models.application.ApplicationDocument;
+import com.dai.trust.models.application.ApplicationLog;
 import com.dai.trust.models.application.ApplicationNumber;
 import com.dai.trust.models.application.ApplicationParty;
 import com.dai.trust.models.application.ApplicationPermissions;
@@ -22,7 +23,6 @@ import com.dai.trust.models.property.PropertyStatusChanger;
 import com.dai.trust.models.property.RrrStatusChanger;
 import com.dai.trust.models.refdata.AppType;
 import com.dai.trust.models.refdata.RightType;
-import com.dai.trust.models.refdata.RightTypeGroup;
 import com.dai.trust.models.refdata.TransactionType;
 import com.dai.trust.models.search.AffectedObjectSearchResult;
 import com.dai.trust.models.search.ApplicationNumberSearchResult;
@@ -37,9 +37,11 @@ import com.dai.trust.services.search.SearchService;
 import com.dai.trust.services.system.UserService;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Query;
 
 /**
  * Contains methods for managing application objects.
@@ -61,6 +63,22 @@ public class ApplicationService extends AbstractService {
         if (app != null) {
             // Set application permissions
             app.setPermissions(getApplicationPersmissions(app));
+            // Attach logs
+            app.setLogs(getApplicationLogs(app));
+            // Attach party logs
+            if(app.getApplicants() != null){
+                PartyService partyService = new PartyService();
+                for(ApplicationParty aParty : app.getApplicants()){
+                    aParty.getParty().setLogs(partyService.getPartyLogs(aParty.getPartyId()));
+                }
+            }
+            // Attach document logs
+            /*if(app.getDocuments() != null){
+                DocumentService docService = new DocumentService();
+                for(ApplicationDocument aDoc : app.getDocuments()){
+                    aDoc.getDocument().setLogs(docService.getDocumentLogs(aDoc.getDocumentId()));
+                }
+            }*/
         }
         return app;
     }
@@ -160,6 +178,56 @@ public class ApplicationService extends AbstractService {
                 throw e;
             }
         }
+    }
+
+    /**
+     * Extracts log records for the given application. It will try and remove repeated actions
+     */
+    private List<ApplicationLog> getApplicationLogs(Application app) {
+        if (app == null) {
+            return null;
+        }
+        Query q = getEM().createNativeQuery(
+                "select (row_number() OVER ())  || '_' || :appId as id, l.*, (case when au.username is null then l.action_user else au.first_name || ' ' || au.last_name end) as action_user_name,\n"
+                + "(case when au2.username is null then l.assignee else au2.first_name || ' ' || au2.last_name end) as assignee_name \n"
+                + "from ( \n"
+                + "select action_time, (case when complete_date is null then status_code else 'completed' end) as status_code, assignee, action_user from public.application where id=:appId \n"
+                + "union \n"
+                + "select action_time, (case when complete_date is null then status_code else 'completed' end) as status_code, assignee, action_user from history.application where id=:appId \n"
+                + "union \n"
+                + "select action_time, null as status_code, null as assignee, action_user from public.application_party where app_id=:appId \n"
+                + "union \n"
+                + "select action_time, null as status_code, null as assignee, action_user from history.application_party where app_id=:appId \n"
+                + "union \n"
+                + "select action_time, null as status_code, null as assignee, action_user from public.application_document where app_id=:appId \n"
+                + "union \n"
+                + "select action_time, null as status_code, null as assignee, action_user from history.application_document where app_id=:appId \n"
+                + "union \n"
+                + "select action_time, null as status_code, null as assignee, action_user from public.application_property where app_id=:appId \n"
+                + "union \n"
+                + "select action_time, null as status_code, null as assignee, action_user from history.application_property where app_id=:appId \n"
+                + ") l left join appuser au on l.action_user = au.username left join appuser au2 on l.assignee = au2.username \n"
+                + "order by l.action_time", ApplicationLog.class);
+        q.setParameter("appId", app.getId());
+        List<ApplicationLog> logs = q.getResultList();
+        
+        // Process logs to remove events in the same transaction (with diffrence of 1 second)
+        if(logs != null && logs.size() > 0){
+            Iterator<ApplicationLog> iter = logs.iterator();
+            Date actionTime = null;
+            while(iter.hasNext()){
+                ApplicationLog log = iter.next();
+                if(actionTime != null && (log.getActionTime().getTime() - actionTime.getTime()) / 1000 <= 1){
+                    actionTime = log.getActionTime();
+                    // Delete action
+                    iter.remove();
+                } else {
+                    actionTime = log.getActionTime();
+                }
+            }
+        }
+        
+        return logs;
     }
 
     /**

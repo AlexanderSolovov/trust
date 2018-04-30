@@ -69,6 +69,8 @@ Controls.Pois = function (controlId, targetElementId, options) {
                     "render": function (data, type, row, meta) {
                         if (!isNull(data)) {
                             return dateFormat(data);
+                        } else {
+                            return "";
                         }
                     }
                 }

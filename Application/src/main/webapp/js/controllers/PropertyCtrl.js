@@ -205,6 +205,59 @@ PropertyCtrl.fillForm = function () {
                 }
             }
         }
+
+        // Logs
+        if (PropertyCtrl.prop.logs !== null && PropertyCtrl.prop.logs.length > 0) {
+            var statusCode = "";
+            $.each(PropertyCtrl.prop.logs, function (i, item) {
+                var action = $.i18n("log-edited");
+                if (i === 0) {
+                    action = $.i18n("log-created");
+                } else {
+                    if (!isNullOrEmpty(item.statusCode) && statusCode !== item.statusCode) {
+                        // Check for status change
+                        if (item.statusCode === Global.STATUS.current) {
+                            action = $.i18n("log-approved");
+                        } else if (item.statusCode === Global.STATUS.historic) {
+                            action = $.i18n("log-surrendered");
+                        }
+                    }
+                }
+
+                action = String.format(action, "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
+
+                if (!isNullOrEmpty(item.statusCode)) {
+                    statusCode = item.statusCode;
+                }
+                $("#listLogs").append($("<li />").html(action));
+            });
+        }
+
+        if (PropertyCtrl.parcel !== null && PropertyCtrl.parcel.logs !== null && PropertyCtrl.parcel.logs.length > 0) {
+            var statusCode = "";
+            $.each(PropertyCtrl.parcel.logs, function (i, item) {
+                var action = $.i18n("log-edited");
+                if (i === 0) {
+                    action = $.i18n("log-created");
+                } else {
+                    if (!isNullOrEmpty(item.statusCode) && statusCode !== item.statusCode) {
+                        // Check for status change
+                        if (item.statusCode === Global.STATUS.active) {
+                            action = $.i18n("log-approved");
+                        } else if (item.statusCode === Global.STATUS.historic) {
+                            action = $.i18n("log-terminated");
+                        }
+                    }
+                }
+
+                action = String.format(action, "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
+
+                if (!isNullOrEmpty(item.statusCode)) {
+                    statusCode = item.statusCode;
+                }
+                $("#listParcelLogs").append($("<li />").html(action));
+            });
+        }
     };
 
     // Populate property info
@@ -229,12 +282,14 @@ PropertyCtrl.fillForm = function () {
     if (editbale && PropertyCtrl.prop.applicationId === PropertyCtrl.app.id) {
         $("#lblPropCreatedByApp").html(String.format(link, String.format(URLS.VIEW_APPLICATION, PropertyCtrl.app.id), PropertyCtrl.app.appNumber));
     } else {
-        loadingProcesses += 1;
-        ApplicationDao.getApplicationNumber(PropertyCtrl.prop.applicationId, function (appNumber) {
-            $("#lblPropCreatedByApp").html(String.format(link, String.format(URLS.VIEW_APPLICATION, appNumber.id), appNumber.appNumber));
-            loadingProcesses -= 1;
-            showProp();
-        });
+        if (!isNull(PropertyCtrl.prop.applicationId)) {
+            loadingProcesses += 1;
+            ApplicationDao.getApplicationNumber(PropertyCtrl.prop.applicationId, function (appNumber) {
+                $("#lblPropCreatedByApp").html(String.format(link, String.format(URLS.VIEW_APPLICATION, appNumber.id), appNumber.appNumber));
+                loadingProcesses -= 1;
+                showProp();
+            });
+        }
     }
 
     // App to terminate
@@ -741,6 +796,7 @@ PropertyCtrl.transferRight = function (rowSelector) {
     right.pois = [];
     right.deceasedOwner = null;
     right.description = null;
+    right.logs = null;
     PropertyCtrl.openRight(right, true);
 };
 
@@ -759,6 +815,7 @@ PropertyCtrl.varyRight = function (rowSelector) {
     right.version = 0;
     right.statusCode = Global.STATUS.pending;
     right.description = null;
+    right.logs = null;
     // Reset POIs
     if (!isNullOrEmpty(right.pois)) {
         for (var i = 0; i < right.pois.length; i++) {
@@ -784,6 +841,7 @@ PropertyCtrl.rectifyRight = function (rowSelector) {
     right.version = 0;
     right.statusCode = Global.STATUS.pending;
     right.description = null;
+    right.logs = null;
     // Reset POIs
     if (!isNullOrEmpty(right.pois)) {
         for (var i = 0; i < right.pois.length; i++) {
@@ -993,12 +1051,14 @@ PropertyCtrl.openRight = function (right, forEdit) {
     if (!isNull(PropertyCtrl.app) && right.applicationId === PropertyCtrl.app.id) {
         $("#lblRightCreatedByApp").html(String.format(link, String.format(URLS.VIEW_APPLICATION, PropertyCtrl.app.id), PropertyCtrl.app.appNumber));
     } else {
-        loadingRight += 1;
-        ApplicationDao.getApplicationNumber(right.applicationId, function (appNumber) {
-            $("#lblRightCreatedByApp").html(String.format(link, String.format(URLS.VIEW_APPLICATION, appNumber.id), appNumber.appNumber));
-            loadingRight -= 1;
-            showRight();
-        });
+        if (!isNull(right.applicationId)) {
+            loadingRight += 1;
+            ApplicationDao.getApplicationNumber(right.applicationId, function (appNumber) {
+                $("#lblRightCreatedByApp").html(String.format(link, String.format(URLS.VIEW_APPLICATION, appNumber.id), appNumber.appNumber));
+                loadingRight -= 1;
+                showRight();
+            });
+        }
     }
 
     // App to terminate
@@ -1201,6 +1261,34 @@ PropertyCtrl.openRight = function (right, forEdit) {
         }
     };
 
+    // Log
+    $("#listRightLog").empty();
+    if (right.logs !== null && right.logs.length > 0) {
+        var statusCode = "";
+        $.each(right.logs, function (i, item) {
+            var action = $.i18n("log-edited");
+            if (i === 0) {
+                action = $.i18n("log-created");
+            } else {
+                if (!isNullOrEmpty(item.statusCode) && statusCode !== item.statusCode) {
+                    // Check for status change
+                    if (item.statusCode === Global.STATUS.current) {
+                        action = $.i18n("log-approved");
+                    } else if (item.statusCode === Global.STATUS.historic) {
+                        action = $.i18n("log-historic");
+                    }
+                }
+            }
+
+            action = String.format(action, "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
+
+            if (!isNullOrEmpty(item.statusCode)) {
+                statusCode = item.statusCode;
+            }
+            $("#listRightLog").append($("<li />").html(action));
+        });
+    }
+
     showRight();
 };
 
@@ -1278,7 +1366,10 @@ PropertyCtrl.openAddRight = function () {
 };
 
 PropertyCtrl.backToProp = function () {
-    if (JSON.stringify(PropertyCtrl.selectedRight) !== JSON.stringify(PropertyCtrl.prepareRight())) {
+    var selectedRightJson = JSON.stringify(PropertyCtrl.selectedRight);
+    var preparedRightJson = JSON.stringify(PropertyCtrl.prepareRight());
+
+    if ($("#btnSaveRight").is(":visible") && selectedRightJson !== preparedRightJson) {
         alertConfirm($.i18n("gen-unsaved-changes"), function () {
             PropertyCtrl.saveRight();
         }, function () {

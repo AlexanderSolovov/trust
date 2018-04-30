@@ -10,6 +10,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\LandTyp
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\filters\ContextFilter.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\application\ApplicationPermissions.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\search\ApplicationSearchParams.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\ApplicationStatistic.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\party\PartyDocumentId.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\AppRole.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\services\property\PropertyService.java
@@ -77,6 +78,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\document\FileIn
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\AbstractRefDataEntity.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\application\ApplicationBasic.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\PropertyStatusChanger.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\RightsStatistics.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\Gender.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\Region.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\search\PropertyCodeSearchResult.java
@@ -88,6 +90,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\services\document\Docu
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\ws\RefDataResource.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\AppTypeRightType.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\PoiSummary.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\CcroByOccupancy.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\Parcel.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\common\MessageProvider.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\common\RolesConstants.java
@@ -112,6 +115,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\common\MessagesKeys.ja
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\AbstractCodeEntity.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\UserGroupId.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\AppType.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\LayerType.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\services\party\PartyService.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\AppRoleGroup.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\ws\RestResourceConfig.java
@@ -133,3 +137,4 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\Languag
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\services\property\ParcelMapService.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\application\ApplicationPropertyId.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\OwnerType.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\CcroByAgeAndGender.java

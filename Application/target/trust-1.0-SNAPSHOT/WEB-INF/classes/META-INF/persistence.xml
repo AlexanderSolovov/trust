@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
-    <persistence-unit name="trust" transaction-type="RESOURCE_LOCAL">
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <non-jta-data-source>java:/comp/env/jdbc/trust</non-jta-data-source>
-        <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" /> 
-            <!--  <property name="hibernate.dialect" value="org.hibernate.spatial.dialect.postgis.PostgisDialect"/>-->
-            <property name="hibernate.cache.region.factory_class" value="net.sf.ehcache.hibernate.EhCacheRegionFactory"/>
-            <property name="hibernate.default_batch_fetch_size" value="50"/>
-            <property name="hibernate.jdbc.batch_size" value="100"/>
-            <property name="hibernate.order_inserts" value="true"/>
-            <property name="hibernate.order_updates" value="false"/>
-            <property name="hibernate.cache.use_second_level_cache" value="false"/>
-            <property name="hibernate.show_sql" value="false"/>
-            <property name="hibernate.format_sql" value="true"/>
-            <property name="hibernate.use_sql_comments" value="false"/>
-      
-            <property name="hibernate.session_factory.interceptor" value="com.dai.trust.db.EntityInterceptor"/>
-        </properties>
-    </persistence-unit>
+  <persistence-unit name="trust" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    <non-jta-data-source>java:/comp/env/jdbc/trust</non-jta-data-source>
+    <class>com.dai.trust.models.application.ApplicationLog</class>
+    <properties>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+      <!--  <property name="hibernate.dialect" value="org.hibernate.spatial.dialect.postgis.PostgisDialect"/>-->
+      <property name="hibernate.cache.region.factory_class" value="net.sf.ehcache.hibernate.EhCacheRegionFactory"/>
+      <property name="hibernate.default_batch_fetch_size" value="50"/>
+      <property name="hibernate.jdbc.batch_size" value="100"/>
+      <property name="hibernate.order_inserts" value="true"/>
+      <property name="hibernate.order_updates" value="false"/>
+      <property name="hibernate.cache.use_second_level_cache" value="false"/>
+      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.format_sql" value="true"/>
+      <property name="hibernate.use_sql_comments" value="false"/>
+      <property name="hibernate.session_factory.interceptor" value="com.dai.trust.db.EntityInterceptor"/>
+    </properties>
+  </persistence-unit>
 </persistence>

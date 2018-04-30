@@ -5,11 +5,17 @@ import com.dai.trust.common.MessageProvider;
 import com.dai.trust.common.MessagesKeys;
 import com.dai.trust.common.StringUtility;
 import com.dai.trust.exceptions.TrustException;
+import com.dai.trust.models.application.ApplicationLog;
+import com.dai.trust.models.document.DocumentLog;
 import com.dai.trust.models.party.Party;
 import com.dai.trust.models.party.PartyDocument;
+import com.dai.trust.models.party.PartyLog;
 import com.dai.trust.services.AbstractService;
 import com.dai.trust.services.document.DocumentService;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import javax.persistence.Query;
 
 /**
  * Contains methods for managing private persons and legal entities.
@@ -27,7 +33,56 @@ public class PartyService extends AbstractService {
      * @return
      */
     public Party getParty(String id) {
-        return getById(Party.class, id, false);
+        Party p = getById(Party.class, id, false);
+        if(p != null){
+            p.setLogs(getPartyLogs(id));
+        }
+        return p;
+    }
+
+    /**
+     * Extracts log records for party
+     *
+     * @param partyId Party id
+     * @return
+     */
+    public List<PartyLog> getPartyLogs(String partyId) {
+        if (partyId == null || partyId.equals("")) {
+            return null;
+        }
+
+        Query q = getEM().createNativeQuery(
+                "select (row_number() OVER ())  || '_' || :partyId as id, l.*, (case when au.username is null then l.action_user else au.first_name || ' ' || au.last_name end) as action_user_name\n"
+                + "from (\n"
+                + "select action_time, action_user from public.party where id = :partyId \n"
+                + "union\n"
+                + "select action_time, action_user from history.party where id = :partyId \n"
+                + "union\n"
+                + "select action_time, action_user from public.party_document where party_id = :partyId \n"
+                + "union\n"
+                + "select action_time, action_user from history.party_document where party_id = :partyId \n"
+                + ") l left join appuser au on l.action_user = au.username \n"
+                + "order by l.action_time", PartyLog.class);
+        q.setParameter("partyId", partyId);
+        List<PartyLog> logs = q.getResultList();
+        
+        // Process logs to remove events in the same transaction (with diffrence of 1 second)
+        if(logs != null && logs.size() > 0){
+            Iterator<PartyLog> iter = logs.iterator();
+            Date actionTime = null;
+            while(iter.hasNext()){
+                PartyLog log = iter.next();
+                if(actionTime != null && (log.getActionTime().getTime() - actionTime.getTime()) / 1000 <= 1){
+                    actionTime = log.getActionTime();
+                    // Delete action
+                    iter.remove();
+                } else {
+                    actionTime = log.getActionTime();
+                }
+            }
+        }
+        
+        return logs;
     }
 
     /**
@@ -35,7 +90,8 @@ public class PartyService extends AbstractService {
      *
      * @param person Person to validate
      * @param langCode Language code
-     * @param strict Boolean value indicating whether to check for person to be involved in registered rights and/or approved applications 
+     * @param strict Boolean value indicating whether to check for person to be
+     * involved in registered rights and/or approved applications
      * @return
      */
     public boolean validatePerson(Party person, String langCode, boolean strict) {
@@ -92,7 +148,7 @@ public class PartyService extends AbstractService {
         // Person exists, check it's not involved in any approved applications or rights. If yes, throw error
         if (dbPerson != null) {
             // Check changes
-            if (checkDocumentsChanges(person.getDocuments(), dbPerson.getDocuments()) 
+            if (checkDocumentsChanges(person.getDocuments(), dbPerson.getDocuments())
                     || !StringUtility.empty(dbPerson.getAddress()).equals(StringUtility.empty(person.getAddress()))
                     || !StringUtility.empty(dbPerson.getName4()).equals(StringUtility.empty(person.getName4()))
                     || !StringUtility.empty(dbPerson.getCitizenshipCode()).equals(StringUtility.empty(person.getCitizenshipCode()))
@@ -119,7 +175,8 @@ public class PartyService extends AbstractService {
      *
      * @param legalEntity Legal entity to validate
      * @param langCode Language code
-     * @param strict Boolean value indicating whether to check for person to be involved in registered rights and/or approved applications 
+     * @param strict Boolean value indicating whether to check for person to be
+     * involved in registered rights and/or approved applications
      * @return
      */
     public boolean validateLegalEntity(Party legalEntity, String langCode, boolean strict) {
@@ -134,7 +191,7 @@ public class PartyService extends AbstractService {
         if (StringUtility.isEmpty(legalEntity.getEntityTypeCode())) {
             throw new TrustException(MessagesKeys.ERR_LE_TYPE_EMPTY);
         }
-        
+
         // Verify documents
         if (legalEntity.getDocuments() != null) {
             DocumentService docService = new DocumentService();
@@ -158,7 +215,7 @@ public class PartyService extends AbstractService {
         // Person exists, check it's not involved in any approved applications or rights. If yes, throw error
         if (dbLegalEntity != null) {
             // Check changes
-            if (checkDocumentsChanges(legalEntity.getDocuments(), dbLegalEntity.getDocuments()) 
+            if (checkDocumentsChanges(legalEntity.getDocuments(), dbLegalEntity.getDocuments())
                     || !StringUtility.empty(legalEntity.getAddress()).equals(StringUtility.empty(dbLegalEntity.getAddress()))
                     || !StringUtility.empty(legalEntity.getEntityTypeCode()).equals(StringUtility.empty(dbLegalEntity.getEntityTypeCode()))
                     || !StringUtility.empty(legalEntity.getMobileNumber()).equals(StringUtility.empty(dbLegalEntity.getMobileNumber()))
@@ -172,7 +229,7 @@ public class PartyService extends AbstractService {
         }
         return true;
     }
-    
+
     private boolean checkDocumentsChanges(List<PartyDocument> partyDocs, List<PartyDocument> dbPartyDocs) {
         if ((partyDocs == null && dbPartyDocs != null) || (partyDocs != null && dbPartyDocs == null)) {
             return true;

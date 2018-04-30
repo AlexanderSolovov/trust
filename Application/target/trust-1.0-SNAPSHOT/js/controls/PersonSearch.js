@@ -45,7 +45,8 @@ Controls.PersonSearch = function (controlId, targetElementId, options) {
                 {title: $.i18n("person-id-data")},
                 {data: "dob", title: $.i18n("person-dob")},
                 {data: "mobileNumber", title: $.i18n("person-mobile-num")},
-                {data: "address", title: $.i18n("gen-address")}
+                //{data: "address", title: $.i18n("gen-address")},
+                {data: "ccros", title: $.i18n("app-ccros")}
             ],
             columnDefs: [
                 {
@@ -87,14 +88,17 @@ Controls.PersonSearch = function (controlId, targetElementId, options) {
     };
 
     this.search = function () {
-        SearchDao.searchPerson($("#" + controlVarId + "_name").val(), $("#" + controlVarId + "_idNumber").val(), function (list) {
-            table.clear();
-            if (isNull(list)) {
-                list = [];
-            }
-            table.rows.add(list);
-            table.draw();
-        });
+        SearchDao.searchPerson($("#" + controlVarId + "_name").val(),
+                $("#" + controlVarId + "_idNumber").val(),
+                $("#" + controlVarId + "_ccro").val(),
+                function (list) {
+                    table.clear();
+                    if (isNull(list)) {
+                        list = [];
+                    }
+                    table.rows.add(list);
+                    table.draw();
+                });
     };
 
     this.selectPerson = function (rowSelector) {

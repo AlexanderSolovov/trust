@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 import org.hibernate.annotations.Formula;
 
 @Entity
@@ -86,6 +87,9 @@ public class Party extends AbstractIdEntity {
     
     @Formula("check_party_editable(id) and status_code != 'historic'")
     private boolean editable;
+    
+    @Transient
+    private List<PartyLog> logs;
     
     public Party() {
         super();
@@ -265,6 +269,14 @@ public class Party extends AbstractIdEntity {
 
     public void setEntityTypeCode(String entityTypeCode) {
         this.entityTypeCode = entityTypeCode;
+    }
+
+    public List<PartyLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<PartyLog> logs) {
+        this.logs = logs;
     }
     
     public String getFullName() {
