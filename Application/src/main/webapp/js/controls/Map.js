@@ -447,6 +447,10 @@ Controls.Map = function (controlId, targetElementId, options) {
             mapToolbarItems.push({
                 id: Controls.Map.TOOLBAR_BUTTON_IDS.IMPORT_POINTS,
                 iconCls: 'importPointsIcon',
+                editingTool: true,
+                disabled: true,
+                toggleGroup: "draw",
+                group: "draw",
                 text: $.i18n("map-control-create-from-coords"),
                 tooltip: $.i18n("map-control-create-from-coords"),
                 handler: onImportPointsClick
@@ -1323,6 +1327,8 @@ Controls.Map = function (controlId, targetElementId, options) {
 
                 } else if (tbButton.id === Controls.Map.TOOLBAR_BUTTON_IDS.SNAP_SELECT) {
                     // Do nothing
+                } else if (tbButton.id === Controls.Map.TOOLBAR_BUTTON_IDS.IMPORT_POINTS) {
+                    tbButton.enable();
                 } else if (tbButton.id === Controls.Map.TOOLBAR_BUTTON_IDS.DELETE_FEATURE) {
                     var control = tbButton.baseAction.control;
                     var active = control.active;

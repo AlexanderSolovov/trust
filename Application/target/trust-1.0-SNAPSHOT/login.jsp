@@ -26,6 +26,9 @@
                             <fmt:message key="LOGINPAGE_USERNAME" />
                         </label>
                         <input type="text" name="j_username" id="j_username" class="form-control">
+                        <script type="text/javascript">
+                            $("#j_username").focus();
+                        </script>
                     </div>
                     <div class="form-group">
                         <label for="j_password">
