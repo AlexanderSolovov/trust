@@ -316,7 +316,7 @@ LANGUAGES.en = {
     "log-withdrawn": "Withdrawn by {0} on {1}",
     "log-rejected": "Rejected by {0} on {1}",
     "log-completed": "Completed by {0} on {1}",
-    "log-surrendered": "Surrended by {0} on {1}",
+    "log-surrendered": "Surrendered by {0} on {1}",
     "log-terminated": "Terminated by {0} on {1}",
     "log-historic": "Made historic by {0} on {1}",
     "log-assigned": "Assigned to {0} by {1} on {2}",

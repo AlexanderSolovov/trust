@@ -3,6 +3,7 @@
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
+<fmt:setLocale value="${langCode}" />
 <fmt:setBundle basename="com.dai.trust.strings" />
 
 <t:BasePage>

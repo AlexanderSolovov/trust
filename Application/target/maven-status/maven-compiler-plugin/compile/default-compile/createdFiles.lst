@@ -1,3 +1,4 @@
+com\dai\trust\models\property\PropertyLog.class
 com\dai\trust\models\report\PersonWithRightSummary.class
 com\dai\trust\models\report\RightsStatistics.class
 com\dai\trust\services\refdata\RefDataService.class
@@ -8,6 +9,7 @@ com\dai\trust\models\search\PersonSearchResult.class
 com\dai\trust\models\property\Poi.class
 com\dai\trust\models\search\RightSearchResult.class
 com\dai\trust\models\property\Property.class
+com\dai\trust\models\AbstractLog.class
 com\dai\trust\models\search\ApplicationSearchParams.class
 com\dai\trust\models\AbstractCodeEntity.class
 com\dai\trust\models\application\Application.class
@@ -21,6 +23,7 @@ com\dai\trust\models\report\ApplicationStatistic.class
 com\dai\trust\models\refdata\RightType.class
 com\dai\trust\ws\filters\AuthenticatedFilter.class
 com\dai\trust\models\system\User.class
+com\dai\trust\models\application\ApplicationLog.class
 com\dai\trust\ws\RestResourceConfig.class
 com\dai\trust\models\AbstractIdEntity.class
 com\dai\trust\models\JsonDateOnlyDeserializer.class
@@ -60,10 +63,12 @@ com\dai\trust\ws\PartyResource.class
 com\dai\trust\services\property\ParcelMapService.class
 com\dai\trust\models\system\MapLayerOption.class
 com\dai\trust\models\refdata\AppType.class
+com\dai\trust\models\document\DocumentLog.class
 com\dai\trust\services\search\SearchService.class
 com\dai\trust\models\refdata\OwnerType.class
 com\dai\trust\models\system\AppRoleGroupId.class
 com\dai\trust\models\application\ApplicationDocument.class
+com\dai\trust\models\property\RrrLog.class
 com\dai\trust\models\refdata\District.class
 com\dai\trust\models\report\LegalEntitySummary.class
 com\dai\trust\services\ui\MainMenuService.class
@@ -107,6 +112,7 @@ com\dai\trust\models\application\ApplicationBasic.class
 com\dai\trust\models\system\UserGroup.class
 com\dai\trust\services\system\SettingsService.class
 com\dai\trust\models\system\AppRoleGroup.class
+com\dai\trust\models\property\ParcelLog.class
 com\dai\trust\ws\ReportResource.class
 com\dai\trust\models\refdata\LegalEntityType.class
 com\dai\trust\models\system\UserGroupId.class
@@ -129,6 +135,7 @@ com\dai\trust\models\system\MapSettings.class
 com\dai\trust\services\system\UserService.class
 com\dai\trust\models\application\ApplicationStatusChanger.class
 com\dai\trust\models\search\AffectedObjectSearchResult.class
+com\dai\trust\models\party\PartyLog.class
 com\dai\trust\services\system\AppGroupService.class
 com\dai\trust\models\property\DeceasedOwner.class
 com\dai\trust\ws\RefDataResource.class

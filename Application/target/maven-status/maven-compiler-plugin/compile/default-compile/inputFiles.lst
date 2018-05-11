@@ -10,6 +10,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\LandTyp
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\filters\ContextFilter.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\application\ApplicationPermissions.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\search\ApplicationSearchParams.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\party\PartyLog.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\ApplicationStatistic.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\party\PartyDocumentId.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\AppRole.java
@@ -27,6 +28,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\common\SharedData.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\Poi.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\Village.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\MapSettings.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\ParcelLog.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\ws\filters\Authenticated.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\ParcelStatusChanger.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\AbstractEntity.java
@@ -93,15 +95,18 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\PoiSumma
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\CcroByOccupancy.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\Parcel.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\common\MessageProvider.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\application\ApplicationLog.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\common\RolesConstants.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\search\LegalEntitySearchResult.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\PropertySummary.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\RightTypeGroup.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\ws\PropertyResource.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\PropertyLog.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\search\ApplicationSearchResult.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\ws\filters\Authorized.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\ws\SystemResource.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\AppTypeRightTypeId.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\AbstractLog.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\services\AbstractService.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\OccupancyType.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\search\RightSearchParams.java
@@ -117,6 +122,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\UserGrou
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\AppType.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\LayerType.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\services\party\PartyService.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\document\DocumentLog.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\AppRoleGroup.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\ws\RestResourceConfig.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\LegalEntitySummary.java
@@ -131,6 +137,7 @@ C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\search\Applicat
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\system\AppRoleGroupId.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\RegStatus.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\exceptions\ExceptionUtility.java
+C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\property\RrrLog.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\report\DeceasedOwnerSummary.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\DocumentType.java
 C:\Projects\TRUST\Application\src\main\java\com\dai\trust\models\refdata\Language.java
