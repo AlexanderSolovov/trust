@@ -89,7 +89,8 @@ function blockUI() {
         overlayCSS: {
             backgroundColor: '#fff',
             opacity: 0.6,
-            cursor: 'wait'
+            cursor: 'wait',
+            zIndex: 1500
         },
         css: {
             border: '#41597A solid 1px',
@@ -97,7 +98,8 @@ function blockUI() {
             '-webkit-border-radius': '10px',
             '-moz-border-radius': '10px',
             opacity: .8,
-            color: '#41597A'
+            color: '#41597A',
+            zIndex: 1600
         }
     });
 }

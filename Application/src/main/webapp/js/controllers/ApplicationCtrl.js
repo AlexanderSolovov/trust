@@ -388,8 +388,8 @@ ApplicationCtrl.save = function () {
     var app = ApplicationCtrl.Application;
     app.comment = $("#txtComments").val();
     app.documents = makeVersionedList(app.documents, ApplicationCtrl.AppDocs.getDocuments(), "document");
-    app.applicants = makeVersionedList(app.applicants, ApplicationCtrl.Persons.getPersons(), "party");
     var legalEntities = makeVersionedList(app.applicants, ApplicationCtrl.LegalEntities.getLegalEntities(), "party");
+    app.applicants = makeVersionedList(app.applicants, ApplicationCtrl.Persons.getPersons(), "party");
 
     if (!isNull(app.applicants)) {
         if (!isNull(legalEntities)) {

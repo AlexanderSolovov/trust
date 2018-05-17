@@ -105,7 +105,7 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
                     targets: 3,
                     "render": function (data, type, row, meta) {
                         if (type === "display") {
-                            return dateFormat(data, dateFormat.masks.dateTime);
+                            return dateFormat(data, dateFormat.masks.default);
                         }
                         return data;
                     }

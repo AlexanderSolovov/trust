@@ -147,7 +147,7 @@ $(document).ready(function () {
 
 PropertyCtrl.fillForm = function () {
     var loadingProcesses = 0;
-    var editbale = !isNull(PropertyCtrl.app);
+    var editbale = !isNull(PropertyCtrl.app) && isNull(getUrlParam("msg"));
 
     var showProp = function () {
         if (loadingProcesses > 0) {
@@ -170,11 +170,14 @@ PropertyCtrl.fillForm = function () {
         $("#btnPrintTransactionSheet").hide();
         $("#divAddRight").hide();
 
+        if (!isNull(PropertyCtrl.app)) {
+            $("#btnBack").show();
+            $("#btnBack").on("click", PropertyCtrl.backToApplication);
+        }
+        
         if (editbale) {
             $("#btnSave").show();
             $("#btnSave").on("click", PropertyCtrl.save);
-            $("#btnBack").show();
-            $("#btnBack").on("click", PropertyCtrl.backToApplication);
             PropertyCtrl.showHideAddRightButton();
             $("#lnkAddRight").on("click", PropertyCtrl.openAddRight);
         } else {
@@ -1684,6 +1687,6 @@ PropertyCtrl.save = function () {
     PropertyCtrl.prop.rights = rights;
     PropertyDao.saveProperty(PropertyCtrl.prop, function (prop) {
         // Redirect
-        window.location.replace(String.format(URLS.VIEW_PROPERTY_WITH_MESSAGE, prop.id, PropertyCtrl.MESSAGES.saved));
+        window.location.replace(String.format(URLS.EDIT_PROPERTY_WITH_MESSAGE, PropertyCtrl.app.id, PropertyCtrl.MESSAGES.saved));
     });
 };
