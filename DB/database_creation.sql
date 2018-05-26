@@ -1991,7 +1991,7 @@ BEGIN
         vl_code = (select upper(village_code) from public.ref_hamlet where code = NEW.hamlet_code limit 1);
         hamlet_abbr = (select upper(abbr) from public.ref_hamlet where code = NEW.hamlet_code limit 1);
 	next_number = (SELECT MAX(case when right(COALESCE(uka,''), position('/' in reverse(COALESCE(uka,'')))-1) ~ '^[0-9]+$' then (right(COALESCE(uka,''), position('/' in reverse(COALESCE(uka,'')))-1))::integer else 0 end) + 1 
-			FROM public.parcel WHERE hamlet_code IN (SELECT code FROM ref_hamlet WHERE village_code = vl_code)); 
+			FROM public.parcel WHERE hamlet_code IN (SELECT code FROM ref_hamlet WHERE upper(village_code) = vl_code)); 
         IF (next_number IS null OR next_number = 0) THEN
 	  next_number = 1;
         END IF;
@@ -2183,7 +2183,7 @@ CREATE TABLE public.property
    file_number character varying(20), 
    prop_number character varying(20) NOT NULL, 
    termination_date date, 
-   application_id character varying(40) NOT NULL, 
+   application_id character varying(40), 
    end_application_id character varying(40), 
    status_code character varying(20) NOT NULL DEFAULT 'pending', 
    rowversion integer NOT NULL DEFAULT 0,
@@ -2242,7 +2242,7 @@ BEGIN
 			FROM public.property WHERE position(upper(vl_code || '/') in prop_number) > 0);
 			
         IF (next_number IS null OR next_number = 0) THEN
-	  next_number = 20001;
+	  next_number = 80001;
         END IF;
         NEW.prop_number = (SELECT vl_code || '/' || next_number::text);
     ELSE
@@ -2265,9 +2265,9 @@ CREATE TRIGGER __generate_prop_number
 
 CREATE SEQUENCE public.file_number_seq
   INCREMENT 1
-  MINVALUE 60000
+  MINVALUE 80000
   MAXVALUE 999999999999
-  START 60000
+  START 80000
   CACHE 1;
 ALTER TABLE public.file_number_seq
   OWNER TO postgres;
@@ -2406,7 +2406,7 @@ CREATE TABLE public.rrr
    witness2 character varying(250),
    witness3 character varying(250),
    description character varying(1000), 
-   application_id character varying(40) NOT NULL, 
+   application_id character varying(40), 
    end_application_id character varying(40), 
    termination_application_id character varying(40),
    termination_date date, 

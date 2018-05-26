@@ -96,47 +96,47 @@
 				</textElement>
 				<text><![CDATA[Females below 35:]]></text>
 			</staticText>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="175" y="0" width="68" height="30" uuid="daea33aa-7f62-4c4c-817e-8370e93d9f15"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{totalBelow35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{totalBelow35} == null ? 0 : $F{totalBelow35}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="175" y="30" width="68" height="30" uuid="f4ff69fa-10b0-4605-a406-4efa28caa160"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{totalOver35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{totalOver35} == null ? 0 : $F{totalOver35}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="175" y="60" width="68" height="30" uuid="d6f05517-df5f-466d-98fd-a4ec9e54385e"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{maleBelow35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{maleBelow35} == null ? 0 : $F{maleBelow35}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="175" y="90" width="68" height="30" uuid="4ec7adc1-6afb-4c1a-a302-bac357b0621e"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{maleOver35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{maleOver35} == null ? 0 : $F{maleOver35}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="175" y="120" width="68" height="30" uuid="b3d0c7cb-6f67-4310-8f69-882c837a5dba"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{femaleBelow35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{femaleBelow35} == null ? 0 : $F{femaleBelow35}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="175" y="150" width="68" height="30" uuid="8e8bb215-34e1-4799-af6d-63576b2e0294"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{femaleOver35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{femaleOver35} == null ? 0 : $F{femaleOver35}]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="310" y="30" width="132" height="30" uuid="f4e46e63-4f02-4716-82ae-0db735e10918"/>
@@ -145,12 +145,13 @@
 				</textElement>
 				<text><![CDATA[Males total:]]></text>
 			</staticText>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="442" y="30" width="68" height="30" uuid="cfe49af5-be4c-496a-b48b-74cc8c9a3ae5"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{maleOver35}+$F{maleBelow35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{maleOver35} == null ? 0 : $F{maleOver35})+
+($F{maleBelow35} == null ? 0 : $F{maleBelow35})]]></textFieldExpression>
 			</textField>
 			<staticText>
 				<reportElement x="310" y="60" width="132" height="30" uuid="507770a0-60ca-467b-a6b8-405839fa1ca6"/>
@@ -159,12 +160,13 @@
 				</textElement>
 				<text><![CDATA[Females total:]]></text>
 			</staticText>
-			<textField>
+			<textField isBlankWhenNull="true">
 				<reportElement x="442" y="60" width="68" height="30" uuid="cd16d9b1-f562-4356-a64a-b9e9456c15f7"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true" isItalic="false"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{femaleBelow35}+$F{femaleOver35}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[($F{femaleBelow35} == null ? 0 : $F{femaleBelow35})+
+($F{femaleOver35} == null ? 0 : $F{femaleOver35})]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

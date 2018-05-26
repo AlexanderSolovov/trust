@@ -69,12 +69,13 @@ public class ParcelMapService {
 
     /**
      * Returns parcel map image
+     *
      * @param parcelId Parcel id
-     * @return 
+     * @return
      */
     public BufferedImage getParcelMap(String parcelId) {
         try {
-            if(StringUtility.isEmpty(parcelId)){
+            if (StringUtility.isEmpty(parcelId)) {
                 return null;
             }
             BufferedImage mapImage = getMapImage(parcelId, width, height, false, "");
@@ -200,12 +201,13 @@ public class ParcelMapService {
 
     /**
      * Returns parcel map image
+     *
      * @param parcelId Parcel id
      * @param width Map width in pixels
      * @param height Map height in pixels
      * @param drawScale Boolean flag indicating whether to draw scale bar or not
      * @param scaleLabel String label to use for scale bar (if it's drawn)
-     * @return 
+     * @return
      */
     public BufferedImage getMapImage(String parcelId, int width, int height, boolean drawScale, String scaleLabel) {
         width = width - mapMargin;
@@ -352,19 +354,46 @@ public class ParcelMapService {
                 }
             }
 
+            Double stepSizeX84 = null;
+            Long stepSizeX = null;
+            Double xLabel84 = null;
+            Long xLabel = null;
+
+            Double stepSizeY84 = null;
+            Long stepSizeY = null;
+            Double yLabel84 = null;
+            Long yLabel = null;
+
             while (true) {
                 // Draw horizontal
                 if ((nextX > coordWidth / 2 + mapMargin / 2) && (mapWidth + mapMargin / 2 - coordWidth / 2 >= nextX)) {
                     grFullImage.drawLine(nextX, mapHeight + mapMargin / 2, nextX, mapHeight + mapMargin / 2 - cutLen);
                     grFullImage.drawLine(nextX, mapMargin / 2, nextX, mapMargin / 2 + cutLen);
 
-                    Point2D pointHrz = tr.transform(new Point2D.Double(nextX - (mapMargin / 2), mapHeight + mapMargin / 2), null);
-                    String pointLabel;
+                    String pointLabel = "";
 
                     if (isWgs84) {
-                        pointLabel = Double.toString(round(pointHrz.getX(), roundNumber));
+                        if (stepSizeX84 == null) {
+                            Point2D pointHrz = tr.transform(new Point2D.Double(nextX - (mapMargin / 2), mapHeight + mapMargin / 2), null);
+                            Point2D pointHrzNext = tr.transform(new Point2D.Double(nextX + stepSize - (mapMargin / 2), mapHeight + mapMargin / 2), null);
+
+                            stepSizeX84 = round(pointHrzNext.getX(), roundNumber) - round(pointHrz.getX(), roundNumber);
+                            xLabel84 = round(pointHrz.getX(), roundNumber);
+                        } else {
+                            xLabel84 += stepSizeX84;
+                        }
+                        pointLabel = Double.toString(xLabel84);
                     } else {
-                        pointLabel = Long.toString(Math.round(pointHrz.getX() / 10) * 10);
+                        if (stepSizeX == null) {
+                            Point2D pointHrz = tr.transform(new Point2D.Double(nextX - (mapMargin / 2), mapHeight + mapMargin / 2), null);
+                            Point2D pointHrzNext = tr.transform(new Point2D.Double(nextX + stepSize - (mapMargin / 2), mapHeight + mapMargin / 2), null);
+
+                            stepSizeX = (Math.round(pointHrzNext.getX() / 10) * 10) - (Math.round(pointHrz.getX() / 10) * 10);
+                            xLabel = Math.round(pointHrz.getX() / 10) * 10;
+                        } else {
+                            xLabel += stepSizeX;
+                        }
+                        pointLabel = Long.toString(xLabel);
                     }
 
                     drawText(grFullImage, pointLabel, nextX, fullBounds.height - 2, true);
@@ -379,13 +408,30 @@ public class ParcelMapService {
                     grFullImage.drawLine(mapWidth + (mapMargin / 2), nextY, mapWidth + (mapMargin / 2) - cutLen, nextY);
 
                     AffineTransform originalTransform = grFullImage.getTransform();
-                    Point2D pointVrt = tr.transform(new Point2D.Double((mapMargin / 2) - 2, nextY - (mapMargin / 2)), null);
                     String pointLabel;
 
                     if (isWgs84) {
-                        pointLabel = Double.toString(round(pointVrt.getY(), roundNumber));
+                        if (stepSizeY84 == null) {
+                            Point2D pointVrt = tr.transform(new Point2D.Double((mapMargin / 2) - 2, nextY - (mapMargin / 2)), null);
+                            Point2D pointVrtNext = tr.transform(new Point2D.Double((mapMargin / 2) - 2, nextY - stepSize - (mapMargin / 2)), null);
+
+                            stepSizeY84 = round(pointVrtNext.getY(), roundNumber) - round(pointVrt.getY(), roundNumber);
+                            yLabel84 = round(pointVrt.getY(), roundNumber);
+                        } else {
+                            yLabel84 -= stepSizeY84;
+                        }
+                        pointLabel = Double.toString(yLabel84);
                     } else {
-                        pointLabel = Long.toString(Math.round(pointVrt.getY() / 10) * 10);
+                        if (stepSizeY == null) {
+                            Point2D pointVrt = tr.transform(new Point2D.Double((mapMargin / 2) - 2, nextY - (mapMargin / 2)), null);
+                            Point2D pointVrtNext = tr.transform(new Point2D.Double((mapMargin / 2) - 2, nextY - stepSize - (mapMargin / 2)), null);
+
+                            stepSizeY = (Math.round(pointVrtNext.getY() / 10) * 10) - (Math.round(pointVrt.getY() / 10) * 10);
+                            yLabel = Math.round(pointVrt.getY() / 10) * 10;
+                        } else {
+                            yLabel += stepSizeY;
+                        }
+                        pointLabel = Long.toString(yLabel);
                     }
 
                     grFullImage.rotate(-Math.PI / 2, (mapMargin / 2) - 3, nextY);

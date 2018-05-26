@@ -26,7 +26,8 @@ public class RightsStatistics implements Serializable {
     @Column
     private Long historic;
 
-    public static final String QUERY = "select rt.code, get_translation(rt.val, :langCode) as right_type, count(1) as total, \n"
+    public static final String QUERY = "select rt.code, get_translation(rt.val, :langCode) as right_type, "
+            + "sum(case when r.status_code is null then 0 else 1 end) as total, \n"
             + "sum(case when r.status_code = 'pending' then 1 else 0 end) as pending,\n"
             + "sum(case when r.status_code = 'current' then 1 else 0 end) as current,\n"
             + "sum(case when r.status_code = 'historic' then 1 else 0 end) as historic \n"
