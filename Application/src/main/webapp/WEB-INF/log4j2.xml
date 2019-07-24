@@ -19,7 +19,7 @@
     </appenders>
 
     <loggers>
-        <!-- 
+        <!--
         <logger name="org.hibernate">
             <level value="ALL" />
             <appender-ref ref="Console"/>

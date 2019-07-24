@@ -56,7 +56,17 @@ RefDataDao.TRANSACTION_TYPE_CODES = {
     Transfer: "transfer",
     Vary: "vary",
     Rectify: "rectify",
-    ChangeName: "change_name"
+    ChangeName: "change_name",
+    NoAction: "no_action",
+    Split: "split",
+    Merge: "merge"
+};
+
+RefDataDao.APP_TYPE_CODES = {
+    CCROTransAdmin: "ccro_trans_admin",
+    CCRORenewal: "ccro_renewal",
+    CCROSplit: "ccro_split",
+    CCROMerge: "ccro_merge"
 };
 
 RefDataDao.RIGHT_TYPE_GROUP_CODES = {
@@ -68,7 +78,12 @@ RefDataDao.RIGHT_TYPE_CODES = {
     Ccro: "ccro",
     Caveat: "caveat",
     Mortgage: "mortgage",
-    Assignment: "assign"
+    Assignment: "assign",
+    Lease: "lease",
+    Easement: "easement",
+    Injunction: "injunction",
+    Charge: "charge",
+    Deposit: "depo_notice"
 };
 
 RefDataDao.OWNER_TYPE_CODES = {

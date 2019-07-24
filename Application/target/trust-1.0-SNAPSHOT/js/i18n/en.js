@@ -36,6 +36,7 @@ LANGUAGES.en = {
     "gen-back": "Back",
     "gen-open": "Open",
     "gen-vary": "Vary",
+    "gen-renew": "Renew",
     "gen-rectify": "Rectify",
     "gen-type": "Type",
     "gen-import": "Import",
@@ -49,6 +50,9 @@ LANGUAGES.en = {
     "gen-delete-success": "Record has been deleted",
     "gen-save-success": "Record has been saved",
     "gen-unsaved-changes": "Do you want to save changes?",
+    "gen-fee": "Fee",
+    "gen-change": "Change",
+    "gen-revert": "Revert",
     
     "dt-sEmptyTable": "No records",
     "dt-sInfo": "Showing _START_ to _END_ of _TOTAL_ entries",
@@ -257,8 +261,10 @@ LANGUAGES.en = {
     
     "right-transfer": "Transfer",
     "right-remove": "Remove",
+    "right-terminate": "Terminate",
     "right-discharge": "Discharge",
     "right-cancel-remove": "Cancel Remove",
+    "right-cancel-terminate": "Cancel Terminate",
     "right-cancel-discharge": "Cancel Discharge",
     "right-cancel-withdraw": "Cancel Withdrawal",
     "right-for-remove-discharge": "For Discharge/Remove",
@@ -291,6 +297,7 @@ LANGUAGES.en = {
     "right-pois": "Persons of Interest",
     "right-poi": "Person of Interest",
     "right-share-size": "Share Size",
+    "right-change-name": "Change Name",
     
     "status-pending": "Pending",
     
@@ -355,6 +362,7 @@ LANGUAGES.en = {
     "err-app-cant-edit": "You cannot edit this application",
     "err-app-no-ccro": "CCRO must be provided.",
     "err-app-no-persons": "At least one person must be added as an applicant.",
+    "err-app-one-person": "Only one person can be added.",
     "err-app-no-representative": "Add one person as a representative of legal entity.",
     "err-app-one-representative": "Only one representative (person) is required for legal entity.",
     "err-app-one-le": "Only one legal entity can be added.",
@@ -413,5 +421,7 @@ LANGUAGES.en = {
     "err-url-empty": "URL is empty",
     "err-order-empty": "Order is empty",
     "err-date-from-empty": "Enter date from",
-    "err-date-to-empty": "Enter date to"
+    "err-date-to-empty": "Enter date to",
+    "err-app-no-fee": "Enter application fee",
+    "err-name-not-changed": "Name was not changed."
 };

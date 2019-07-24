@@ -22,7 +22,9 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
 
     options = options ? options : {};
     var legalEntities = filterParties(options.legalEntities);
+    var parentLegalEntities = filterParties(options.parentLegalEntities);
     var editable = isNull(options.editable) ? true : options.editable;
+    var isChangeOfName = isNull(options.isChangeOfName) ? false : options.isChangeOfName;
     var that = this;
     var table;
     var controlVarId = "__control_legal_entities_" + controlId;
@@ -82,6 +84,39 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
                             return String.format(DataTablesUtility.getDeleteLink(), controlVarId + ".deleteLegalEntity($(this).parents('tr'));return false;") +
                                     String.format(DataTablesUtility.getEditLink(), controlVarId + ".showLegalEntityDialog($(this).parents('tr'));return false;") +
                                     " " + data;
+                        } else if (isChangeOfName) {
+                            // Check list of parent legal entities to show/hide links. 
+                            // If party has same id as parent, it can be changed to new legal entity from application. 
+                            // Otherwise, if id is not matching it means legal entity is already changed and revert link should be shown
+                            // If at least one party is already changed, remaining parties should staty unchanged
+                            var leChangedId = null;
+
+                            for (var i = 0; i < legalEntities.length; i++) {
+                                leChangedId = legalEntities[i].id;
+                                for (var j = 0; j < parentLegalEntities.length; j++) {
+                                    if (parentLegalEntities[j].id === legalEntities[i].id) {
+                                        leChangedId = null;
+                                        break;
+                                    }
+                                }
+                                if (!isNull(leChangedId)) {
+                                    break;
+                                }
+                            }
+
+                            // There is legal entity who already changed for new owner name
+                            if (!isNull(leChangedId)) {
+                                // If it's current legal entity, return revert link
+                                if (row.id === leChangedId) {
+                                    return String.format(DataTablesUtility.getRevertLink(), controlVarId + ".revertLegalEntity($(this).parents('tr'));return false;") + "<br> " + data;
+                                } else {
+                                    // Return only legal entity name name
+                                    return data;
+                                }
+                            } else {
+                                // Allow changes for all owners
+                                return String.format(DataTablesUtility.getChangeLink(), controlVarId + ".changeLegalEntity($(this).parents('tr'));return false;") + "<br> " + data;
+                            }
                         } else {
                             return String.format(DataTablesUtility.getViewLink(), controlVarId + ".showLegalEntityDialog($(this).parents('tr'));return false;", data);
                         }
@@ -143,27 +178,24 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
         }
     };
 
-    this.setLegalEntities = function (list) {
+    this.reInit = function (options) {
         if (!loaded) {
             alertWarningMessage($.i18n("err-comp-loading"));
             return;
         }
+        legalEntities = filterParties(options.legalEntities);
+        parentLegalEntities = filterParties(options.parentLegalEntities);
+        if (!isNull(options.editable)) {
+            editable = options.editable;
+        }
+        if (!isNull(options.isChangeOfName)) {
+            isChangeOfName = options.isChangeOfName;
+        }
         table.clear();
-        legalEntities = filterParties(list);
         table.rows.add(legalEntities);
         table.draw();
     };
-
-    this.setEditable = function (allowEdit) {
-        editable = allowEdit;
-        if (allowEdit) {
-            $("#" + controlVarId + "_wrapper div.tableToolbar").show();
-        } else {
-            $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
-        }
-        table.draw();
-    };
-
+    
     var selectedRow = null;
 
     this.copyFromApp = function () {
@@ -183,6 +215,79 @@ Controls.LegalEntities = function (controlId, targetElementId, options) {
                     if (!found) {
                         highlight(table.row.add(party).draw().node());
                     }
+                }
+            }
+        }
+    };
+    
+    this.changeLegalEntity = function (rowSelector) {
+        if (!isNull(options.app.applicants)) {
+            for (var i = 0; i < options.app.applicants.length; i++) {
+                var party = options.app.applicants[i].party;
+
+                if (!party.isPrivate) {
+                    // Check if it's already exists
+                    var found = false;
+                    table.rows().data().each(function (p) {
+                        if (String.empty(p.id) === party.id) {
+                            found = true;
+                        }
+                    });
+
+                    if (!found) {
+                        // Delete old owner
+                        var leToRemove = table.row(rowSelector).data();
+                        for (var i = 0; i < legalEntities.length; i++) {
+                            if (legalEntities[i].id === leToRemove.id) {
+                                legalEntities.splice(i, 1);
+                                break;
+                            }
+                        }
+                        table.row(rowSelector).remove();
+
+                        // Add applicant
+                        legalEntities.push(party);
+                        var row = table.row.add(party).node();
+                        table.draw();
+                        highlight(row);
+                        break;
+                    }
+                }
+            }
+        }
+    };
+
+    this.revertLegalEntity = function (rowSelector) {
+        if (!isNull(parentLegalEntities)) {
+            var selectedLe = table.row(rowSelector).data();
+
+            for (var j = 0; j < parentLegalEntities.length; j++) {
+                var found = false;
+                for (var i = 0; i < legalEntities.length; i++) {
+                    if (parentLegalEntities[j].id === legalEntities[i].id) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found){
+                    // Delete current legal entity
+                    for (var i = 0; i < legalEntities.length; i++) {
+                        if (legalEntities[i].id === selectedLe.id) {
+                            legalEntities.splice(i, 1);
+                            break;
+                        }
+                    }
+                    
+                    table.row(rowSelector).remove();
+
+                    // Revert to parent person
+                    legalEntities.push(parentLegalEntities[j]);
+                    var row = table.row.add(parentLegalEntities[j]).node();
+                    table.draw();
+                    highlight(row);
+
+                    break;
                 }
             }
         }

@@ -3787,25 +3787,13 @@ INSERT INTO public.ref_landuse(code, val) VALUES ('mining', 'Mining::::Maeneo ya
 INSERT INTO public.ref_layer_type(code, val) VALUES ('wms', 'WMS');
 INSERT INTO public.ref_layer_type(code, val) VALUES ('wfs', 'WFS');
 
+-- Plots layer
+INSERT INTO public.map_layer (id, name, title, type_code, active, layer_order, url, version, image_format) VALUES ('parcels', 'trust:parcels', 'Plots', 'wms', 't', 1, 'http://localhost/geoserver/trust/wms', '1.1.0', 'image/png');
+INSERT INTO public.map_layer_option (id, layer_id, name, val, for_server) VALUES ('o1', 'parcels', 'transparent', 'true', 't');
+
 -- Owner types
 INSERT INTO public.ref_owner_type(code, val) VALUES ('owner', 'Owner::::Mmiliki');
 INSERT INTO public.ref_owner_type(code, val) VALUES ('administrator', 'Administrator::::Msimamizi');
 INSERT INTO public.ref_owner_type(code, val) VALUES ('guardian', 'Guardian::::Mlezi');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -10,6 +10,7 @@ import com.dai.trust.models.document.DocumentLog;
 import com.dai.trust.models.party.Party;
 import com.dai.trust.models.party.PartyDocument;
 import com.dai.trust.models.party.PartyLog;
+import com.dai.trust.models.party.PartyStatusChanger;
 import com.dai.trust.services.AbstractService;
 import com.dai.trust.services.document.DocumentService;
 import java.util.Date;
@@ -38,6 +39,16 @@ public class PartyService extends AbstractService {
             p.setLogs(getPartyLogs(id));
         }
         return p;
+    }
+    
+    /**
+     * Returns Person object.
+     *
+     * @param id Person id.
+     * @return
+     */
+    public PartyStatusChanger getPartyStatusChanger(String id) {
+        return getById(PartyStatusChanger.class, id, false);
     }
 
     /**

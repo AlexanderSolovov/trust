@@ -102,25 +102,36 @@
                         <div class="subSectionHeader" data-i18n="gen-general"></div>
 
                         <div class="row">
-                            <div class="col-md-3">
-                                <label data-i18n="app-lodgement-date"></label><br>
-                                <span id="lblLodgementDate"></span>
+                            <div class="col-md-10">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label data-i18n="app-lodgement-date"></label><br>
+                                        <span id="lblLodgementDate"></span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label data-i18n="app-assignee"></label><br>
+                                        <span id="lblAssignee"></span>
+                                        <br>
+                                        <small><span id="lblAssignmentDate"></span></small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label data-i18n="gen-status"></label><br>
+                                        <span id="appStatus"></span>
+                                        <br>
+                                        <small><span id="lblStatusDate"></span></small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label data-i18n="app-completion-date"></label><br>
+                                        <span id="lblCompletionDate"></span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <label data-i18n="app-assignee"></label><br>
-                                <span id="lblAssignee"></span>
-                                <br>
-                                <small><span id="lblAssignmentDate"></span></small>
-                            </div>
-                            <div class="col-md-3">
-                                <label data-i18n="gen-status"></label><br>
-                                <span id="appStatus"></span>
-                                <br>
-                                <small><span id="lblStatusDate"></span></small>
-                            </div>
-                            <div class="col-md-3">
-                                <label data-i18n="app-completion-date"></label><br>
-                                <span id="lblCompletionDate"></span>
+                            <div class="col-md-2">
+                                <label data-i18n="gen-fee"></label>
+                                <i class="glyphicon glyphicon-required"></i><br>
+                                <span id="lblFee" style="display: none;"></span>
+                                <input id="txtAppFee" class="form-control" maxlength="10" autocomplete="off" style="display: none;"
+                                       onkeypress="return restrictInputDouble(event);" ondrop="return false;" onpaste="return false;">
                             </div>
                         </div>
 

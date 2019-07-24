@@ -66,6 +66,9 @@ public class Application extends AbstractIdEntity {
     @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ApplicationProperty> properties;
 
+    @Column
+    private Double fee;
+    
     @Transient
     private ApplicationPermissions permissions;
 
@@ -188,6 +191,14 @@ public class Application extends AbstractIdEntity {
         this.applicants = applicants;
     }
 
+    public Double getFee() {
+        return fee;
+    }
+
+    public void setFee(Double fee) {
+        this.fee = fee;
+    }
+    
     public List<ApplicationProperty> getProperties() {
         return properties;
     }

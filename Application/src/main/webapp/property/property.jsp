@@ -194,9 +194,9 @@
                             <b><span data-i18n="parcel-plot"></span></b>
                             <ul id="listParcelLogs" style="line-height: 30px;padding-left: 10px;">
                             </ul>
-                            
+
                             <p></p>
-                            
+
                             <b><span data-i18n="prop-prop"></span></b>
                             <ul id="listLogs" style="line-height: 30px;padding-left: 10px;">
                             </ul>
@@ -514,6 +514,23 @@
                             <ul id="listRightLog" style="line-height: 30px;padding-left: 10px;">
                             </ul>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="parcelSelectionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" style="width:350px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" data-i18n="gen-select"></h4>
+                    </div>
+                    <div class="modal-body" style="padding: 0px 5px 0px 5px;">
+                        <div class="content" id="pnlParcelSelection">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="margin-top: 0px;padding: 15px 20px 15px 20px;">
                     </div>
                 </div>
             </div>

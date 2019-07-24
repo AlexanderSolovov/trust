@@ -48,12 +48,36 @@ DataTablesUtility.getRemoveLink = function () {
     return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-trash"></i> ' + $.i18n('right-remove') + '</a>';
 };
 
+DataTablesUtility.getTerminateLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-trash"></i> ' + $.i18n('right-terminate') + '</a>';
+};
+
+DataTablesUtility.getCancelTerminateLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-trash"></i> ' + $.i18n('right-cancel-terminate') + '</a>';
+};
+
 DataTablesUtility.getWithdrawLink = function () {
     return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-trash"></i> ' + $.i18n('gen-withdraw') + '</a>';
 };
 
 DataTablesUtility.getVaryLink = function () {
     return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-edit"></i> ' + $.i18n('gen-vary') + '</a>';
+};
+
+DataTablesUtility.getRenewLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-edit"></i> ' + $.i18n('gen-renew') + '</a>';
+};
+
+DataTablesUtility.getChangeNameLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-edit"></i> ' + $.i18n('right-change-name') + '</a>';
+};
+
+DataTablesUtility.getChangeLink = function () {
+    return '<a href="#" onclick="{0}"><i class="glyphicon glyphicon-edit"></i> ' + $.i18n('gen-change') + '</a>';
+};
+
+DataTablesUtility.getRevertLink = function () {
+    return '<a href="#" onclick="{0}"><i class="icon-undo"></i> ' + $.i18n('gen-revert') + '</a>';
 };
 
 DataTablesUtility.getRectifyLink = function () {

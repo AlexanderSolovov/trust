@@ -15,6 +15,9 @@ public class TransactionType extends AbstractRefDataEntity {
     public static final String VARY = "vary";
     public static final String RECTIFY = "rectify";
     public static final String CHANGE_NAME = "change_name";
+    public static final String NO_ACTION = "no_action";
+    public static final String SPLIT = "split";
+    public static final String MERGE = "merge";
     
     public TransactionType(){
         super();

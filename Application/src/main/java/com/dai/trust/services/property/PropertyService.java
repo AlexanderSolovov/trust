@@ -308,6 +308,20 @@ public class PropertyService extends AbstractService {
     }
 
     /**
+     * Returns envelope for properties (parcels) attached to the application.
+     *
+     * @param appId Application id.
+     * @return
+     */
+    public String getEnvelopeByAppProperties(String appId) {
+        String sql = "select st_astext(ST_Envelope(ST_Collect(geom))) as env from public.parcel "
+                + "where id in (select parcel_id from public.property p inner join public.application_property ap on p.id = ap.property_id and ap.app_id = :appId)";
+
+        String env = (String) getEM().createNativeQuery(sql).setParameter("appId", appId).getSingleResult();
+        return env;
+    }
+
+    /**
      * Saves provided parcels and returns them updated
      *
      * @param parcels List of parcels to save.
@@ -349,10 +363,16 @@ public class PropertyService extends AbstractService {
 
         // Check application
         SearchService searchService = new SearchService();
-        validateApplication(searchService.searchApplicationById(langCode, appId));
+        ApplicationSearchResult app = searchService.searchApplicationById(langCode, appId);
+        AppType appType = getById(AppType.class, app.getAppTypeCode(), false);
+        String transCode = "";
+        if (appType != null) {
+            transCode = StringUtility.empty(appType.getTransactionTypeCode());
+        }
+        validateApplication(app);
 
         // Check number of parcel based on the application
-        if (parcels.size() > 1) {
+        if (!StringUtility.isEmpty(transCode) && !transCode.equalsIgnoreCase(TransactionType.SPLIT) && parcels.size() > 1) {
             throw new TrustException(MessagesKeys.ERR_PARCEL_ONE_PARCEL_REQUIRED);
         }
 
@@ -461,11 +481,13 @@ public class PropertyService extends AbstractService {
         } else // Search in the list of rights
          if (prop.getRights() != null) {
                 for (Rrr right : prop.getRights()) {
-                    if ((StringUtility.isEmpty(right.getStatusCode()) || right.getStatusCode().equalsIgnoreCase(StatusCodeConstants.PENDING))
+                    if ((StringUtility.isEmpty(right.getStatusCode())
+                            || right.getStatusCode().equalsIgnoreCase(StatusCodeConstants.PENDING))
                             && !StringUtility.isEmpty(right.getApplicationId())) {
                         app = searchService.searchApplicationById(langCode, right.getApplicationId());
                         break;
-                    } else if (!StringUtility.isEmpty(right.getTerminationApplicationId()) && StringUtility.empty(right.getStatusCode()).equalsIgnoreCase(StatusCodeConstants.CURRENT)) {
+                    } else if (!StringUtility.isEmpty(right.getTerminationApplicationId())
+                            && StringUtility.empty(right.getStatusCode()).equalsIgnoreCase(StatusCodeConstants.CURRENT)) {
                         app = searchService.searchApplicationById(langCode, right.getTerminationApplicationId());
                         break;
                     }
@@ -473,17 +495,16 @@ public class PropertyService extends AbstractService {
             }
 
         // Validate application
-        if (app == null) {
-            throw new TrustException(MessagesKeys.ERR_PROP_APP_NOT_PROVIDED);
-        }
-
         validateApplication(app);
 
         // Get application type
         RefDataService refService = new RefDataService();
         AppType appType = refService.getRefDataRecord(AppType.class, app.getAppTypeCode(), langCode);
         String transactionType = appType.getTransactionTypeCode();
-        boolean isFirstReg = transactionType.equals(TransactionType.FIRST_REGISTRATION);
+        boolean isFirstReg = transactionType.equals(TransactionType.FIRST_REGISTRATION)
+                || transactionType.equals(TransactionType.SPLIT)
+                || transactionType.equals(TransactionType.MERGE);
+        boolean isChangeOfName = transactionType.equals(TransactionType.CHANGE_NAME);
 
         // If first registration
         if (isFirstReg) {
@@ -585,7 +606,8 @@ public class PropertyService extends AbstractService {
                 // Check for parent right to exist and has current status
                 if (transactionType.equals(TransactionType.RECTIFY)
                         || transactionType.equals(TransactionType.VARY)
-                        || transactionType.equals(TransactionType.TRANSFER)) {
+                        || transactionType.equals(TransactionType.TRANSFER)
+                        || isChangeOfName) {
                     if (StringUtility.isEmpty(right.getParentId())) {
                         throw new TrustException(MessagesKeys.ERR_PROP_PARENT_RIGHT_EMPTY);
                     }
@@ -602,7 +624,7 @@ public class PropertyService extends AbstractService {
                                 // Copy over values from parent to make sure they are not modified
                                 right.setRightTypeCode(r.getRightTypeCode());
 
-                                if (transactionType.equals(TransactionType.TRANSFER)) {
+                                if (transactionType.equals(TransactionType.TRANSFER) || isChangeOfName) {
                                     right.setDuration(r.getDuration());
                                     right.setAnnualFee(r.getAnnualFee());
                                     right.setApprovedLanduseCode(r.getApprovedLanduseCode());
@@ -610,7 +632,7 @@ public class PropertyService extends AbstractService {
                                     right.setEndDate(r.getEndDate());
                                 }
 
-                                if (transactionType.equals(TransactionType.VARY) || transactionType.equals(TransactionType.TRANSFER)) {
+                                if (transactionType.equals(TransactionType.VARY) || transactionType.equals(TransactionType.TRANSFER) || isChangeOfName) {
                                     right.setWitness1(r.getWitness1());
                                     right.setWitness2(r.getWitness2());
                                     right.setWitness3(r.getWitness3());
@@ -622,6 +644,102 @@ public class PropertyService extends AbstractService {
                                     right.setNeighborEast(r.getNeighborEast());
                                     right.setNeighborSouth(r.getNeighborSouth());
                                     right.setNeighborWest(r.getNeighborWest());
+                                }
+
+                                if (isChangeOfName) {
+                                    // Copy deceased owner
+                                    right.setDeceasedOwner(r.getDeceasedOwner());
+
+                                    // Copy over POIs
+                                    if (right.getPois() != null) {
+                                        right.getPois().clear();
+                                    }
+                                    if (r.getPois() != null) {
+                                        if (right.getPois() != null) {
+                                            right.setPois(new ArrayList());
+                                        }
+                                        for (Poi poi : r.getPois()) {
+                                            right.getPois().add(poi);
+                                        }
+                                    }
+                                    // Copy over POIs and documents
+                                    if (right.getDocuments() != null) {
+                                        right.getDocuments().clear();
+                                    }
+                                    if (r.getDocuments() != null) {
+                                        if (right.getDocuments() != null) {
+                                            right.setDocuments(new ArrayList());
+                                        }
+                                        for (RrrDocument doc : r.getDocuments()) {
+                                            right.getDocuments().add(doc);
+                                        }
+                                    }
+                                    // Copy rightholders except changed one
+                                    Rightholder replacedRightholder = null;
+
+                                    for (Rightholder dbrh : r.getRightholders()) {
+                                        replacedRightholder = dbrh;
+
+                                        if (right.getRightholders() != null) {
+                                            for (Rightholder rh : right.getRightholders()) {
+                                                if (rh.getParty() != null && rh.getParty().getId().equals(dbrh.getParty().getId())) {
+                                                    // Make a copy
+                                                    rh.setParty(dbrh.getParty());
+                                                    rh.setOwnerTypeCode(dbrh.getOwnerTypeCode());
+                                                    rh.setPartyId(dbrh.getParty().getId());
+                                                    rh.setShareSize(dbrh.getShareSize());
+                                                    replacedRightholder = null;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (replacedRightholder != null) {
+                                            break;
+                                        }
+                                    }
+
+                                    if (replacedRightholder == null) {
+                                        throw new TrustException(MessagesKeys.ERR_PROP_NO_OWNER_CHANGED);
+                                    }
+
+                                    // Check only one rightholder is changed 
+                                    int changedRightholders = r.getRightholders().size();
+                                    for (Rightholder dbrh : r.getRightholders()) {
+                                        if (right.getRightholders() != null) {
+                                            for (Rightholder rh : right.getRightholders()) {
+                                                if (rh.getParty() != null && rh.getParty().getId().equals(dbrh.getParty().getId())) {
+                                                    changedRightholders -= 1;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // Copy properties from original to changed rightholder
+                                    if (right.getRightholders() != null) {
+                                        for (Rightholder rh : right.getRightholders()) {
+                                            Rightholder newRightholder = rh;
+                                            for (Rightholder dbrh : r.getRightholders()) {
+                                                if (rh.getParty() != null && rh.getParty().getId().equals(dbrh.getParty().getId())) {
+                                                    newRightholder = null;
+                                                    break;
+                                                }
+                                            }
+                                            if (newRightholder != null) {
+                                                // This is new rightholder
+                                                newRightholder.setOwnerTypeCode(replacedRightholder.getOwnerTypeCode());
+                                                newRightholder.setShareSize(replacedRightholder.getShareSize());
+                                            }
+                                        }
+                                    }
+
+                                    if (changedRightholders != 1) {
+                                        throw new TrustException(MessagesKeys.ERR_PROP_ONE_OWNER_CAN_BE_CHANGED);
+                                    }
+
+                                    // Need to detach dbProp object to drop copied assosiations
+                                    getEM().detach(dbProp);
                                 }
                                 break;
                             }
@@ -638,18 +756,31 @@ public class PropertyService extends AbstractService {
                 // Set/overwrite right property id
                 right.setPropertyId(prop.getId());
 
-                // Do checks only for non termination case
                 if (!isForTermination) {
-
                     // Assign application id
                     right.setApplicationId(app.getId());
 
-                    // Check right attributes
                     // Check rightholders
                     if (right.getRightholders() == null || right.getRightholders().size() < 1) {
                         throw new TrustException(MessagesKeys.ERR_PROP_NO_RIGHTHOLDERS);
                     }
 
+                    PartyService partyService = new PartyService();
+
+                    for (Rightholder rightholder : right.getRightholders()) {
+                        if (rightholder.getParty() == null) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_NO_PARTY);
+                        }
+                        if (rightholder.getParty().isIsPrivate()) {
+                            partyService.validatePerson(rightholder.getParty(), langCode, true);
+                        } else {
+                            partyService.validateLegalEntity(rightholder.getParty(), langCode, true);
+                        }
+                    }
+                }
+
+                // Do checks only for non termination and change of name cases
+                if (!isForTermination && !isChangeOfName) {
                     // Validate CCRO
                     if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CCRO)) {
                         if (right.getAllocationDate() == null) {
@@ -782,6 +913,21 @@ public class PropertyService extends AbstractService {
                         }
                     }
 
+                    // Validate lease
+                    if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_LEASE)) {
+                        // Set fields not allowed for mortgage to null
+                        clearOwnershipFields(right);
+                        right.setEndDate(null);
+                        right.setInteresetRate(null);
+
+                        if (right.getStartDate() == null) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
+                        }
+                        if (right.getDuration() == null || right.getDuration() <= 0) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_DURATION_EMPTY);
+                        }
+                    }
+
                     // Validate mortgage
                     if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_MORTGAGE)) {
                         // Set fields not allowed for mortgage to null
@@ -804,7 +950,7 @@ public class PropertyService extends AbstractService {
 
                     // Validate caveat
                     if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CAVEAT)) {
-                        // Set fields not allowed for mortgage to null
+                        // Set fields not allowed for caveat to null
                         clearOwnershipFields(right);
                         right.setDuration(null);
                         right.setInteresetRate(null);
@@ -821,7 +967,7 @@ public class PropertyService extends AbstractService {
 
                     // Validate assignment
                     if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_ASSIGNMENT)) {
-                        // Set fields not allowed for mortgage to null
+                        // Set fields not allowed for assignment to null
                         clearOwnershipFields(right);
                         right.setInteresetRate(null);
                         right.setDealAmount(null);
@@ -836,24 +982,24 @@ public class PropertyService extends AbstractService {
                         }
                     }
 
+                    // CCRO deposit
+                    if (right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_CAVEAT)) {
+                        // Set fields not allowed for ccro deposit to null
+                        clearOwnershipFields(right);
+                        right.setDuration(null);
+                        right.setInteresetRate(null);
+                        right.setDealAmount(null);
+                        right.setEndDate(null);
+
+                        if (right.getStartDate() == null) {
+                            throw new TrustException(MessagesKeys.ERR_PROP_START_DATE_EMPTY);
+                        }
+                    }
+
                     boolean strict = true;
                     if (transactionType.equals(TransactionType.RECTIFY)) {
                         // Allow rightholders editing
                         //strict = false;
-                    }
-
-                    // Validate rightholders
-                    PartyService partyService = new PartyService();
-
-                    for (Rightholder rightholder : right.getRightholders()) {
-                        if (rightholder.getParty() == null) {
-                            throw new TrustException(MessagesKeys.ERR_PROP_NO_PARTY);
-                        }
-                        if (rightholder.getParty().isIsPrivate()) {
-                            partyService.validatePerson(rightholder.getParty(), langCode, strict);
-                        } else {
-                            partyService.validateLegalEntity(rightholder.getParty(), langCode, strict);
-                        }
                     }
 
                     if (transactionType.equals(TransactionType.VARY) && !right.getRightTypeCode().equalsIgnoreCase(RightType.TYPE_MORTGAGE)) {
@@ -1045,6 +1191,7 @@ public class PropertyService extends AbstractService {
             throw e;
         }
 
+        getEM().clear();
         return getProperty(prop.getId());
     }
 

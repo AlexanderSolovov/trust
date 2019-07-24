@@ -36,6 +36,7 @@ LANGUAGES.sw = {
     "gen-back": "Rudi Nyuma",
     "gen-open": "Fungua",
     "gen-vary": "Tofauti",
+    "gen-renew": "Rejea",
     "gen-rectify": "Rekebisha",
     "gen-type": "Aina",
     "gen-import": "Ingiza",
@@ -49,7 +50,9 @@ LANGUAGES.sw = {
     "gen-delete-success": "Kumbukumbu imefutwa",
     "gen-save-success": "Kumbukumbu imehifadhiwa",
     "gen-unsaved-changes": "Je unapenda kuhifadhi mabadiliko uliyofanya?",
-
+    "gen-change": "Mabadiliko",
+    "gen-revert": "Rejea",
+    
     "dt-sEmptyTable": "Hakuna Kumbukumbu",
     "dt-sInfo": "Kuonyesha_ANZISHA_MWISHO_wa_JUMLA_maingizo",
     "dt-sInfoEmpty": "Kuonyesha 0 kwenda 0 ya maingizo",
@@ -257,8 +260,10 @@ LANGUAGES.sw = {
 
     "right-transfer": "Uhamisho",
     "right-remove": "Ondoa",
+    "right-terminate": "Ondoa",
     "right-discharge": "Toa kikwazo",
     "right-cancel-remove": "Kuondoa",
+    "right-cancel-terminate": "Kuondoa",
     "right-cancel-discharge": "Kutoa kikwazo",
     "right-cancel-withdraw": "Kuondoa kikwazo",
     "right-for-remove-discharge": "Toa kikwazo",
@@ -291,7 +296,8 @@ LANGUAGES.sw = {
     "right-pois": "Watu wenye maslahi",
     "right-poi": "Mtu mwenye maslahi",
     "right-share-size": "Kiwango cha hisa",
-
+    "right-change-name": "Badilisha Jina",
+    
     "status-pending": "Haijashughulikiwa",
 
     "search-number": "Namba",
@@ -355,6 +361,7 @@ LANGUAGES.sw = {
     "err-app-cant-edit": "Huwezi kurekebisha ombi",
     "err-app-no-ccro": "Hatimilki ya kimila lazima iletwe",
     "err-app-no-persons": "Walau mtu mmoja lazima awekwe kama mwombaji",
+    "err-app-one-person": "Mtu mmoja tu anaweza kuongezwa.",
     "err-app-no-representative": "Mtu mmoja awekwe kama mwakilishi/taasisi",
     "err-app-one-representative": "Mtu mmoja anatakiwa kusimamia/kuwakilisha taasisi",
     "err-app-one-le": "Taasisi moja yaweza ongezwa",
@@ -413,5 +420,6 @@ LANGUAGES.sw = {
     "err-url-empty": "URL ni tupu",
     "err-order-empty": "Agizo ni tupu",
     "err-date-from-empty": "Ingiza tarehe kutoka",
-    "err-date-to-empty": "Ingiza tarehe ya mwisho"
+    "err-date-to-empty": "Ingiza tarehe ya mwisho",
+    "err-name-not-changed": "Jina halijabadilishwa."
 };

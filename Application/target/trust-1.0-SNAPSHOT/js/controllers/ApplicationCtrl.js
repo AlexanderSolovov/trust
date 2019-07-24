@@ -125,9 +125,20 @@ ApplicationCtrl.postLoad = function (app) {
         if (ApplicationCtrl.view) {
             $("#lblComments").show();
             $("#lblComments").text(String.empty(app.comment));
+            $("#lblFee").show();
+            $("#lblFee").text(String.empty(app.fee));
+            $("#main .glyphicon-required").hide();
         } else {
             $("#txtComments").show();
             $("#txtComments").val(String.empty(app.comment));
+            $("#txtAppFee").show();
+            var fee = String.empty(app.fee);
+            if (isNullOrEmpty(app.id)) {
+                // Load fee from application type
+                fee = String.empty(ApplicationCtrl.AppType.fee);
+            }
+            $("#txtAppFee").val(fee);
+            $("#main glyphicon-required").show();
         }
 
         // Rejection reason
@@ -148,37 +159,37 @@ ApplicationCtrl.postLoad = function (app) {
             var assignee = "";
             $.each(app.logs, function (i, item) {
                 var action = $.i18n("log-edited");
-                if(i === 0){
+                if (i === 0) {
                     action = $.i18n("log-created");
                 } else {
-                    if(!isNullOrEmpty(item.statusCode) && statusCode !== item.statusCode){
+                    if (!isNullOrEmpty(item.statusCode) && statusCode !== item.statusCode) {
                         // Check for status change
-                        if(item.statusCode === Global.STATUS.approved){
+                        if (item.statusCode === Global.STATUS.approved) {
                             action = $.i18n("log-approved");
-                        } else if(item.statusCode === Global.STATUS.rejected){
+                        } else if (item.statusCode === Global.STATUS.rejected) {
                             action = $.i18n("log-rejected");
-                        } else if(item.statusCode === Global.STATUS.withdrawn){
+                        } else if (item.statusCode === Global.STATUS.withdrawn) {
                             action = $.i18n("log-withdrawn");
-                        } else if(item.statusCode === Global.STATUS.completed){
+                        } else if (item.statusCode === Global.STATUS.completed) {
                             action = $.i18n("log-completed");
                         }
                     } else {
                         // Check for assignment
-                        if(!isNullOrEmpty(item.assigneeName) && assignee !== item.assigneeName){
+                        if (!isNullOrEmpty(item.assigneeName) && assignee !== item.assigneeName) {
                             action = String.format($.i18n("log-assigned"), "<b>" + item.assigneeName + "</b>", "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
                         }
                     }
                 }
-                
+
                 action = String.format(action, "<b>" + item.actionUserName + "</b>", dateFormat(item.actionTime, dateFormat.masks.dateTimeWithSeconds));
-                
-                if(!isNullOrEmpty(item.statusCode)){
+
+                if (!isNullOrEmpty(item.statusCode)) {
                     statusCode = item.statusCode;
                 }
-                if(!isNullOrEmpty(item.assigneeName)){
+                if (!isNullOrEmpty(item.assigneeName)) {
                     assignee = item.assigneeName;
                 }
-                
+
                 $("#listLogs").append($("<li />").html(action));
             });
         }
@@ -387,6 +398,7 @@ ApplicationCtrl.save = function () {
     // Assemble the application and save
     var app = ApplicationCtrl.Application;
     app.comment = $("#txtComments").val();
+    app.fee = $("#txtAppFee").val();
     app.documents = makeVersionedList(app.documents, ApplicationCtrl.AppDocs.getDocuments(), "document");
     var legalEntities = makeVersionedList(app.applicants, ApplicationCtrl.LegalEntities.getLegalEntities(), "party");
     app.applicants = makeVersionedList(app.applicants, ApplicationCtrl.Persons.getPersons(), "party");
@@ -438,7 +450,9 @@ ApplicationCtrl.fillProperties = function () {
         if (!ApplicationCtrl.view &&
                 (ApplicationCtrl.Application.properties.length < 1
                         || ApplicationCtrl.AppType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Surrender
-                        || ApplicationCtrl.AppType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Termination)) {
+                        || ApplicationCtrl.AppType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Termination
+                        || ApplicationCtrl.AppType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Merge)
+                ) {
             $("#lnkSearchCcro").show();
         } else {
             $("#lnkSearchCcro").hide();
@@ -625,9 +639,16 @@ ApplicationCtrl.showReasonDialog = function (evt) {
 ApplicationCtrl.validate = function () {
     var errors = [];
     // Check CCRO attached for transactions other than new registration
-    if (ApplicationCtrl.AppType.transactionTypeCode.toLowerCase() !== RefDataDao.TRANSACTION_TYPE_CODES.FirstRegistration.toLowerCase()
+    var transCode = ApplicationCtrl.AppType.transactionTypeCode.toLowerCase();
+    if (transCode !== RefDataDao.TRANSACTION_TYPE_CODES.FirstRegistration.toLowerCase()
+            && transCode !== RefDataDao.TRANSACTION_TYPE_CODES.NoAction.toLowerCase()
             && (isNull(ApplicationCtrl.Application.properties) || ApplicationCtrl.Application.properties.length < 1)) {
         errors.push($.i18n("err-app-no-ccro"));
+    }
+
+    // Fee
+    if (isNullOrEmpty($("#txtAppFee").val())) {
+        errors.push($.i18n("err-app-no-fee"));
     }
 
     // Check applicants
@@ -646,6 +667,12 @@ ApplicationCtrl.validate = function () {
     } else {
         if (isNull(persons) || persons.length < 1) {
             errors.push($.i18n("err-app-no-persons"));
+        }
+    }
+
+    if (transCode === RefDataDao.TRANSACTION_TYPE_CODES.ChangeName.toLowerCase()) {
+        if ((!isNull(legalEntities) && legalEntities.length > 1) || (!isNull(persons) && persons.length > 1)) {
+            errors.push($.i18n("err-app-one-person"));
         }
     }
 

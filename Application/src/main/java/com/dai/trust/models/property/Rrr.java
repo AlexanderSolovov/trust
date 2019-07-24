@@ -125,6 +125,7 @@ public class Rrr extends AbstractIdEntity {
     private String statusCode;
 
     @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@LazyCollection(LazyCollectionOption.FALSE)
     private List<Rightholder> rightholders;
 
     @OneToMany(mappedBy = "rrr", cascade = CascadeType.ALL, orphanRemoval = true)

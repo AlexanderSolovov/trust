@@ -11,6 +11,7 @@ Controls.Person = function (controlId, targetElementId, options) {
     var that = this;
     var localPerson = options.person;
     var isOwnership = isNull(options.isOwnership) ? false : options.isOwnership;
+    var isChangeOfName = isNull(options.isChangeOfName) ? false : options.isChangeOfName;
     var controlVarId = "__control_person_" + controlId;
     var genders;
     var maritalStatuses;

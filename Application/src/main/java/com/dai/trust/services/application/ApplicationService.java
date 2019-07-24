@@ -17,11 +17,16 @@ import com.dai.trust.models.application.ApplicationProperty;
 import com.dai.trust.models.application.ApplicationStatusChanger;
 import com.dai.trust.models.party.Party;
 import com.dai.trust.models.party.PartyDocument;
+import com.dai.trust.models.party.PartyStatusChanger;
 import com.dai.trust.models.property.Parcel;
 import com.dai.trust.models.property.ParcelStatusChanger;
+import com.dai.trust.models.property.Property;
 import com.dai.trust.models.property.PropertyStatusChanger;
+import com.dai.trust.models.property.Rightholder;
+import com.dai.trust.models.property.Rrr;
 import com.dai.trust.models.property.RrrStatusChanger;
 import com.dai.trust.models.refdata.AppType;
+import com.dai.trust.models.refdata.OccupancyType;
 import com.dai.trust.models.refdata.RightType;
 import com.dai.trust.models.refdata.TransactionType;
 import com.dai.trust.models.search.AffectedObjectSearchResult;
@@ -66,9 +71,9 @@ public class ApplicationService extends AbstractService {
             // Attach logs
             app.setLogs(getApplicationLogs(app));
             // Attach party logs
-            if(app.getApplicants() != null){
+            if (app.getApplicants() != null) {
                 PartyService partyService = new PartyService();
-                for(ApplicationParty aParty : app.getApplicants()){
+                for (ApplicationParty aParty : app.getApplicants()) {
                     aParty.getParty().setLogs(partyService.getPartyLogs(aParty.getPartyId()));
                 }
             }
@@ -181,7 +186,8 @@ public class ApplicationService extends AbstractService {
     }
 
     /**
-     * Extracts log records for the given application. It will try and remove repeated actions
+     * Extracts log records for the given application. It will try and remove
+     * repeated actions
      */
     private List<ApplicationLog> getApplicationLogs(Application app) {
         if (app == null) {
@@ -210,14 +216,14 @@ public class ApplicationService extends AbstractService {
                 + "order by l.action_time", ApplicationLog.class);
         q.setParameter("appId", app.getId());
         List<ApplicationLog> logs = q.getResultList();
-        
+
         // Process logs to remove events in the same transaction (with diffrence of 1 second)
-        if(logs != null && logs.size() > 0){
+        if (logs != null && logs.size() > 0) {
             Iterator<ApplicationLog> iter = logs.iterator();
             Date actionTime = null;
-            while(iter.hasNext()){
+            while (iter.hasNext()) {
                 ApplicationLog log = iter.next();
-                if(actionTime != null && (log.getActionTime().getTime() - actionTime.getTime()) / 1000 <= 1){
+                if (actionTime != null && (log.getActionTime().getTime() - actionTime.getTime()) / 1000 <= 1) {
                     actionTime = log.getActionTime();
                     // Delete action
                     iter.remove();
@@ -226,7 +232,7 @@ public class ApplicationService extends AbstractService {
                 }
             }
         }
-        
+
         return logs;
     }
 
@@ -299,7 +305,9 @@ public class ApplicationService extends AbstractService {
         permissions.setCanDrawParcel(false);
         if (isAssignee && isInRole(RolesConstants.MANAGE_PARCELS) && isPending(app)
                 && (transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)
-                || transCode.equalsIgnoreCase(TransactionType.RECTIFY))) {
+                || transCode.equalsIgnoreCase(TransactionType.RECTIFY)
+                || transCode.equalsIgnoreCase(TransactionType.MERGE)
+                || transCode.equalsIgnoreCase(TransactionType.SPLIT))) {
             permissions.setCanDrawParcel(true);
         }
 
@@ -307,16 +315,18 @@ public class ApplicationService extends AbstractService {
         permissions.setCanRegisterRight(false);
         if (!StringUtility.isEmpty(app.getId()) && isAssignee && isInRole(RolesConstants.MANAGE_RIGHTS) && isPending(app)
                 && !transCode.equalsIgnoreCase(TransactionType.SURRENDER) && !transCode.equalsIgnoreCase(TransactionType.TERMINATION)) {
-            if (!transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION) && app.getProperties() != null && app.getProperties().size() > 0) {
-                permissions.setCanRegisterRight(true);
-            } else if (transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)) {
+            if (transCode.equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)
+                    || transCode.equalsIgnoreCase(TransactionType.MERGE)
+                    || transCode.equalsIgnoreCase(TransactionType.SPLIT)) {
                 // Check for created parcels, needed for right 
                 PropertyService propService = new PropertyService();
                 List<Parcel> parcels = propService.getParcelsByApplicationId(app.getId());
                 if (parcels != null && parcels.size() > 0) {
                     permissions.setCanRegisterRight(true);
                 }
-            }
+            } else if (app.getProperties() != null && app.getProperties().size() > 0) {
+                permissions.setCanRegisterRight(true);
+            } 
         }
 
         return permissions;
@@ -438,11 +448,17 @@ public class ApplicationService extends AbstractService {
             throw new TrustException(MessagesKeys.ERR_APP_TYPE_CODE_EMPTY);
         }
 
+        // Check fee
+        if (app.getFee() == null || app.getFee() < 0) {
+            throw new TrustException(MessagesKeys.ERR_APP_FEE_EMPTY);
+        }
+
         // Check CCRO attached for transactions other than new registration
         RefDataService refService = new RefDataService();
         AppType appTye = refService.getRefDataRecord(AppType.class, app.getAppTypeCode(), langCode);
 
-        if (!appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)
+        if (!appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.NO_ACTION)
+                && !appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)
                 && (app.getProperties() == null || app.getProperties().size() < 1)) {
             throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
         }
@@ -450,16 +466,24 @@ public class ApplicationService extends AbstractService {
         if ((appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.RECTIFY)
                 || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.TRANSFER)
                 || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.REMOVE)
-                || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.VARY))
+                || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.VARY)
+                || appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.SPLIT))
                 && app.getProperties().size() != 1) {
             throw new TrustException(MessagesKeys.ERR_APP_ONE_CCRO_ALLOWED);
         }
 
+        if (appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.MERGE)
+                && app.getProperties().size() < 2) {
+            throw new TrustException(MessagesKeys.ERR_APP_MULTI_CCRO_REQUIRED);
+        }
+
         SearchService searchService = new SearchService();
+        PropertyService propService = new PropertyService();
 
         if (app.getProperties() != null) {
-            // Check properties not attached to other applications
+            // Check properties attached to the application
             for (ApplicationProperty appProp : app.getProperties()) {
+                // Check property is not attached to other applications
                 List<ApplicationNumberSearchResult> appNumbers = searchService.searchAppNumbersByProp(appProp.getPropId());
                 if (appNumbers != null) {
                     for (ApplicationNumberSearchResult appNumber : appNumbers) {
@@ -473,16 +497,52 @@ public class ApplicationService extends AbstractService {
                         }
                     }
                 }
+
                 // Check properties to exist and not being pending
-                PropertyCodeSearchResult propCode = searchService.searchPropCodeById(langCode, appProp.getPropId());
-                if (!propCode.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
-                    throw new TrustException(MessagesKeys.ERR_APP_PROP_NOT_REGISTERED, new Object[]{propCode.getPropNumber()});
+                Property prop = propService.getProperty(appProp.getPropId());
+                if (!prop.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
+                    throw new TrustException(MessagesKeys.ERR_APP_PROP_NOT_REGISTERED, new Object[]{prop.getPropNumber()});
                 }
+
+                // Check specific application types
+                Rrr right = null;
+                if (prop.getRights() != null) {
+                    for (Rrr r : prop.getRights()) {
+                        if (r.getStatusCode().equalsIgnoreCase(StatusCodeConstants.CURRENT)) {
+                            right = r;
+                            break;
+                        }
+                    }
+                }
+
+                if (right != null) {
+                    if (app.getAppTypeCode().equalsIgnoreCase(AppType.CODE_ASSENT_TO_BEQUEST)) {
+                        // This application can be submitted only for administrator ownership
+                        if (!right.getOccupancyTypeCode().equalsIgnoreCase(OccupancyType.TYPE_PROBATE)) {
+                            throw new TrustException(MessagesKeys.ERR_APP_PROP_NOT_ADMIN, new Object[]{prop.getPropNumber()});
+                        }
+                    } else if (app.getAppTypeCode().equalsIgnoreCase(AppType.CODE_TRANS_TO_ADMIN)) {
+                        // This application can be submitted only for joint, common and single ownership
+                        if (!right.getOccupancyTypeCode().equalsIgnoreCase(OccupancyType.TYPE_COMMON)
+                                && !right.getOccupancyTypeCode().equalsIgnoreCase(OccupancyType.TYPE_JOINT)
+                                && !right.getOccupancyTypeCode().equalsIgnoreCase(OccupancyType.TYPE_SINGLE)) {
+                            throw new TrustException(MessagesKeys.ERR_APP_PROP_NOT_FOR_ADMIN, new Object[]{prop.getPropNumber()});
+                        }
+                    } else if (app.getAppTypeCode().equalsIgnoreCase(AppType.CODE_TRANS_TO_SURVIVOR)) {
+                        // This application can be submitted only for joint ownership
+                        if (!right.getOccupancyTypeCode().equalsIgnoreCase(OccupancyType.TYPE_JOINT)) {
+                            throw new TrustException(MessagesKeys.ERR_APP_PROP_NOT_JOIN, new Object[]{prop.getPropNumber()});
+                        }
+                    }
+                }
+
             }
         }
 
         // Check attached properties are not removed if pending rights are created
-        if (!appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)) {
+        if (!appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.FIRST_REGISTRATION)
+                && !appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.SPLIT)
+                && !appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.MERGE)) {
             List<AffectedObjectSearchResult> affectedObjects = searchService.searchAffectedObjects(langCode, app.getId());
             if (affectedObjects != null) {
                 for (AffectedObjectSearchResult obj : affectedObjects) {
@@ -534,6 +594,12 @@ public class ApplicationService extends AbstractService {
             }
         }
 
+        if (appTye.getTransactionTypeCode().equalsIgnoreCase(TransactionType.CHANGE_NAME)) {
+            if (countLe > 1 || countPersons > 1) {
+                throw new TrustException(MessagesKeys.ERR_APP_ONE_PERSON_REQUIRED);
+            }
+        }
+
         // Check documents
         if (app.getDocuments() != null) {
             DocumentService docService = new DocumentService();
@@ -564,16 +630,21 @@ public class ApplicationService extends AbstractService {
 
         // Get objects for approval
         PropertyService propService = new PropertyService();
+        PartyService partyService = new PartyService();
 
         List<ParcelStatusChanger> parcels = null;
         List<PropertyStatusChanger> props = null;
+        List<PropertyStatusChanger> propsToTerminate = null;
         List<RrrStatusChanger> rrrs = null;
         List<RrrStatusChanger> rrrsForTermination = null;
         List<PropertyStatusChanger> propsToRectify = null;
         ParcelStatusChanger propParcel = null;
+        boolean mustHaveChanges = true;
 
         if (appType.getTransactionTypeCode().equals(TransactionType.SURRENDER) || appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
-            props = propService.getPropertyStatusChangersFromApp(app.getId());
+            propsToTerminate = propService.getPropertyStatusChangersFromApp(app.getId());
+        } else if (appType.getTransactionTypeCode().equals(TransactionType.NO_ACTION)) {
+            mustHaveChanges = false;
         } else if (appType.getTransactionTypeCode().equals(TransactionType.RECTIFY)) {
             propsToRectify = propService.getPropertyStatusChangersFromApp(app.getId());
 
@@ -600,16 +671,43 @@ public class ApplicationService extends AbstractService {
             props = propService.getPropertyStatusChangersByApp(app.getId());
             rrrs = propService.getRrrStatusChangersByApp(app.getId());
             rrrsForTermination = propService.getRrrStatusChangersByTerminationApp(app.getId());
+
+            if (appType.getTransactionTypeCode().equals(TransactionType.SPLIT)
+                    || appType.getTransactionTypeCode().equals(TransactionType.MERGE)) {
+                propsToTerminate = propService.getPropertyStatusChangersFromApp(app.getId());
+            }
         }
 
-        if ((parcels == null || parcels.size() < 1) && (props == null || props.size() < 1) && (rrrs == null || rrrs.size() < 1) && (rrrsForTermination == null || rrrsForTermination.size() < 1)) {
+        if ((parcels == null || parcels.size() < 1)
+                && (props == null || props.size() < 1)
+                && (propsToTerminate == null || propsToTerminate.size() < 1)
+                && (rrrs == null || rrrs.size() < 1)
+                && (rrrsForTermination == null || rrrsForTermination.size() < 1)
+                && mustHaveChanges) {
             throw new TrustException(MessagesKeys.ERR_APP_NO_CHANGES_IN_THE_SYSTEM);
         }
 
-        // Check for new ccro reg
-        if (appType.getTransactionTypeCode().equals(TransactionType.FIRST_REGISTRATION)) {
+        // Check for new ccro reg, split, merge
+        if (appType.getTransactionTypeCode().equals(TransactionType.FIRST_REGISTRATION)
+                || appType.getTransactionTypeCode().equals(TransactionType.MERGE)
+                || appType.getTransactionTypeCode().equals(TransactionType.SPLIT)) {
             if (parcels == null || parcels.size() < 1 || props == null || props.size() < 1 || rrrs == null || rrrs.size() < 1) {
                 throw new TrustException(MessagesKeys.ERR_APP_APPROVE_CCRO_NO_OBJECTS);
+            }
+        }
+
+        if (appType.getTransactionTypeCode().equals(TransactionType.MERGE)) {
+            if (props != null && props.size() != 1) {
+                throw new TrustException(MessagesKeys.ERR_APP_ONE_NEW_CCRO_REQUIRED);
+            }
+        }
+
+        if (appType.getTransactionTypeCode().equals(TransactionType.SPLIT)) {
+            if (props != null && props.size() < 2) {
+                throw new TrustException(MessagesKeys.ERR_APP_MULTI_NEW_CCRO_REQUIRED);
+            }
+            if (props.size() != parcels.size()) {
+                throw new TrustException(MessagesKeys.ERR_APP_NUM_OF_PARCELS_MUST_MUCH_CCROS);
             }
         }
 
@@ -621,26 +719,29 @@ public class ApplicationService extends AbstractService {
 
             Date currentDate = Calendar.getInstance().getTime();
 
-            if (appType.getTransactionTypeCode().equals(TransactionType.SURRENDER) || appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
+            if (appType.getTransactionTypeCode().equals(TransactionType.SURRENDER)
+                    || appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)
+                    || appType.getTransactionTypeCode().equals(TransactionType.SPLIT)
+                    || appType.getTransactionTypeCode().equals(TransactionType.MERGE)) {
                 // Do termination/surrender
 
                 // Validate properties
-                if (props == null || props.size() < 1) {
+                if (propsToTerminate == null || propsToTerminate.size() < 1) {
                     throw new TrustException(MessagesKeys.ERR_APP_CCRO_EMPTY);
                 }
 
-                for (PropertyStatusChanger prop : props) {
+                for (PropertyStatusChanger prop : propsToTerminate) {
                     if (!prop.getStatusCode().equals(StatusCodeConstants.CURRENT)) {
                         throw new TrustException(MessagesKeys.ERR_PROP_MUST_BE_REGISTERED);
                     }
 
                     // Validate rights
-                    rrrs = propService.getRrrStatusChangersByProp(prop.getId());
-                    if (rrrs == null || rrrs.size() < 1) {
+                    List<RrrStatusChanger> propRrrs = propService.getRrrStatusChangersByProp(prop.getId());
+                    if (propRrrs == null || propRrrs.size() < 1) {
                         throw new TrustException(MessagesKeys.ERR_PROP_MUST_HAVE_REGISTERED_OWNERSHIP);
                     }
 
-                    for (RrrStatusChanger rrr : rrrs) {
+                    for (RrrStatusChanger rrr : propRrrs) {
                         if (rrr.getStatusCode().equals(StatusCodeConstants.PENDING)) {
                             throw new TrustException(MessagesKeys.ERR_PROP_HAS_PENDING_RIGHTS, new Object[]{prop.getPropNumber()});
                         }
@@ -657,7 +758,9 @@ public class ApplicationService extends AbstractService {
                         }
                     }
 
-                    if (appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
+                    if (appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)
+                            || appType.getTransactionTypeCode().equals(TransactionType.SPLIT)
+                            || appType.getTransactionTypeCode().equals(TransactionType.MERGE)) {
                         // Validate parcel 
                         ParcelStatusChanger parcel = propService.getParcelStatusChangerById(prop.getParcelId());
                         if (parcel != null) {
@@ -703,7 +806,8 @@ public class ApplicationService extends AbstractService {
                 }
             }
 
-            if (!appType.getTransactionTypeCode().equals(TransactionType.SURRENDER) && !appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
+            if (mustHaveChanges && !appType.getTransactionTypeCode().equals(TransactionType.SURRENDER)
+                    && !appType.getTransactionTypeCode().equals(TransactionType.TERMINATION)) {
                 // Do other transactions approve
 
                 // Approve parcels
@@ -740,6 +844,33 @@ public class ApplicationService extends AbstractService {
                                     parentRrr.setEndApplicationId(app.getId());
                                     parentRrr.setTerminationDate(currentDate);
                                     parentRrr.setStatusCode(StatusCodeConstants.HISTORIC);
+
+                                    // If change of name transaction, find changed person and make it historic
+                                    if (appType.getTransactionTypeCode().equals(TransactionType.CHANGE_NAME)) {
+                                        Rrr newRrr = propService.getById(Rrr.class, rrr.getId(), false);
+                                        Rrr oldRrr = propService.getById(Rrr.class, rrr.getParentId(), false);
+
+                                        for (Rightholder oldRh : oldRrr.getRightholders()) {
+                                            boolean changed = true;
+                                            if (newRrr.getRightholders() != null) {
+                                                for (Rightholder newRh : newRrr.getRightholders()) {
+                                                    if (newRh.getParty() != null && newRh.getParty().getId().equals(oldRh.getParty().getId())) {
+                                                        changed = false;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            if (changed) {
+                                                // Make historic
+                                                PartyStatusChanger party = partyService.getPartyStatusChanger(oldRh.getParty().getId());
+                                                party.setStatusCode(StatusCodeConstants.HISTORIC);
+                                                party.setEndApplicationId(app.getId());
+                                                break;
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
                         }
@@ -761,7 +892,6 @@ public class ApplicationService extends AbstractService {
 
             // Finally approve application
             app.setApproveRejectDate(currentDate);
-
             app.setStatusCode(StatusCodeConstants.APPROVED);
 
             // Commit changes

@@ -7,6 +7,7 @@ import com.dai.trust.exceptions.TrustException;
 import com.dai.trust.models.AbstractRefDataEntity;
 import com.dai.trust.models.refdata.AppType;
 import com.dai.trust.models.refdata.AppTypeGroup;
+import com.dai.trust.models.refdata.AppTypeRightType;
 import com.dai.trust.models.refdata.District;
 import com.dai.trust.models.refdata.Hamlet;
 import com.dai.trust.models.refdata.Language;
@@ -15,6 +16,7 @@ import com.dai.trust.models.refdata.Village;
 import com.dai.trust.services.AbstractService;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.Table;
 
 /**
@@ -26,12 +28,13 @@ public class RefDataService extends AbstractService {
         super();
     }
 
-    /** 
-     * Returns right types by application type code. 
+    /**
+     * Returns right types by application type code.
+     *
      * @param appTypeCode Application type code
      * @param langCode Language code for localization. If null or empty value is
      * provided, then unlocalized full string will be returned.
-     * @return 
+     * @return
      */
     public List<RightType> getRightTypesByAppType(String appTypeCode, String langCode) {
         List<RightType> result = getEM().createNativeQuery(
@@ -73,9 +76,8 @@ public class RefDataService extends AbstractService {
             refColumns = getRefDataColumns("t", langCode);
         }
 
-        List<T> result = getEM().createNativeQuery(
-                "SELECT " + refColumns + getExtraColumns(clazz) + getFromClause(clazz, table) + where + getOrderByColumn(clazz),
-                clazz).getResultList();
+        String sql = "SELECT " + refColumns + getExtraColumns(clazz) + getFromClause(clazz, table) + where + getOrderByColumn(clazz);
+        List<T> result = getEM().createNativeQuery(sql, clazz).getResultList();
 
         // Make recursive requests for sublists if any.
         populateSubLists(result, onlyActive, langCode);
@@ -111,11 +113,9 @@ public class RefDataService extends AbstractService {
             refColumns = getRefDataColumns("t", langCode);
         }
 
-        T result = (T) getEM().createNativeQuery(
-                "SELECT " + refColumns + getExtraColumns(clazz) + getFromClause(clazz, table) + " WHERE t.code=:code",
-                clazz)
-                .setParameter("code", code)
-                .getSingleResult();
+        String sql = "SELECT " + refColumns + getExtraColumns(clazz) + getFromClause(clazz, table) + " WHERE t.code=:code";
+
+        T result = (T) getEM().createNativeQuery(sql, clazz).setParameter("code", code).getSingleResult();
 
         populateSubLists(result, true, langCode);
         return result;
@@ -136,6 +136,21 @@ public class RefDataService extends AbstractService {
                         }
                     }
                     ((AppTypeGroup) item).setAppTypes(result);
+                }
+            } else if (AppType.class.isAssignableFrom(items.get(0).getClass())) {
+                for (T item : items) {
+                    Query q = getEM().createQuery("select r from AppTypeRightType r", AppTypeRightType.class);
+                    List<AppTypeRightType> subList = q.getResultList();
+                    
+                    List<AppTypeRightType> result = new ArrayList<>();
+                    if (subList != null) {
+                        for (AppTypeRightType appTypeRightType : subList) {
+                            if (appTypeRightType.getAppTypeCode().equals(item.getCode())) {
+                                result.add(appTypeRightType);
+                            }
+                        }
+                    }
+                    ((AppType)item).setRightTypeCodes(result);
                 }
             }
         }
@@ -160,9 +175,6 @@ public class RefDataService extends AbstractService {
 
     // Returns from clause
     private <T extends AbstractRefDataEntity> String getFromClause(Class<T> clazz, String table) {
-        if (AppType.class.isAssignableFrom(clazz)) {
-            return " FROM " + table + " JOIN ref_app_type_right_type art ON t.code = art.app_type_code";
-        }
         return " FROM " + table;
     }
 
@@ -173,7 +185,7 @@ public class RefDataService extends AbstractService {
         } else if (RightType.class.isAssignableFrom(clazz)) {
             return ", t.right_type_group_code, t.allow_multiple";
         } else if (AppType.class.isAssignableFrom(clazz)) {
-            return ", t.app_type_group_code, t.transaction_type_code, art.*";
+            return ", t.app_type_group_code, t.transaction_type_code, t.fee";
         } else if (District.class.isAssignableFrom(clazz)) {
             return ", t.region_code";
         }

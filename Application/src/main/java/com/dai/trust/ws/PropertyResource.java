@@ -4,31 +4,15 @@ import com.dai.trust.common.RolesConstants;
 import com.dai.trust.exceptions.ExceptionFactory;
 import com.dai.trust.models.property.Parcel;
 import com.dai.trust.models.property.Property;
-import com.dai.trust.services.property.ParcelMapService;
 import com.dai.trust.services.property.PropertyService;
-import com.dai.trust.services.report.ReportsService;
 import com.dai.trust.ws.filters.Authorized;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.List;
-import java.util.logging.Level;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperPrint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -145,6 +129,26 @@ public class PropertyResource extends AbstractResource {
         }
     }
 
+    /**
+     * Returns envelope for properties (parcels) attached to the application.
+     *
+     * @param langCode Language code for localization
+     * @param appId Application id.
+     * @return
+     */
+    @GET
+    @Produces("application/json; charset=UTF-8")
+    @Path(value = "{a:getenvelopebyappproperties|getEnvelopeByAppProperties}/{appId}")
+    @Authorized(roles = RolesConstants.VIEWING)
+    public String getEnvelopeByAppProperties(@PathParam(value = LANG_CODE) String langCode, @PathParam("appId") String appId) {
+        try {
+            PropertyService service = new PropertyService();
+            return getMapper().writeValueAsString(service.getEnvelopeByAppProperties(appId));
+        } catch (Exception e) {
+            throw processException(e, langCode);
+        }
+    }
+    
     /**
      * Returns parcel by id.
      *

@@ -1,7 +1,5 @@
-/* global RefDataDao */
-
 /**
- * Contains methods to manage map page. 
+ * Contains methods to manage property page. 
  * Requires SearchDao.js, Map.js, Global.js, URLS.js, PropertyDao.js, 
  * ApplicationDao.js, Pois.js
  */
@@ -12,6 +10,8 @@ PropertyCtrl.appType = null;
 PropertyCtrl.allowedRightTypes = null;
 PropertyCtrl.prop = null;
 PropertyCtrl.parcel = null;
+PropertyCtrl.appParcels = null;
+PropertyCtrl.appProps = null;
 PropertyCtrl.rightId = null;
 PropertyCtrl.selectedRight = null;
 PropertyCtrl.selectedRightRow = null;
@@ -81,43 +81,116 @@ $(document).ready(function () {
 
             PropertyCtrl.app = app;
 
-            // Get Property
-            if (!isNull(app.properties) && app.properties.length > 0) {
-                // TODO: show popup if multiple properties
-                PropertyDao.getProperty(app.properties[0].propId, function (prop) {
-                    PropertyCtrl.prop = prop;
-                    fillParcel();
-                });
-            } else {
-                PropertyDao.getPropertiesByApplication(app.id, function (props) {
-                    if (!isNull(props) && props.length > 0) {
-                        // TODO: show popup if multiple properties
-                        PropertyCtrl.prop = props[0];
-                    } else {
-                        PropertyCtrl.prop = new PropertyDao.Property();
-                        PropertyCtrl.prop.applicationId = app.id;
-                        PropertyCtrl.prop.statusCode = Global.STATUS.pending;
-                    }
+            // Get application type
+            RefDataDao.getRecord(RefDataDao.REF_DATA_TYPES.AppType.type, PropertyCtrl.app.appTypeCode, function (refData) {
+                PropertyCtrl.appType = refData;
 
-                    // Check for parcel
-                    if (isNull(PropertyCtrl.prop.parcelId)) {
-                        // Get parcel(s) by application
-                        SearchDao.searchParcelsByApp(app.id, function (parcels) {
-                            if (isNull(parcels) || parcels.length < 1) {
-                                showErrorMessage(String.format($.i18n("err-app-no-parcels"), app.appNumber));
-                                return;
-                            }
-                            // TODO: show parcel selection form if multiple parcels
-                            PropertyCtrl.parcel = parcels[0];
-                            PropertyCtrl.prop.parcelId = parcels[0].id;
-                            PropertyCtrl.fillForm();
+                // If specific property is provided
+                if (!isNull(propId)) {
+                    PropertyDao.getProperty(propId, function (prop) {
+                        if (isNull(prop)) {
+                            showErrorMessage($.i18n("err-prop-not-found"));
+                            return;
+                        }
+                        PropertyCtrl.prop = prop;
+                        fillParcel();
+                    });
+                } else {
+                    // Get Property
+                    if (!PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Split &&
+                            !isNull(app.properties) && app.properties.length > 0) {
+                        // TODO: show popup if multiple properties
+                        PropertyDao.getProperty(app.properties[0].propId, function (prop) {
+                            PropertyCtrl.prop = prop;
+                            fillParcel();
                         });
                     } else {
-                        // Get parcel by id
-                        fillParcel();
+                        PropertyDao.getPropertiesByApplication(app.id, function (props) {
+                            PropertyCtrl.appProps = props;
+
+                            if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Split) {
+                                // Get parcel(s) by application
+                                SearchDao.searchParcelsByApp(app.id, function (parcels) {
+                                    if (isNull(parcels) || parcels.length < 1) {
+                                        showErrorMessage(String.format($.i18n("err-app-no-parcels"), app.appNumber));
+                                        return;
+                                    }
+
+                                    PropertyCtrl.appParcels = parcels;
+
+                                    if (parcels.length > 1) {
+                                        // Show parcel/property selection form if multiple parcels
+                                        var list = "<ul>";
+                                        for (var i = 0; i < parcels.length; i++) {
+                                            // Try to find property for the parcel
+                                            var propNum = $.i18n("gen-new");
+                                            var propId = "new";
+
+                                            if (!isNull(props) && props.length > 0) {
+                                                for (var j = 0; j < props.length; j++) {
+                                                    if (props[j].parcelId === parcels[i].id) {
+                                                        propNum = props[j].propNumber;
+                                                        propId = props[j].id;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            list += "<li><a href=\"javascript:PropertyCtrl.selectProp('" + propId + "', '" + parcels[i].id + "')\">" + propNum + "</a> (" + parcels[i].uka + ")</li>";
+                                        }
+                                        list += "</ul>";
+                                        $("#pnlParcelSelection").html(list);
+
+                                        $("#parcelSelectionDialog").modal('show');
+                                    } else {
+                                        if (!isNull(props) && props.length > 0) {
+                                            PropertyCtrl.prop = props[0];
+
+                                            // Get parcel by id
+                                            fillParcel();
+                                        } else {
+                                            PropertyCtrl.prop = new PropertyDao.Property();
+                                            PropertyCtrl.prop.applicationId = app.id;
+                                            PropertyCtrl.prop.statusCode = Global.STATUS.pending;
+                                            PropertyCtrl.parcel = parcels[0];
+                                            PropertyCtrl.prop.parcelId = parcels[0].id;
+                                            PropertyCtrl.fillForm();
+                                        }
+                                    }
+                                });
+                            } else {
+                                if (!isNull(props) && props.length > 0) {
+                                    PropertyCtrl.prop = props[0];
+                                } else {
+                                    PropertyCtrl.prop = new PropertyDao.Property();
+                                    PropertyCtrl.prop.applicationId = app.id;
+                                    PropertyCtrl.prop.statusCode = Global.STATUS.pending;
+                                }
+
+                                // Check for parcel
+                                if (isNull(PropertyCtrl.prop.parcelId)) {
+                                    // Get parcel(s) by application
+                                    SearchDao.searchParcelsByApp(app.id, function (parcels) {
+                                        if (isNull(parcels) || parcels.length < 1) {
+                                            showErrorMessage(String.format($.i18n("err-app-no-parcels"), app.appNumber));
+                                            return;
+                                        }
+
+                                        PropertyCtrl.appParcels = parcels;
+                                        // TODO: show parcel selection form if multiple parcels
+                                        PropertyCtrl.parcel = parcels[0];
+                                        PropertyCtrl.prop.parcelId = parcels[0].id;
+                                        PropertyCtrl.fillForm();
+                                    });
+                                } else {
+                                    // Get parcel by id
+                                    fillParcel();
+                                }
+                            }
+                        });
                     }
-                });
-            }
+                }
+            });
         });
     } else if (!isNull(propId)) {
         // Get property by id
@@ -145,6 +218,44 @@ $(document).ready(function () {
     }
 });
 
+PropertyCtrl.selectProp = function (propId, parcelId) {
+    $("#parcelSelectionDialog").modal('hide');
+    if (propId !== "new" && !isNull(PropertyCtrl.appProps) && PropertyCtrl.appProps.length > 0) {
+        for (var i = 0; i < PropertyCtrl.appProps.length; i++) {
+            if (PropertyCtrl.appProps[i].id === propId) {
+                PropertyCtrl.prop = PropertyCtrl.appProps[i];
+
+                // Search parcel
+                if (!isNullOrEmpty(parcelId) && !isNull(PropertyCtrl.appParcels) && PropertyCtrl.appParcels.length > 0) {
+                    for (var j = 0; j < PropertyCtrl.appParcels.length; j++) {
+                        if (PropertyCtrl.appParcels[j].id === parcelId) {
+                            PropertyCtrl.parcel = PropertyCtrl.appParcels[j];
+                            PropertyCtrl.fillForm();
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    } else {
+        // Create new prop and attach parcel
+        if (!isNullOrEmpty(parcelId) && !isNull(PropertyCtrl.appParcels) && PropertyCtrl.appParcels.length > 0) {
+            for (var i = 0; i < PropertyCtrl.appParcels.length; i++) {
+                if (PropertyCtrl.appParcels[i].id === parcelId) {
+                    PropertyCtrl.prop = new PropertyDao.Property();
+                    PropertyCtrl.prop.applicationId = PropertyCtrl.app.id;
+                    PropertyCtrl.prop.statusCode = Global.STATUS.pending;
+                    PropertyCtrl.parcel = PropertyCtrl.appParcels[i];
+                    PropertyCtrl.prop.parcelId = PropertyCtrl.appParcels[i].id;
+                    PropertyCtrl.fillForm();
+                    break;
+                }
+            }
+        }
+    }
+};
+
 PropertyCtrl.fillForm = function () {
     var loadingProcesses = 0;
     var editbale = !isNull(PropertyCtrl.app) && isNull(getUrlParam("msg"));
@@ -154,6 +265,10 @@ PropertyCtrl.fillForm = function () {
             return;
         }
         PropertyCtrl.setTile();
+
+        if (!isNull(PropertyCtrl.app) && PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.NoAction) {
+            editbale = false;
+        }
 
         // Customize toolbars
         if (PropertyCtrl.prop.statusCode !== Global.STATUS.historic && isNull(PropertyCtrl.rightId)) {
@@ -174,7 +289,7 @@ PropertyCtrl.fillForm = function () {
             $("#btnBack").show();
             $("#btnBack").on("click", PropertyCtrl.backToApplication);
         }
-        
+
         if (editbale) {
             $("#btnSave").show();
             $("#btnSave").on("click", PropertyCtrl.save);
@@ -305,15 +420,8 @@ PropertyCtrl.fillForm = function () {
         });
     }
 
-    // AppType
+    // Allowed rights by application type
     if (!isNull(PropertyCtrl.app)) {
-        // Get app type
-        loadingProcesses += 1;
-        RefDataDao.getRecord(RefDataDao.REF_DATA_TYPES.AppType.type, PropertyCtrl.app.appTypeCode, function (refData) {
-            PropertyCtrl.appType = refData;
-            loadingProcesses -= 1;
-            showProp();
-        });
         loadingProcesses += 1;
         RefDataDao.getRightTypesByAppType(PropertyCtrl.app.appTypeCode, function (allowedRightTypes) {
             PropertyCtrl.allowedRightTypes = allowedRightTypes;
@@ -371,6 +479,7 @@ PropertyCtrl.fillForm = function () {
             var colsDef = [
                 {
                     targets: 0,
+                    width: "100px",
                     "orderable": false,
                     "render": function (data, type, row, meta) {
                         return String.format(DataTablesUtility.getViewLink(), "PropertyCtrl.viewRight($(this).parents('tr'));return false;", RefDataDao.getRefDataByCode(PropertyCtrl.rightTypes, data).val);
@@ -431,17 +540,28 @@ PropertyCtrl.fillForm = function () {
                                 }
                                 if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Remove) {
                                     var removeLink = "";
-                                    if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
+                                    if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage ||
+                                            row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Charge) {
                                         removeLink = DataTablesUtility.getDischargeLink();
                                     } else if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment) {
                                         removeLink = DataTablesUtility.getRemoveLink();
+                                    } else if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Lease ||
+                                            row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Easement ||
+                                            row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Injunction) {
+                                        removeLink = DataTablesUtility.getTerminateLink();
                                     } else {
                                         removeLink = DataTablesUtility.getWithdrawLink();
                                     }
                                     return String.format(removeLink, "PropertyCtrl.terminateRight($(this).parents('tr'));return false;");
                                 }
                                 if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary) {
+                                    if (PropertyCtrl.appType.code === RefDataDao.APP_TYPE_CODES.CCRORenewal) {
+                                        return String.format(DataTablesUtility.getRenewLink(), "PropertyCtrl.varyRight($(this).parents('tr'));return false;");
+                                    }
                                     return String.format(DataTablesUtility.getVaryLink(), "PropertyCtrl.varyRight($(this).parents('tr'));return false;");
+                                }
+                                if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.ChangeName) {
+                                    return String.format(DataTablesUtility.getChangeNameLink(), "PropertyCtrl.changeName($(this).parents('tr'));return false;");
                                 }
                                 if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Rectify) {
                                     return String.format(DataTablesUtility.getRectifyLink(), "PropertyCtrl.rectifyRight($(this).parents('tr'));return false;");
@@ -449,10 +569,15 @@ PropertyCtrl.fillForm = function () {
                             } else {
                                 if (!isNullOrEmpty(row.terminationApplicationId)) {
                                     var cancelRemoveLink = "";
-                                    if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage) {
+                                    if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage ||
+                                            row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Charge) {
                                         cancelRemoveLink = DataTablesUtility.getCancelDischargeLink();
                                     } else if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment) {
                                         cancelRemoveLink = DataTablesUtility.getCancelRemoveLink();
+                                    } else if (row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Lease ||
+                                            row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Easement ||
+                                            row.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Injunction) {
+                                        cancelRemoveLink = DataTablesUtility.getCancelTerminateLink();
                                     } else {
                                         cancelRemoveLink = DataTablesUtility.getCancelWithdrawLink();
                                     }
@@ -560,6 +685,8 @@ PropertyCtrl.showHideAddRightButton = function () {
     $("#divAddRight").hide();
     if (!isNull(PropertyCtrl.appType) &&
             (PropertyCtrl.appType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.FirstRegistration.toLowerCase() ||
+                    PropertyCtrl.appType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.Split.toLowerCase() ||
+                    PropertyCtrl.appType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.Merge.toLowerCase() ||
                     PropertyCtrl.appType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.Registration.toLowerCase())) {
         if (PropertyCtrl.getAllowedRightTypes().length > 0) {
             $("#divAddRight").show();
@@ -588,6 +715,28 @@ PropertyCtrl.getActiveRights = function () {
         }
     }
     return result;
+};
+
+PropertyCtrl.getRight = function (id) {
+    var propRights = [];
+    if (PropertyCtrl.tableRights) {
+        PropertyCtrl.tableRights.rows().data().each(function (r) {
+            propRights.push(r);
+        });
+    } else if (PropertyCtrl.prop.rights) {
+        propRights = PropertyCtrl.prop.rights;
+    }
+
+    if (propRights.length < 1) {
+        return [];
+    }
+
+    for (var i = 0; i < propRights.length; i++) {
+        if (propRights[i].id === id) {
+            return propRights[i];
+        }
+    }
+    return null;
 };
 
 PropertyCtrl.getHistoricRights = function () {
@@ -639,6 +788,7 @@ PropertyCtrl.getAllowedRightTypes = function () {
 PropertyCtrl.canTransact = function (rightId) {
     if (PropertyCtrl.allowedRightTypes !== null &&
             (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Rectify ||
+                    PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.ChangeName ||
                     PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer ||
                     PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary ||
                     PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Remove)) {
@@ -829,6 +979,26 @@ PropertyCtrl.varyRight = function (rowSelector) {
     PropertyCtrl.openRight(right, true);
 };
 
+PropertyCtrl.changeName = function (rowSelector) {
+    PropertyCtrl.selectedRightRow = null;
+    // Copy right
+    var right = JSON.parse(JSON.stringify(PropertyCtrl.tableRights.row(rowSelector).data()));
+    // Reset parent right properties and set parent id
+    right.parentId = right.id;
+    right.id = null;
+    right.folioNumber = null;
+    right.regDate = null;
+    if (PropertyCtrl.app) {
+        right.applicationId = PropertyCtrl.app.id;
+    }
+    right.version = 0;
+    right.statusCode = Global.STATUS.pending;
+    right.description = null;
+    right.logs = null;
+
+    PropertyCtrl.openRight(right, true);
+};
+
 PropertyCtrl.rectifyRight = function (rowSelector) {
     PropertyCtrl.selectedRightRow = null;
     // Copy right
@@ -891,11 +1061,18 @@ PropertyCtrl.openRight = function (right, forEdit) {
     PropertyCtrl.selectedRight = right;
     PropertyCtrl.setTile(right);
     var allowRightholdersEditing = false;
+    var isChangeOfName = false;
+
+    if (!isNull(PropertyCtrl.app) && PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.ChangeName) {
+        isChangeOfName = true;
+    }
 
     // Customize toolbar
     if (forEdit) {
         $("#btnSaveRight").show();
         if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.FirstRegistration ||
+                PropertyCtrl.appType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.Split ||
+                PropertyCtrl.appType.transactionTypeCode.toLowerCase() === RefDataDao.TRANSACTION_TYPE_CODES.Merge ||
                 PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Registration ||
                 PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Rectify ||
                 PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer ||
@@ -903,8 +1080,14 @@ PropertyCtrl.openRight = function (right, forEdit) {
                         right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage)) {
             allowRightholdersEditing = true;
         }
+
+        // Disable editing if transaction is change of name
+        if (isChangeOfName) {
+            forEdit = false;
+        }
     } else {
         $("#btnSaveRight").hide();
+        isChangeOfName = false;
     }
 
     var rightholders = [];
@@ -969,34 +1152,38 @@ PropertyCtrl.openRight = function (right, forEdit) {
         }, true, true);
     }
 
+    var parentParties = PropertyCtrl.getParentRightholders(right);
+
     if (isNull(PropertyCtrl.LegalEntities)) {
         loadingRight += 1;
         PropertyCtrl.LegalEntities = new Controls.LegalEntities(
                 "leRightholders", "divRightholderLegalEntity",
-                {legalEntities: rightholders, editable: allowRightholdersEditing, app: PropertyCtrl.app}
+                {legalEntities: rightholders, parentLegalEntities: parentParties,
+                    editable: allowRightholdersEditing, app: PropertyCtrl.app, isChangeOfName: isChangeOfName}
         );
         PropertyCtrl.LegalEntities.init(function () {
             loadingRight -= 1;
             showRight();
         });
     } else {
-        PropertyCtrl.LegalEntities.setEditable(allowRightholdersEditing);
-        PropertyCtrl.LegalEntities.setLegalEntities(rightholders);
+        PropertyCtrl.LegalEntities.reInit({legalEntities: rightholders, parentLegalEntities: parentParties,
+            editable: allowRightholdersEditing, isChangeOfName: isChangeOfName});
     }
 
     if (isNull(PropertyCtrl.Persons)) {
         loadingRight += 1;
         PropertyCtrl.Persons = new Controls.Persons(
                 "personRightholders", "divRightholderPerson",
-                {persons: rightholders, editable: allowRightholdersEditing, app: PropertyCtrl.app, isOwnership: isOwnership}
+                {persons: rightholders, parentPersons: parentParties, editable: allowRightholdersEditing,
+                    app: PropertyCtrl.app, isOwnership: isOwnership, isChangeOfName: isChangeOfName}
         );
         PropertyCtrl.Persons.init(function () {
             loadingRight -= 1;
             showRight();
         });
     } else {
-        PropertyCtrl.Persons.setEditable(allowRightholdersEditing);
-        PropertyCtrl.Persons.setPersons(rightholders);
+        PropertyCtrl.Persons.reInit({persons: rightholders, parentPersons: parentParties,
+            editable: allowRightholdersEditing, isOwnership: isOwnership, isChangeOfName: isChangeOfName});
     }
 
     if (isNull(PropertyCtrl.RightDocs)) {
@@ -1187,7 +1374,7 @@ PropertyCtrl.openRight = function (right, forEdit) {
 
         PropertyCtrl.showPropPanel(false);
 
-        if (forEdit) {
+        if (forEdit || isChangeOfName) {
             $("#rightDiv .glyphicon-required").show();
             $("#rightDiv .form-control").show();
             $("#rightDiv .input-group").show();
@@ -1200,9 +1387,9 @@ PropertyCtrl.openRight = function (right, forEdit) {
         }
 
         // Enable disable based on transaction type
-        if (forEdit) {
+        if (forEdit || isChangeOfName) {
             if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Transfer ||
-                    PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary) {
+                    PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.Vary || isChangeOfName) {
                 $("#tabRightMain .form-control").prop('disabled', true);
 
                 $("#txtFolioNumber").prop('disabled', false);
@@ -1230,6 +1417,29 @@ PropertyCtrl.openRight = function (right, forEdit) {
             if (forEdit && allowRightholdersEditing) {
                 $("#cbxOccupancyType").show();
                 $("#lblOccupancyType").hide();
+
+                // Select administrator type of right if application is transmission by administrator
+                if (PropertyCtrl.appType.code === RefDataDao.APP_TYPE_CODES.CCROTransAdmin) {
+                    $("#cbxOccupancyType").prop('disabled', true);
+                    if (isNullOrEmpty(right.occupancyTypeCode)) {
+                        $("#cbxOccupancyType").val(RefDataDao.OCCUPANCY_TYPE_CODES.Probate);
+                        PropertyCtrl.occupancySelected();
+                        //PropertyCtrl.Persons.copyFromApp();
+
+                        // Add deceased person information
+                        if (!isNullOrEmpty(PropertyCtrl.prop.rights)) {
+                            for (var i = 0; i < PropertyCtrl.prop.rights.length; i++) {
+                                if (PropertyCtrl.prop.rights[i].statusCode === Global.STATUS.current &&
+                                        !isNullOrEmpty(PropertyCtrl.prop.rights[i].rightholders)) {
+                                    $("#txtDeceasedFirstName").val(PropertyCtrl.prop.rights[i].rightholders[0].party.name1);
+                                    $("#txtDeceasedMiddleName").val(PropertyCtrl.prop.rights[i].rightholders[0].party.name3);
+                                    $("#txtDeceasedLastName").val(PropertyCtrl.prop.rights[i].rightholders[0].party.name2);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 $("#cbxOccupancyType").hide();
                 $("#lblOccupancyType").show();
@@ -1249,6 +1459,14 @@ PropertyCtrl.openRight = function (right, forEdit) {
             $("#divDealAmount").show();
             $("#divLegalEntity").show();
             $("#divPerson").hide();
+        } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Lease) {
+            $("#divDuration").show();
+            if (forEdit) {
+                $("#reqDuration").show();
+            }
+            $("#divDealAmount").show();
+            $("#divLegalEntity").show();
+            $("#divPerson").show();
         } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Caveat) {
             $("#divEndDate").show();
             $("#divLegalEntity").show();
@@ -1259,6 +1477,14 @@ PropertyCtrl.openRight = function (right, forEdit) {
             if (forEdit) {
                 $("#reqDuration").show();
             }
+            $("#divLegalEntity").show();
+            $("#divPerson").show();
+        } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Easement ||
+                right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Injunction ||
+                right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Charge) {
+            $("#divLegalEntity").show();
+            $("#divPerson").show();
+        } else if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Deposit) {
             $("#divLegalEntity").show();
             $("#divPerson").show();
         }
@@ -1293,6 +1519,29 @@ PropertyCtrl.openRight = function (right, forEdit) {
     }
 
     showRight();
+};
+
+PropertyCtrl.getParentRightholders = function (right) {
+    var rh = [];
+    if (isNullOrEmpty(right) || isNullOrEmpty(right.parentId)) {
+        return rh;
+    }
+
+    // Get parent right
+    var parentRight = PropertyCtrl.getRight(right.parentId);
+
+    if (isNullOrEmpty(parentRight) || isNull(parentRight.rightholders)) {
+        return rh;
+    }
+
+    for (var i = 0; i < parentRight.rightholders.length; i++) {
+        // Add owner type related fields
+        parentRight.rightholders[i].party.ownerTypeCode = parentRight.rightholders[i].ownerTypeCode;
+        parentRight.rightholders[i].party.shareSize = parentRight.rightholders[i].shareSize;
+        rh.push(parentRight.rightholders[i].party);
+    }
+
+    return rh;
 };
 
 PropertyCtrl.showPropPanel = function (show) {
@@ -1422,7 +1671,9 @@ PropertyCtrl.prepareRight = function () {
     result.documents = makeVersionedList(right.documents, PropertyCtrl.RightDocs.getDocuments(), "document");
 
     if (RefDataDao.RIGHT_TYPE_CODES.Ccro === PropertyCtrl.selectedRight.rightTypeCode) {
-        setStringObjectProperty(right, result, "occupancyTypeCode", "cbxOccupancyType");
+        if (!isNullOrEmpty($("#cbxOccupancyType").val())) {
+            result.occupancyTypeCode = $("#cbxOccupancyType").val();
+        }
 
         // Set deceased person to null if selected occupancy type is not probate
         if (result.occupancyTypeCode !== RefDataDao.OCCUPANCY_TYPE_CODES.Probate) {
@@ -1632,7 +1883,8 @@ PropertyCtrl.validateRight = function (right, showErrors) {
         }
     } else {
         if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Mortgage ||
-                right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment) {
+                right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Assignment ||
+                right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Lease) {
             if (isNullOrEmpty($("#txtStartDate").val())) {
                 errors.push($.i18n("err-right-start-date-empty"));
             }
@@ -1653,9 +1905,42 @@ PropertyCtrl.validateRight = function (right, showErrors) {
             }
         }
 
+        if (right.rightTypeCode === RefDataDao.RIGHT_TYPE_CODES.Deposit) {
+            if (isNullOrEmpty($("#txtStartDate").val())) {
+                errors.push($.i18n("err-right-start-date-empty"));
+            }
+        }
+
         // Require rightholders for other types of right
         if ((les === null || les.length < 1) && (persons === null || persons.length < 1)) {
             errors.push($.i18n("err-right-no-rightholders"));
+        }
+    }
+
+    // Check that rightholder name is changed in case of change of name transaction
+    if (PropertyCtrl.appType.transactionTypeCode === RefDataDao.TRANSACTION_TYPE_CODES.ChangeName) {
+        var nameChanged = false;
+        for (var i = 0; i < PropertyCtrl.app.applicants.length; i++) {
+            if (!isNull(persons)) {
+                for (var j = 0; j < persons.length; j++) {
+                    if (PropertyCtrl.app.applicants[i].party.id === persons[j].id) {
+                        nameChanged = true;
+                        break;
+                    }
+                }
+            }
+            if (!isNull(les && !nameChanged)) {
+                for (var j = 0; j < les.length; j++) {
+                    if (PropertyCtrl.app.applicants[i].party.id === les[j].id) {
+                        nameChanged = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!nameChanged) {
+            errors.push($.i18n("err-name-not-changed"));
         }
     }
 
@@ -1687,6 +1972,6 @@ PropertyCtrl.save = function () {
     PropertyCtrl.prop.rights = rights;
     PropertyDao.saveProperty(PropertyCtrl.prop, function (prop) {
         // Redirect
-        window.location.replace(String.format(URLS.EDIT_PROPERTY_WITH_MESSAGE, PropertyCtrl.app.id, PropertyCtrl.MESSAGES.saved));
+        window.location.replace(String.format(URLS.EDIT_PROPERTY_WITH_MESSAGE, PropertyCtrl.app.id, prop.id, PropertyCtrl.MESSAGES.saved));
     });
 };

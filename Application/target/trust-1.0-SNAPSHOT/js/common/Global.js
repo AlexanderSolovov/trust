@@ -393,11 +393,22 @@ function runSafe(func) {
 }
 
 function highlight(selector) {
+    var hasHoverClass = false;
+    
     $(selector).clearQueue().queue(function (next) {
+        hasHoverClass = $(this).closest("table").hasClass("table-hover");
+        if(hasHoverClass){
+            $(this).closest("table").removeClass("table-hover");
+        }
+        
         $(this).addClass("highlight");
         next();
     }).delay(500).queue(function (next) {
         $(this).removeClass("highlight");
+        
+        if(hasHoverClass){
+            $(this).closest("table").addClass("table-hover");
+        }
         next();
     });
 }

@@ -14,6 +14,7 @@ $(function () {
     PropertyDao.URL_SAVE_PARCELS = baseUrl + "saveparcels";
     PropertyDao.URL_SAVE_PROPERTY = baseUrl + "saveproperty";
     PropertyDao.URL_GET_PROPERTY_BY_RIGHT = baseUrl + "getpropertybyright/{0}";
+    PropertyDao.URL_GET_ENVELOPE_BY_APP_PROPERTIES = baseUrl + "getenvelopebyappproperties/{0}";
 });
 
 PropertyDao.Parcel = function () {
@@ -128,6 +129,11 @@ PropertyDao.getParcelsByApplication = function (appId, successAction, failAction
 
 PropertyDao.getCreateParcelsByApplication = function (appId, successAction, failAction, alwaysAction, showErrorAlert) {
     getAjaxData(String.format(PropertyDao.URL_GET_CREATE_PARCELS_BY_APP, String.empty(appId)),
+            successAction, failAction, alwaysAction, showErrorAlert);
+};
+
+PropertyDao.getEnvelopeByAppProperties = function (appId, successAction, failAction, alwaysAction, showErrorAlert) {
+    getAjaxData(String.format(PropertyDao.URL_GET_ENVELOPE_BY_APP_PROPERTIES, String.empty(appId)),
             successAction, failAction, alwaysAction, showErrorAlert);
 };
 

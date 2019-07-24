@@ -31,6 +31,7 @@ ApplicationDao.Application = function () {
         assignee: null,
         assignedOn: null,
         completeDate: null,
+        fee: null,
         comment: null,
         documents: null,
         personApplicants: null,

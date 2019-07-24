@@ -5,22 +5,34 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityResult;
+import javax.persistence.FieldResult;
 import javax.persistence.OneToMany;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
-@Table(name="ref_app_type")
+@Table(name = "ref_app_type")
 @Entity
 public class AppType extends AbstractRefDataEntity {
+
+    public static final String CODE_TRANS_TO_ADMIN = "ccro_trans_admin";
+    public static final String CODE_ASSENT_TO_BEQUEST = "ccro_trans_assent";
+    public static final String CODE_TRANS_TO_SURVIVOR = "ccro_trans_survivor";
+
     @Column(name = "app_type_group_code")
     private String appTypeGroupCode;
-    
+
     @Column(name = "transaction_type_code")
     private String transactionTypeCode;
-    
-    @OneToMany(mappedBy = "appType", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @Transient
     private List<AppTypeRightType> rightTypeCodes;
-    
-    public AppType(){
+
+    @Column
+    private Double fee;
+
+    public AppType() {
         super();
     }
 
@@ -46,5 +58,13 @@ public class AppType extends AbstractRefDataEntity {
 
     public void setRightTypeCodes(List<AppTypeRightType> rightTypeCodes) {
         this.rightTypeCodes = rightTypeCodes;
+    }
+
+    public Double getFee() {
+        return fee;
+    }
+
+    public void setFee(Double fee) {
+        this.fee = fee;
     }
 }

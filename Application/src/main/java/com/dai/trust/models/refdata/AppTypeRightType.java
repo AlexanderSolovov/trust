@@ -25,11 +25,6 @@ public class AppTypeRightType extends AbstractEntity {
     @Column(name = "right_type_code", insertable = false, updatable = false)
     private String rightTypeCode;
     
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "app_type_code", updatable = false, insertable = false, referencedColumnName = "code")
-    private AppType appType;
-    
     public AppTypeRightType() {
         super();
     }
@@ -48,13 +43,5 @@ public class AppTypeRightType extends AbstractEntity {
 
     public void setRightTypeCode(String rightTypeCode) {
         this.rightTypeCode = rightTypeCode;
-    }
-
-    public AppType getAppType() {
-        return appType;
-    }
-
-    public void setAppType(AppType appType) {
-        this.appType = appType;
     }
 }

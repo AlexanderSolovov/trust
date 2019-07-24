@@ -22,8 +22,10 @@ Controls.Persons = function (controlId, targetElementId, options) {
 
     options = options ? options : {};
     var persons = filterParties(options.persons);
+    var parentPersons = filterParties(options.parentPersons);
     var editable = isNull(options.editable) ? true : options.editable;
     var isOwnership = isNull(options.isOwnership) ? false : options.isOwnership;
+    var isChangeOfName = isNull(options.isChangeOfName) ? false : options.isChangeOfName;
     var that = this;
     var table;
     var controlVarId = "__control_persons_" + controlId;
@@ -62,9 +64,9 @@ Controls.Persons = function (controlId, targetElementId, options) {
         }, true, true);
     };
 
-    var loadTable = function loadTable(data) {
+    var loadTable = function loadTable(records) {
         table = $('#' + controlVarId).DataTable({
-            data: data,
+            data: records,
             "paging": false,
             "info": false,
             "sort": false,
@@ -88,6 +90,39 @@ Controls.Persons = function (controlId, targetElementId, options) {
                             return String.format(DataTablesUtility.getDeleteLink(), controlVarId + ".deletePerson($(this).parents('tr'));return false;") +
                                     String.format(DataTablesUtility.getEditLink(), controlVarId + ".showPersonDialog($(this).parents('tr'), true);return false;") +
                                     " " + data;
+                        } else if (isChangeOfName) {
+                            // Check list of parent parties to show/hide links. 
+                            // If party has same id as parent, it can be changed to new person from application. 
+                            // Otherwise, if id is not matching it means person is already changed and revert link should be shown
+                            // If at least one party is already changed, remaining parties should staty unchanged
+                            var personChangedId = null;
+
+                            for (var i = 0; i < persons.length; i++) {
+                                personChangedId = persons[i].id;
+                                for (var j = 0; j < parentPersons.length; j++) {
+                                    if (parentPersons[j].id === persons[i].id) {
+                                        personChangedId = null;
+                                        break;
+                                    }
+                                }
+                                if (!isNull(personChangedId)) {
+                                    break;
+                                }
+                            }
+
+                            // There is person who already changed for new owner
+                            if (!isNull(personChangedId)) {
+                                // If it's current person, return revert link
+                                if (row.id === personChangedId) {
+                                    return String.format(DataTablesUtility.getRevertLink(), controlVarId + ".revertPerson($(this).parents('tr'));return false;") + "<br> " + data;
+                                } else {
+                                    // Return only person name
+                                    return data;
+                                }
+                            } else {
+                                // Allow changes for all owners
+                                return String.format(DataTablesUtility.getChangeLink(), controlVarId + ".changePerson($(this).parents('tr'));return false;") + "<br> " + data;
+                            }
                         } else {
                             return String.format(DataTablesUtility.getViewLink(), controlVarId + ".showPersonDialog($(this).parents('tr'), false);return false;", data);
                         }
@@ -167,24 +202,36 @@ Controls.Persons = function (controlId, targetElementId, options) {
         }
     };
 
-    this.setPersons = function (list) {
+    this.reInit = function (options) {
         if (!loaded) {
             alertWarningMessage($.i18n("err-comp-loading"));
             return;
         }
-        table.clear();
-        persons = filterParties(list);
-        table.rows.add(persons);
-        table.draw();
-    };
+        persons = filterParties(options.persons);
+        parentPersons = filterParties(options.parentPersons);
+        if (!isNull(options.editable)) {
+            editable = options.editable;
+        }
+        if (!isNull(options.isOwnership)) {
+            isOwnership = options.isOwnership;
+        }
+        if (!isNull(options.isChangeOfName)) {
+            isChangeOfName = options.isChangeOfName;
+        }
 
-    this.setEditable = function (allowEdit) {
-        editable = allowEdit;
-        if (allowEdit) {
+        if (editable) {
             $("#" + controlVarId + "_wrapper div.tableToolbar").show();
         } else {
             $("#" + controlVarId + "_wrapper div.tableToolbar").hide();
         }
+
+        table.destroy();
+        $('#' + controlVarId).empty();
+        loadTable(persons);
+    };
+
+    this.setIsChangeOfName = function (isNameChange) {
+        isChangeOfName = isNameChange;
         table.draw();
     };
 
@@ -209,8 +256,87 @@ Controls.Persons = function (controlId, targetElementId, options) {
                         if (isOwnership) {
                             //party.ownerTypeCode = RefDataDao.OWNER_TYPE_CODES.Owner;
                         }
-                        highlight(table.row.add(party).draw().node());
+                        var row = table.row.add(party).node();
+                        table.draw();
+                        highlight(row);
                     }
+                }
+            }
+        }
+    };
+
+    this.changePerson = function (rowSelector) {
+        if (!isNull(options.app.applicants)) {
+            for (var i = 0; i < options.app.applicants.length; i++) {
+                var party = options.app.applicants[i].party;
+
+                if (party.isPrivate) {
+                    // Check if it's already exists
+                    var found = false;
+                    table.rows().data().each(function (p) {
+                        if (String.empty(p.id) === party.id) {
+                            found = true;
+                        }
+                    });
+
+                    if (!found) {
+                        // Copy role and share from current person to the applicant
+                        var personToRemove = table.row(rowSelector).data();
+                        party.ownerTypeCode = personToRemove.ownerTypeCode;
+                        party.shareSize = personToRemove.shareSize;
+
+                        // Delete old owner
+                        for (var i = 0; i < persons.length; i++) {
+                            if (persons[i].id === personToRemove.id) {
+                                persons.splice(i, 1);
+                                break;
+                            }
+                        }
+                        table.row(rowSelector).remove();
+
+                        // Add applicant
+                        persons.push(party);
+                        var row = table.row.add(party).node();
+                        table.draw();
+                        highlight(row);
+                        break;
+                    }
+                }
+            }
+        }
+    };
+
+    this.revertPerson = function (rowSelector) {
+        if (!isNull(parentPersons)) {
+            var selectedPerson = table.row(rowSelector).data();
+
+            for (var j = 0; j < parentPersons.length; j++) {
+                var found = false;
+                for (var i = 0; i < persons.length; i++) {
+                    if (parentPersons[j].id === persons[i].id) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found){
+                    // Delete current person
+                    for (var i = 0; i < persons.length; i++) {
+                        if (persons[i].id === selectedPerson.id) {
+                            persons.splice(i, 1);
+                            break;
+                        }
+                    }
+                    
+                    table.row(rowSelector).remove();
+
+                    // Revert to parent person
+                    persons.push(parentPersons[j]);
+                    var row = table.row.add(parentPersons[j]).node();
+                    table.draw();
+                    highlight(row);
+
+                    break;
                 }
             }
         }
@@ -225,12 +351,12 @@ Controls.Persons = function (controlId, targetElementId, options) {
         }
 
         var person = isNull(selectedRow) ? null : selectedRow.data();
-        
+
         if (forEdit && (person === null || person.editable || isOwnership)) {
             $("#" + controlVarId + "_personview").hide();
             $("#" + controlVarId + "_person").show();
             if (isNull(personControl)) {
-                personControl = new Controls.Person(controlVarId + "_person", controlVarId + "_person", {person: person, isOwnership: isOwnership});
+                personControl = new Controls.Person(controlVarId + "_person", controlVarId + "_person", {person: person, isOwnership: isOwnership, isChangeOfName: isChangeOfName});
                 personControl.init();
             } else {
                 personControl.setPerson(person);
@@ -269,7 +395,8 @@ Controls.Persons = function (controlId, targetElementId, options) {
             // Get full record of person and add to the list
             $("#" + controlVarId + "_SearchDialog").modal('hide');
             PartyDao.getParty(personSearchResult.id, function (p) {
-                var row = table.row.add(p).draw().node();
+                var row = table.row.add(p).node();
+                table.draw();
                 highlight(row);
             });
         }
@@ -297,11 +424,14 @@ Controls.Persons = function (controlId, targetElementId, options) {
 
             // if selected row is null, then add row
             if (selectedRow === null) {
-                currentRow = table.row.add(person).draw().node();
+                currentRow = table.row.add(person).node();
             } else {
                 // Update row
-                currentRow = selectedRow.data(person).draw().node();
+                currentRow = selectedRow.data(person).node();
             }
+
+            table.draw();
+
             // Animate changed/added row
             highlight(currentRow);
         }, true);
@@ -311,7 +441,8 @@ Controls.Persons = function (controlId, targetElementId, options) {
         if (!isNull(rowSelector)) {
             alertConfirm($.i18n("gen-confirm-delete"), function () {
                 // Remove from table 
-                table.row(rowSelector).remove().draw();
+                table.row(rowSelector).remove();
+                table.draw();
             });
         }
     };

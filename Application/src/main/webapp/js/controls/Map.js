@@ -83,6 +83,9 @@ Controls.Map = function (controlId, targetElementId, options) {
     // Initial zoom, required for proper zooming when rendering a map
     var initialZoomBounds = null;
 
+    // Calculated envelope for properties (parcels) attached to the applicaiton
+    var appPropsEnvelope = null;
+
     // Snapping layers
     var snappingLayers = [];
 
@@ -165,7 +168,18 @@ Controls.Map = function (controlId, targetElementId, options) {
                         parcels = parcelsList;
                     }
                 }, null, function () {
-                    postInit();
+                    if ((isNull(parcels) || parcels.length < 1) &&
+                            (app.appTypeCode === RefDataDao.APP_TYPE_CODES.CCROSplit ||
+                                    app.appTypeCode === RefDataDao.APP_TYPE_CODES.CCROMerge)) {
+                        // Get properties envelope from the app
+                        PropertyDao.getEnvelopeByAppProperties(app.id, function (env) {
+                            appPropsEnvelope = env;
+                        }, null, function () {
+                            postInit();
+                        });
+                    } else {
+                        postInit();
+                    }
                 });
             } else if (!isNull(parcelId)) {
                 PropertyDao.getParcel(parcelId, function (parcel) {
@@ -213,6 +227,10 @@ Controls.Map = function (controlId, targetElementId, options) {
                     parcels[i].geom = wkt.write(clone);
                 }
                 initialZoomBounds = layerSelectedParcels.getDataExtent();
+            } else if (!isNullOrEmpty(appPropsEnvelope)) {
+                var env = wkt.read(appPropsEnvelope);
+                env.geometry.transform(sourceCrs, destCrs);
+                initialZoomBounds = env.geometry.getBounds();
             }
         }
 
@@ -939,7 +957,7 @@ Controls.Map = function (controlId, targetElementId, options) {
                 return false;
             }
             // Check application type
-            if (count > 1) {
+            if (app.appTypeCode !== RefDataDao.APP_TYPE_CODES.CCROSplit && count > 1) {
                 if (showErrors) {
                     alertErrorMessage($.i18n("err-parcel-many-parcels"));
                 }
@@ -1241,7 +1259,7 @@ Controls.Map = function (controlId, targetElementId, options) {
             layerSelectedParcels.addFeatures(parcel);
 
             // Zoom to boundary
-            map.zoomToExtent(parcel.geometry.getBounds(), closest=true);
+            map.zoomToExtent(parcel.geometry.getBounds(), closest = true);
 
             // Show attributes popup
             $("#" + controlVarId + "_ImportPointsDialog").modal('hide');
